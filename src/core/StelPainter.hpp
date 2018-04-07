@@ -402,6 +402,8 @@ private:
 		int vertex;
 		int texColor;
 		int texture;
+		int bayerPattern;
+		int rgbMaxValue;
 	};
 	static TexturesShaderVars texturesShaderVars;
 	static QOpenGLShaderProgram* texturesColorShaderProgram;
@@ -411,9 +413,12 @@ private:
 		int vertex;
 		int color;
 		int texture;
+		int bayerPattern;
+		int rgbMaxValue;
 	};
 	static TexturesColorShaderVars texturesColorShaderVars;
 
+	GLuint bayerPatternTex=0;
 
 	//! The descriptor for the current opengl vertex array
 	ArrayDesc vertexArray;
