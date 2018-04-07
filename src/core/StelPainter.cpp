@@ -2027,12 +2027,13 @@ void StelPainter::initGLShaders()
 
 	QOpenGLShader fshader2(QOpenGLShader::Fragment);
 	const char *fsrc2 =
+#include "dither.glsl"
 		"varying mediump vec2 texc;\n"
 		"uniform sampler2D tex;\n"
 		"uniform mediump vec4 texColor;\n"
 		"void main(void)\n"
 		"{\n"
-		"    gl_FragColor = texture2D(tex, texc)*texColor;\n"
+		"    gl_FragColor = dither(texture2D(tex, texc)*texColor);\n"
 		"}\n";
 	fshader2.compileSourceCode(fsrc2);
 	if (!fshader2.log().isEmpty()) { qWarning() << "StelPainter: Warnings while compiling fshader2: " << fshader2.log(); }
@@ -2067,12 +2068,13 @@ void StelPainter::initGLShaders()
 
 	QOpenGLShader fshader4(QOpenGLShader::Fragment);
 	const char *fsrc4 =
+#include "dither.glsl"
 		"varying mediump vec2 texc;\n"
 		"varying mediump vec4 outColor;\n"
 		"uniform sampler2D tex;\n"
 		"void main(void)\n"
 		"{\n"
-		"    gl_FragColor = texture2D(tex, texc)*outColor;\n"
+		"    gl_FragColor = dither(texture2D(tex, texc)*outColor);\n"
 		"}\n";
 	fshader4.compileSourceCode(fsrc4);
 	if (!fshader4.log().isEmpty()) { qWarning() << "StelPainter: Warnings while compiling fshader4: " << fshader4.log(); }
