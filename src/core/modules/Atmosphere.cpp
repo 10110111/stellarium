@@ -58,10 +58,11 @@ Atmosphere::Atmosphere(void)
 	}
 	QOpenGLShader fShader(QOpenGLShader::Fragment);
 	if (!fShader.compileSourceCode(
+#include "dither.glsl"
 					"varying mediump vec3 resultSkyColor;\n"
 					"void main()\n"
 					"{\n"
-					 "   gl_FragColor = vec4(resultSkyColor, 1.);\n"
+					 "   gl_FragColor = vec4(dither(resultSkyColor), 1.);\n"
 					 "}"))
 	{
 		qFatal("Error while compiling atmosphere fragment shader: %s", fShader.log().toLatin1().constData());
