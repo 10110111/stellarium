@@ -402,6 +402,7 @@ private:
 		int vertex;
 		int texColor;
 		int texture;
+		int randOffset;
 		int bayerPattern;
 		int rgbMaxValue;
 	};
@@ -413,6 +414,7 @@ private:
 		int vertex;
 		int color;
 		int texture;
+		int randOffset;
 		int bayerPattern;
 		int rgbMaxValue;
 	};

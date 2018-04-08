@@ -2048,6 +2048,7 @@ void StelPainter::initGLShaders()
 	texturesShaderVars.texColor = texturesShaderProgram->uniformLocation("texColor");
 	texturesShaderVars.texture = texturesShaderProgram->uniformLocation("tex");
 	texturesShaderVars.bayerPattern = texturesShaderProgram->uniformLocation("bayerPattern");
+	texturesShaderVars.randOffset = texturesShaderProgram->uniformLocation("randOffset");
 	texturesShaderVars.rgbMaxValue = texturesShaderProgram->uniformLocation("rgbMaxValue");
 
 	// Texture shader program + interpolated color per vertex
@@ -2091,6 +2092,7 @@ void StelPainter::initGLShaders()
 	texturesColorShaderVars.color = texturesColorShaderProgram->attributeLocation("color");
 	texturesColorShaderVars.texture = texturesColorShaderProgram->uniformLocation("tex");
 	texturesColorShaderVars.bayerPattern = texturesColorShaderProgram->uniformLocation("bayerPattern");
+	texturesColorShaderVars.randOffset = texturesColorShaderProgram->uniformLocation("randOffset");
 	texturesColorShaderVars.rgbMaxValue = texturesColorShaderProgram->uniformLocation("rgbMaxValue");
 }
 
@@ -2191,6 +2193,7 @@ void StelPainter::drawFromArray(DrawingMode mode, int count, int offset, bool do
 		glBindTexture(GL_TEXTURE_2D, bayerPatternTex);
 		pr->setUniformValue(texturesShaderVars.bayerPattern, 1);
 		pr->setUniformValue(texturesShaderVars.rgbMaxValue, rgbMaxValue[0], rgbMaxValue[1], rgbMaxValue[2]);
+		pr->setUniformValue(texturesShaderVars.randOffset, double(rand()%16384), double(rand()%16384));
 	}
 	else if (texCoordArray.enabled && colorArray.enabled && !normalArray.enabled)
 	{
@@ -2210,6 +2213,7 @@ void StelPainter::drawFromArray(DrawingMode mode, int count, int offset, bool do
 		glBindTexture(GL_TEXTURE_2D, bayerPatternTex);
 		pr->setUniformValue(texturesColorShaderVars.bayerPattern, 1);
 		pr->setUniformValue(texturesColorShaderVars.rgbMaxValue, rgbMaxValue[0], rgbMaxValue[1], rgbMaxValue[2]);
+		pr->setUniformValue(texturesColorShaderVars.randOffset, double(rand()%16384), double(rand()%16384));
 	}
 	else if (!texCoordArray.enabled && colorArray.enabled && !normalArray.enabled)
 	{

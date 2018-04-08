@@ -78,6 +78,7 @@ Atmosphere::Atmosphere(void)
 
 	atmoShaderProgram->bind();
 	shaderAttribLocations.bayerPattern = atmoShaderProgram->uniformLocation("bayerPattern");
+	shaderAttribLocations.randOffset = atmoShaderProgram->uniformLocation("randOffset");
 	shaderAttribLocations.rgbMaxValue = atmoShaderProgram->uniformLocation("rgbMaxValue");
 	shaderAttribLocations.alphaWaOverAlphaDa = atmoShaderProgram->uniformLocation("alphaWaOverAlphaDa");
 	shaderAttribLocations.oneOverGamma = atmoShaderProgram->uniformLocation("oneOverGamma");
@@ -393,6 +394,7 @@ void Atmosphere::draw(StelCore* core)
 		bayerPatternTex=makeBayerPatternTexture();
 	gl->glBindTexture(GL_TEXTURE_2D, bayerPatternTex);
 	atmoShaderProgram->setUniformValue(shaderAttribLocations.bayerPattern, 1);
+	atmoShaderProgram->setUniformValue(shaderAttribLocations.randOffset, double(rand()%16384), double(rand()%16384));
 	
 	colorGridBuffer.bind();
 	atmoShaderProgram->setAttributeBuffer(shaderAttribLocations.skyColor, GL_FLOAT, 0, 4, 0);

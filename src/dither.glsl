@@ -1,8 +1,9 @@
 R"(uniform vec3 rgbMaxValue;
 uniform sampler2D bayerPattern;
+uniform vec2 randOffset;
 vec3 dither(vec3 c)
 {
-    float bayer=texture2D(bayerPattern,gl_FragCoord.xy/8.).r;
+    float bayer=texture2D(bayerPattern,(gl_FragCoord.xy+randOffset)/8.).r;
 
     vec3 rgb=c*rgbMaxValue;
     vec3 head=floor(rgb);

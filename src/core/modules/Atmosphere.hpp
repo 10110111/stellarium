@@ -104,6 +104,7 @@ private:
 	class QOpenGLShaderProgram* atmoShaderProgram;
 	struct {
 		int bayerPattern;
+		int randOffset;
 		int rgbMaxValue;
 		int alphaWaOverAlphaDa;
 		int oneOverGamma;
