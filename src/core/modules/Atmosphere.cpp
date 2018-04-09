@@ -25,6 +25,7 @@
 #include "StelCore.hpp"
 #include "StelPainter.hpp"
 #include "StelFileMgr.hpp"
+#include "Dithering.hpp"
 
 #include <QDebug>
 #include <QSettings>
@@ -58,7 +59,7 @@ Atmosphere::Atmosphere(void)
 	}
 	QOpenGLShader fShader(QOpenGLShader::Fragment);
 	if (!fShader.compileSourceCode(
-#include "dither.glsl"
+                    makeDitheringShader()+
 					"varying mediump vec3 resultSkyColor;\n"
 					"void main()\n"
 					"{\n"
@@ -372,26 +373,13 @@ void Atmosphere::draw(StelCore* core)
 	atmoShaderProgram->setUniformValue(shaderAttribLocations.projectionMatrix,
 		QMatrix4x4(m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]));
 
-	const auto rgbMaxValue=Vec3f(255,255,255); // TODO: to the options
+	const auto rgbMaxValue=calcRGBMaxValue(sPainter.getDitheringMode());
 	atmoShaderProgram->setUniformValue(shaderAttribLocations.rgbMaxValue, rgbMaxValue[0], rgbMaxValue[1], rgbMaxValue[2]);
-	const auto makeBayerPatternTexture=[&sPainter]{
-		GLuint tex;
-		const auto& gl=sPainter.glFuncs();
-		gl->glGenTextures(1, &tex);
-		gl->glBindTexture(GL_TEXTURE_2D, tex);
-		gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-#include "bayer-pattern.hpp"
-		gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 8, 8, 0, GL_RED, GL_FLOAT, bayerPattern);
-		return tex;
-	};
-	const auto& gl=sPainter.glFuncs();
-	gl->glActiveTexture(GL_TEXTURE1);
+	auto& gl=*sPainter.glFuncs();
+	gl.glActiveTexture(GL_TEXTURE1);
 	if(!bayerPatternTex)
-		bayerPatternTex=makeBayerPatternTexture();
-	gl->glBindTexture(GL_TEXTURE_2D, bayerPatternTex);
+		bayerPatternTex=makeBayerPatternTexture(*sPainter.glFuncs());
+	gl.glBindTexture(GL_TEXTURE_2D, bayerPatternTex);
 	atmoShaderProgram->setUniformValue(shaderAttribLocations.bayerPattern, 1);
 	
 	colorGridBuffer.bind();

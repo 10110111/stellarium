@@ -24,6 +24,7 @@
 #include "StelProjector.hpp"
 #include "StelProjectorClasses.hpp"
 #include "StelUtils.hpp"
+#include "Dithering.hpp"
 
 #include <QDebug>
 #include <QString>
@@ -136,6 +137,9 @@ StelPainter::StelPainter(const StelProjectorP& proj) : QOpenGLFunctions(QOpenGLC
 	glStencilMask(0x11111111);
 	glState.apply(); //apply default OpenGL state
 	setProjector(proj);
+
+    QSettings*const conf = StelApp::getInstance().getSettings();
+	ditheringMode = conf->value("video/dithering_mode",QVariant::fromValue(DitheringMode::NoDithering)).value<DitheringMode>();
 }
 
 void StelPainter::setProjector(const StelProjectorP& p)
@@ -2026,8 +2030,8 @@ void StelPainter::initGLShaders()
 	if (!vshader2.log().isEmpty()) { qWarning() << "StelPainter: Warnings while compiling vshader2: " << vshader2.log(); }
 
 	QOpenGLShader fshader2(QOpenGLShader::Fragment);
-	const char *fsrc2 =
-#include "dither.glsl"
+	const auto fsrc2 =
+        makeDitheringShader()+
 		"varying mediump vec2 texc;\n"
 		"uniform sampler2D tex;\n"
 		"uniform mediump vec4 texColor;\n"
@@ -2069,8 +2073,8 @@ void StelPainter::initGLShaders()
 	if (!vshader4.log().isEmpty()) { qWarning() << "StelPainter: Warnings while compiling vshader4: " << vshader4.log(); }
 
 	QOpenGLShader fshader4(QOpenGLShader::Fragment);
-	const char *fsrc4 =
-#include "dither.glsl"
+	const auto fsrc4 =
+        makeDitheringShader()+
 		"varying mediump vec2 texc;\n"
 		"varying mediump vec4 outColor;\n"
 		"uniform sampler2D tex;\n"
@@ -2152,19 +2156,7 @@ void StelPainter::drawFromArray(DrawingMode mode, int count, int offset, bool do
 	const Mat4f& m = getProjector()->getProjectionMatrix();
 	const QMatrix4x4 qMat(m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
 
-	const auto makeBayerPatternTexture=[this]{
-		GLuint tex;
-		glGenTextures(1, &tex);
-		glBindTexture(GL_TEXTURE_2D, tex);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-#include "bayer-pattern.hpp"
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 8, 8, 0, GL_RED, GL_FLOAT, bayerPattern);
-		return tex;
-	};
-	const auto rgbMaxValue=Vec3f(255,255,255); // TODO: to the options
+	const auto rgbMaxValue=calcRGBMaxValue(ditheringMode);
 	if (!texCoordArray.enabled && !colorArray.enabled && !normalArray.enabled)
 	{
 		pr = basicShaderProgram;
@@ -2187,7 +2179,7 @@ void StelPainter::drawFromArray(DrawingMode mode, int count, int offset, bool do
 		//pr->setUniformValue(texturesShaderVars.texture, 0);    // use texture unit 0
 		glActiveTexture(GL_TEXTURE1);
 		if(!bayerPatternTex)
-			bayerPatternTex=makeBayerPatternTexture();
+			bayerPatternTex=makeBayerPatternTexture(*this);
 		glBindTexture(GL_TEXTURE_2D, bayerPatternTex);
 		pr->setUniformValue(texturesShaderVars.bayerPattern, 1);
 		pr->setUniformValue(texturesShaderVars.rgbMaxValue, rgbMaxValue[0], rgbMaxValue[1], rgbMaxValue[2]);
@@ -2206,7 +2198,7 @@ void StelPainter::drawFromArray(DrawingMode mode, int count, int offset, bool do
 		//pr->setUniformValue(texturesShaderVars.texture, 0);    // use texture unit 0
 		glActiveTexture(GL_TEXTURE1);
 		if(!bayerPatternTex)
-			bayerPatternTex=makeBayerPatternTexture();
+			bayerPatternTex=makeBayerPatternTexture(*this);
 		glBindTexture(GL_TEXTURE_2D, bayerPatternTex);
 		pr->setUniformValue(texturesColorShaderVars.bayerPattern, 1);
 		pr->setUniformValue(texturesColorShaderVars.rgbMaxValue, rgbMaxValue[0], rgbMaxValue[1], rgbMaxValue[2]);
