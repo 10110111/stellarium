@@ -65,7 +65,7 @@ public:
 
     enum class DitheringMode
     {
-        NoDithering         = 0,        //!< Dithering disabled, will leave the infamous color bands
+        Disabled            = 0,        //!< Dithering disabled, will leave the infamous color bands
         Color565            = 565,      //!< 16-bit color (AKA High color) with R5_G6_B5 layout
         Color666            = 666,      //!< TN+film typical color depth in TrueColor mode
         Color888            = 888,      //!< 24-bit color (AKA True color)
@@ -432,6 +432,7 @@ private:
 
 	GLuint bayerPatternTex=0;
     DitheringMode ditheringMode;
+    static DitheringMode parseDitheringMode(QString const& s);
 
 	//! The descriptor for the current opengl vertex array
 	ArrayDesc vertexArray;

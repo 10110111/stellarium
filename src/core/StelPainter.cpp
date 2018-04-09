@@ -111,6 +111,17 @@ bool StelPainter::linkProg(QOpenGLShaderProgram* prog, const QString& name)
 	return ret;
 }
 
+StelPainter::DitheringMode StelPainter::parseDitheringMode(QString const& str)
+{
+    const auto s=str.trimmed().toLower();
+    if(s=="disabled"   ) return DitheringMode::Disabled;
+    if(s=="color565"   ) return DitheringMode::Color565;
+    if(s=="color666"   ) return DitheringMode::Color666;
+    if(s=="color888"   ) return DitheringMode::Color888;
+    if(s=="color101010") return DitheringMode::Color101010;
+    return DitheringMode::Disabled;
+}
+
 StelPainter::StelPainter(const StelProjectorP& proj) : QOpenGLFunctions(QOpenGLContext::currentContext()), glState(this)
 {
 	Q_ASSERT(proj);
@@ -139,7 +150,7 @@ StelPainter::StelPainter(const StelProjectorP& proj) : QOpenGLFunctions(QOpenGLC
 	setProjector(proj);
 
     QSettings*const conf = StelApp::getInstance().getSettings();
-	ditheringMode = conf->value("video/dithering_mode",QVariant::fromValue(DitheringMode::NoDithering)).value<DitheringMode>();
+	ditheringMode = parseDitheringMode(conf->value("video/dithering_mode").toString());
 }
 
 void StelPainter::setProjector(const StelProjectorP& p)
