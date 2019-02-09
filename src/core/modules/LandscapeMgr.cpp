@@ -23,7 +23,8 @@
 #include "StelActionMgr.hpp"
 #include "LandscapeMgr.hpp"
 #include "Landscape.hpp"
-#include "Atmosphere.hpp"
+#include "AtmospherePreetham.hpp"
+#include "AtmosphereBruneton.hpp"
 #include "StelApp.hpp"
 #include "SolarSystem.hpp"
 #include "StelCore.hpp"
@@ -440,7 +441,16 @@ void LandscapeMgr::init()
 	landscapeCache.setMaxCost(conf->value("landscape/cache_size_mb", 100).toInt());
 	qDebug() << "LandscapeMgr: initialized Cache for" << landscapeCache.maxCost() << "MB.";
 
-	atmosphere = new Atmosphere();
+	const auto atmosphereModelConfig=conf->value("landscape/atmosphere_model", "preetham").toString();
+	if(atmosphereModelConfig=="preetham")
+		atmosphere = new AtmospherePreetham();
+	else if(atmosphereModelConfig=="bruneton")
+		atmosphere = new AtmosphereBruneton();
+	else
+	{
+		qWarning() << "Unsupported atmosphere model" << atmosphereModelConfig;
+		atmosphere = new AtmospherePreetham();
+	}
 	defaultLandscapeID = conf->value("init_location/landscape_name").toString();
 	setCurrentLandscapeID(defaultLandscapeID);
 	setFlagLandscape(conf->value("landscape/flag_landscape", conf->value("landscape/flag_ground", true).toBool()).toBool());
