@@ -572,26 +572,6 @@ void AtmosphereBruneton::drawAtmosphere(Mat4f const& projectionMatrix)
 	atmosphereRenderProgram->disableAttributeArray(shaderAttribLocations.skyVertex);
 	atmosphereRenderProgram->disableAttributeArray(shaderAttribLocations.viewRay);
 	atmosphereRenderProgram->release();
-
-	/* XXX: this is only for debugging */
-	// TODO: remove after debugged
-	{
-		GLint viewport[4];
-		gl.glGetIntegerv(GL_VIEWPORT, viewport);
-		const std::uint32_t w=viewport[2], h=viewport[3];
-
-		QVector<GLfloat> data(w*h*4);
-		gl.glBindFramebuffer(GL_FRAMEBUFFER,fbo);
-		gl.glReadPixels(0, 0, w,h, GL_RGBA, GL_FLOAT, data.data());
-		gl.glBindFramebuffer(GL_FRAMEBUFFER,0);
-
-		QFile file("/tmp/stellarium-fbo.f32");
-		if(!file.open(QIODevice::WriteOnly)) throw std::runtime_error("Failed to open debug image file for writing");
-		const std::uint32_t size[2]={w,h};
-		file.write(reinterpret_cast<const char*>(size),sizeof size);
-		if(!file.write(reinterpret_cast<const char*>(data.data()),data.size()*sizeof data[0]) || !file.flush())
-			qWarning() << "Failed to write image to file\n";
-	}
 }
 
 Vec4f AtmosphereBruneton::getMeanPixelValue(int texW, int texH)
