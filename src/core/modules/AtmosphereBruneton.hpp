@@ -44,7 +44,7 @@ public:
 	AtmosphereBruneton();
 	~AtmosphereBruneton();
 	
-	void computeColor(double JD, Vec3d _sunPos, Vec3d moonPos, float moonPhase, float moonMagnitude, StelCore* core,
+	void computeColor(double JD, Vec3d _sunPos, Vec3d moonPos, float moonPhase, float moonMagnitude, float nonExtinctedLunarMagnitude, StelCore* core,
 					  float latitude, float altitude, float temperature, float relativeHumidity) override;
 	void draw(StelCore* core) override;
 	void update(double deltaTime) override {fader.update((int)(deltaTime*1000));}
@@ -120,7 +120,6 @@ private:
 	GLuint textures[TEX_COUNT];
 	GLuint fbo;
 	int fboPrevWidth, fboPrevHeight;
-	Vec3d sunDir;
 	double altitude;
 	GLuint vao, vbo;
 
@@ -133,7 +132,7 @@ private:
 	// mipmap level
 	Vec4f getMeanPixelValue(int texW, int texH);
 	void resizeRenderTarget(int width, int height);
-	void drawAtmosphere(Mat4f const& projectionMatrix);
+	void drawAtmosphere(Mat4f const& projectionMatrix, Vec3d sunDir, float brightness);
 	void updateEclipseFactor(StelCore* core, Vec3d sunPos, Vec3d moonPos);
 	bool separateMieTexture=false;
 

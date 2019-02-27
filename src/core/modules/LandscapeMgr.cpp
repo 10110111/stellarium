@@ -281,6 +281,7 @@ void LandscapeMgr::update(double deltaTime)
 	Vec3d moonPos = ssystem->getMoon()->getAltAzPosAuto(core);
 	float lunarPhaseAngle=ssystem->getMoon()->getPhaseAngle(ssystem->getEarth()->getHeliocentricEclipticPos());
 	float lunarMagnitude=ssystem->getMoon()->getVMagnitudeWithExtinction(core);
+	float lunarNonExtinctedMagnitude=ssystem->getMoon()->getVMagnitude(core);
 	// LP:1673283 no lunar brightening if not on Earth!
 	if (core->getCurrentLocation().planetName != "Earth")
 	{
@@ -288,7 +289,7 @@ void LandscapeMgr::update(double deltaTime)
 		lunarPhaseAngle=0.0f;
 	}
 	// GZ: First parameter in next call is used for particularly earth-bound computations in Schaefer's sky brightness model. Difference DeltaT makes no difference here.
-	atmosphere->computeColor(core->getJDE(), sunPos, moonPos, lunarPhaseAngle, lunarMagnitude,
+	atmosphere->computeColor(core->getJDE(), sunPos, moonPos, lunarPhaseAngle, lunarMagnitude, lunarNonExtinctedMagnitude,
 		core, core->getCurrentLocation().latitude, core->getCurrentLocation().altitude,
 		15.f, 40.f);	// Temperature = 15c, relative humidity = 40%
 

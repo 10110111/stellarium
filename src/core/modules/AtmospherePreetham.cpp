@@ -113,7 +113,7 @@ AtmospherePreetham::~AtmospherePreetham(void)
 	atmoShaderProgram = Q_NULLPTR;
 }
 
-void AtmospherePreetham::computeColor(double JD, Vec3d _sunPos, Vec3d moonPos, float moonPhase, float moonMagnitude,
+void AtmospherePreetham::computeColor(double JD, Vec3d _sunPos, Vec3d moonPos, float moonPhase, float moonMagnitude, float,
 							   StelCore* core, float latitude, float altitude, float temperature, float relativeHumidity)
 {
 	const StelProjectorP prj = core->getProjection(StelCore::FrameAltAz, StelCore::RefractionOff);

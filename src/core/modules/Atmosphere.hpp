@@ -28,7 +28,7 @@ class Atmosphere
 public:
 	virtual ~Atmosphere() = default;
 	//! Compute sky brightness values and average luminance.
-	virtual void computeColor(double JD, Vec3d _sunPos, Vec3d moonPos, float moonPhase, float moonMagnitude, StelCore* core,
+	virtual void computeColor(double JD, Vec3d _sunPos, Vec3d moonPos, float moonPhase, float moonMagnitude, float nonExtinctedLunarMagnitude, StelCore* core,
 	                          float latitude = 45.f, float altitude = 200.f, float temperature = 15.f, float relativeHumidity = 40.f) = 0;
 	virtual void draw(StelCore* core) = 0;
 	virtual void update(double deltaTime) = 0;

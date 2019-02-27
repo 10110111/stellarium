@@ -41,6 +41,7 @@ namespace
 
 constexpr float radiusOfSun=696000.f; // km
 constexpr float radiusOfMoon=1738.f; // km
+constexpr float nonExtinctedSolarMagnitude=-26.74;
 constexpr float kLengthUnitInMeters = 1000.000000;
 
 template<typename T> T sqr(T x) { return x*x; }
@@ -518,7 +519,7 @@ void AtmosphereBruneton::updateEclipseFactor(StelCore* core, Vec3d sunPos, Vec3d
 	// TODO: compute eclipse factor also for Lunar eclipses! (lp:#1471546)
 }
 
-void AtmosphereBruneton::drawAtmosphere(Mat4f const& projectionMatrix)
+void AtmosphereBruneton::drawAtmosphere(Mat4f const& projectionMatrix, Vec3d sunDir, float brightness)
 {
 	atmosphereRenderProgram->bind();
 	atmosphereRenderProgram->setUniformValue(shaderAttribLocations.sunDir, sunDir[0], sunDir[1], sunDir[2]);
@@ -554,9 +555,9 @@ void AtmosphereBruneton::drawAtmosphere(Mat4f const& projectionMatrix)
 	gl.glBindTexture(GL_TEXTURE_3D, textures[MIE_SCATTERING_TEXTURE]);
 	gl.glUniform1i(shaderAttribLocations.singleMieScatteringTexture, 3);
 
-	GLint prevFBO;
-	gl.glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
-	gl.glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	gl.glBlendFunc(GL_CONSTANT_COLOR, GL_ONE);
+	gl.glBlendColor(brightness, brightness, brightness, brightness);
+	gl.glEnable(GL_BLEND);
 
 	indexBuffer.bind();
 	std::size_t shift=0;
@@ -567,7 +568,10 @@ void AtmosphereBruneton::drawAtmosphere(Mat4f const& projectionMatrix)
 	}
 	indexBuffer.release();
 
-	gl.glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
+	// FIXME: maybe restore blending state instead of setting to defaults?
+	gl.glBlendFunc(GL_ONE, GL_ZERO);
+	gl.glBlendColor(0,0,0,0);
+	gl.glDisable(GL_BLEND);
 
 	atmosphereRenderProgram->disableAttributeArray(shaderAttribLocations.skyVertex);
 	atmosphereRenderProgram->disableAttributeArray(shaderAttribLocations.viewRay);
@@ -605,7 +609,7 @@ Vec4f AtmosphereBruneton::getMeanPixelValue(int texW, int texH)
 	return pixel;
 }
 
-void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, float moonPhase, float moonMagnitude,
+void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, float moonPhase, float moonMagnitude, float nonExtinctedLunarMagnitude,
 							   StelCore* core, float latitude, float altitude, float temperature, float relativeHumidity)
 {
 	// The majority of calculations is done in fragment shader, but we still need a nontrivial
@@ -640,7 +644,8 @@ void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, fl
 
 	sunPos.normalize();
 	moonPos.normalize();
-	sunDir=Vec3d(sunPos[0],sunPos[1],sunPos[2]);
+	const auto sunDir=sunPos;
+	const auto moonDir=moonPos;
 	this->altitude=altitude;
 
 	// Calculate the atmosphere RGB for each point of the grid
@@ -654,11 +659,12 @@ void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, fl
 	skyb.setDate(year, month, moonPhase, moonMagnitude);
 
 	// TODO:
-	// 1. Luminance due to the Sun and the Moon
-	// 2. Add airglow from Skybright (put Sun & Moon to nadir to avoid their influence)
-	// 3. Take eclipsed Sun (and Moon?) into account
-	// 4. Add star background luminance (1e-4f)
-	// 5. Add light pollution luminance (fader.getInterstate()*lightPollutionLuminance)
+	// 1. (DONE) Luminance due to the Sun and the Moon
+	// 2. 		 Add airglow from Skybright (put Sun & Moon to nadir to avoid their influence)
+	// 3. 		 Take eclipsed Sun into account.
+	// 4. (DONE) Take eclipsed Moon into account.
+	// 5. 		 Add star background luminance (1e-4f)
+	// 6. 		 Add light pollution luminance (fader.getInterstate()*lightPollutionLuminance)
 
 	for (int i=0; i<(1+gridMaxX)*(1+gridMaxY); ++i)
 	{
@@ -671,7 +677,17 @@ void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, fl
 	viewRayGridBuffer.write(0, &viewRayGrid[0], viewRayGrid.size()*sizeof viewRayGrid[0]);
 	viewRayGridBuffer.release();
 
-	drawAtmosphere(prj->getProjectionMatrix());
+	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
+	GLint prevFBO;
+	gl.glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
+	gl.glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	gl.glClearColor(0,0,0,0);
+	gl.glClear(GL_COLOR_BUFFER_BIT);
+	 drawAtmosphere(prj->getProjectionMatrix(), sunDir, 1.0);
+	 const auto moonRelativeBrightness=std::pow(10.f,0.4f*(nonExtinctedSolarMagnitude-nonExtinctedLunarMagnitude));
+	 drawAtmosphere(prj->getProjectionMatrix(), moonDir, moonRelativeBrightness);
+	gl.glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
+
 	const auto meanPixelValue=getMeanPixelValue(width, height);
 	// CIE 1931 luminance computed from linear sRGB
 	const auto meanY=0.2126729*meanPixelValue[0]+0.7151522*meanPixelValue[1]+0.0721750*meanPixelValue[2];
