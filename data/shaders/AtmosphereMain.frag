@@ -15,9 +15,25 @@ out vec4 color;
 vec3 GetSolarLuminance();
 vec3 GetSkyLuminance(vec3 camera, vec3 view_ray, float shadow_length,
                      vec3 sun_direction, out vec3 transmittance);
+float sqr(float x) { return x*x; }
 void main()
 {
     vec3 view_direction=normalize(view_ray);
+
+    // Don't draw any type of ground. Instead reflect the ray from mathematical
+    // horizon. This isn't physical, but lets Tone Reproducer work without
+    // overexposures.
+    vec3 p = camera - earth_center;
+    float p_dot_v = dot(p, view_direction);
+    float p_dot_p = dot(p, p);
+    float ray_earth_center_squared_distance = p_dot_p - sqr(p_dot_v);
+    float distance_to_intersection = -p_dot_v - sqrt(
+      sqr(earth_center.z) - ray_earth_center_squared_distance);
+    if(distance_to_intersection>0)
+    {
+        view_direction.z=-view_direction.z;
+    }
+
     float fragment_angular_size = length(dFdx(view_direction) + dFdy(view_direction));
     vec3 transmittance;
     vec3 radiance = GetSkyLuminance(camera - earth_center, view_direction, 0, sun_direction, transmittance);
