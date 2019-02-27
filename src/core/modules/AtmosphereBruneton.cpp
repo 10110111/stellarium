@@ -663,8 +663,9 @@ void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, fl
 	// 2. 		 Add airglow from Skybright (put Sun & Moon to nadir to avoid their influence)
 	// 3. 		 Take eclipsed Sun into account.
 	// 4. (DONE) Take eclipsed Moon into account.
-	// 5. 		 Add star background luminance (1e-4f)
-	// 6. 		 Add light pollution luminance (fader.getInterstate()*lightPollutionLuminance)
+	// 5. (DONE) Add star background luminance
+	// 6.(P.DONE)Add light pollution luminance (done only to calculate average luminance)
+	// 7.		 Draw light pollution
 
 	for (int i=0; i<(1+gridMaxX)*(1+gridMaxY); ++i)
 	{
@@ -688,13 +689,15 @@ void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, fl
 	 drawAtmosphere(prj->getProjectionMatrix(), moonDir, moonRelativeBrightness);
 	gl.glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
 
-	const auto meanPixelValue=getMeanPixelValue(width, height);
-	// CIE 1931 luminance computed from linear sRGB
-	const auto meanY=0.2126729*meanPixelValue[0]+0.7151522*meanPixelValue[1]+0.0721750*meanPixelValue[2];
-
-	// Update average luminance
 	if (!overrideAverageLuminance)
-		averageLuminance = meanY;
+	{
+		const auto meanPixelValue=getMeanPixelValue(width, height);
+		// CIE 1931 luminance computed from linear sRGB
+		const auto meanY=0.2126729*meanPixelValue[0]+0.7151522*meanPixelValue[1]+0.0721750*meanPixelValue[2];
+
+		const auto starBackgroundLuminance=1e-4f;
+		averageLuminance = meanY + starBackgroundLuminance + fader.getInterstate()*lightPollutionLuminance;
+	}
 }
 
 void AtmosphereBruneton::setAverageLuminance(float overrideLum)
