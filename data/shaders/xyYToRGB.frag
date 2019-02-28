@@ -42,9 +42,10 @@ vec3 RGB2XYZ(vec3 rgb)
 
 vec3 adaptColorToVisionMode(vec3 rgb)
 {
-    vec3 color=XYZ2xyY(RGB2XYZ(rgb));
+    vec3 xyY=XYZ2xyY(RGB2XYZ(rgb));
+	float x=xyY.x, y=xyY.y, Y=xyY.z;
 	///////////////////////////////////////////////////////////////////////////
-	// Now we have the xyY components in color, need to convert to RGB
+	// Now we have the xyY components, need to convert to light-adapted RGB
 
 	// 1. Hue conversion
 	// if log10Y>0.6, photopic vision only (with the cones, colors are seen)
@@ -52,39 +53,39 @@ vec3 adaptColorToVisionMode(vec3 rgb)
 	// else mesopic vision (with rods and cones, transition state)
 
     mediump vec3 resultColor;
-	if (color[2] <= 0.01)
+	if (Y <= 0.01)
 	{
 		// special case for s = 0 (x=0.25, y=0.25)
-		color[2] *= 0.5121445;
-		color[2] = pow(abs(color[2]*pi*0.0001), alphaWaOverAlphaDa*oneOverGamma)* term2TimesOneOverMaxdLpOneOverGamma;
-		color[0] = 0.787077*color[2];
-		color[1] = 0.9898434*color[2];
-		color[2] *= 1.9256125;
-		resultColor = color.xyz*brightnessScale;
+		Y *= 0.5121445;
+		Y = pow(abs(Y*pi*0.0001), alphaWaOverAlphaDa*oneOverGamma)* term2TimesOneOverMaxdLpOneOverGamma;
+		x = 0.787077*Y;
+		y = 0.9898434*Y;
+		Y *= 1.9256125;
+		resultColor = xyY*brightnessScale;
 	}
 	else
 	{
-		if (color[2]<3.9810717055349722)
+		if (Y<3.9810717055349722)
 		{
 			// Compute s, ratio between scotopic and photopic vision
-			float op = (log(color[2])/ln10 + 2.)/2.6;
+			float op = (log(Y)/ln10 + 2.)/2.6;
 			float s = op * op *(3. - 2. * op);
 			// Do the blue shift for scotopic vision simulation (night vision) [3]
 			// The "night blue" is x,y(0.25, 0.25)
-			color[0] = (1. - s) * 0.25 + s * color[0];	// Add scotopic + photopic components
-			color[1] = (1. - s) * 0.25 + s * color[1];	// Add scotopic + photopic components
+			x = (1. - s) * 0.25 + s * x;	// Add scotopic + photopic components
+			y = (1. - s) * 0.25 + s * y;	// Add scotopic + photopic components
 			// Take into account the scotopic luminance approximated by V [3] [4]
-			float V = color[2] * (1.33 * (1. + color[1] / color[0] + color[0] * (1. - color[0] - color[1])) - 1.68);
-			color[2] = 0.4468 * (1. - s) * V + s * color[2];
+			float V = Y * (1.33 * (1. + y / x + x * (1. - x - y)) - 1.68);
+			Y = 0.4468 * (1. - s) * V + s * Y;
 		}
 
 		// 2. Adapt the luminance value and scale it to fit in the RGB range [2]
-		// color[2] = std::pow(adaptLuminanceScaled(color[2]), oneOverGamma);
-		color[2] = pow(abs(color[2]*pi*0.0001), alphaWaOverAlphaDa*oneOverGamma)* term2TimesOneOverMaxdLpOneOverGamma;
+		// Y = std::pow(adaptLuminanceScaled(Y), oneOverGamma);
+		Y = pow(abs(Y*pi*0.0001), alphaWaOverAlphaDa*oneOverGamma)* term2TimesOneOverMaxdLpOneOverGamma;
 
 		// Convert from xyY to XZY
 		// Use a XYZ to Adobe RGB (1998) matrix which uses a D65 reference white
-		mediump vec3 tmp = vec3(color[0] * color[2] / color[1], color[2], (1. - color[0] - color[1]) * color[2] / color[1]);
+		mediump vec3 tmp = vec3(x * Y / y, Y, (1. - x - y) * Y / y);
 		resultColor = vec3(2.04148*tmp.x-0.564977*tmp.y-0.344713*tmp.z, -0.969258*tmp.x+1.87599*tmp.y+0.0415557*tmp.z, 0.0134455*tmp.x-0.118373*tmp.y+1.01527*tmp.z);
 		resultColor*=brightnessScale;
 	}
