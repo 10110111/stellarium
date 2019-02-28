@@ -28,6 +28,8 @@ uniform highp float oneOverGamma;
 uniform highp float term2TimesOneOverMaxdLpOneOverGamma;
 uniform highp float brightnessScale;
 
+uniform sampler2D radiance;
+
 vec3 XYZ2xyY(vec3 XYZ)
 {
 	return vec3(XYZ.xy/(XYZ.x+XYZ.y+XYZ.z), XYZ.y);
@@ -40,9 +42,14 @@ vec3 RGB2XYZ(vec3 rgb)
 					0.0193339, 0.1191920, 0.9503041);
 }
 
-vec3 adaptColorToVisionMode(vec3 rgb)
+in vec2 texCoord;
+out vec3 resultColor;
+
+vec3 dither(vec3);
+void main()
 {
-    vec3 xyY=XYZ2xyY(RGB2XYZ(rgb));
+	vec3 rgb=texture(radiance, texCoord).rgb;
+	vec3 xyY=XYZ2xyY(RGB2XYZ(rgb));
 	float x=xyY.x, y=xyY.y, Y=xyY.z;
 	///////////////////////////////////////////////////////////////////////////
 	// Now we have the xyY components, need to convert to light-adapted RGB
@@ -52,16 +59,12 @@ vec3 adaptColorToVisionMode(vec3 rgb)
 	// else scotopic vision if log10Y<-2 (with the rods, no colors, everything blue),
 	// else mesopic vision (with rods and cones, transition state)
 
-    mediump vec3 resultColor;
 	if (Y <= 0.01)
 	{
 		// special case for s = 0 (x=0.25, y=0.25)
 		Y *= 0.5121445;
 		Y = pow(abs(Y*pi*0.0001), alphaWaOverAlphaDa*oneOverGamma)* term2TimesOneOverMaxdLpOneOverGamma;
-		x = 0.787077*Y;
-		y = 0.9898434*Y;
-		Y *= 1.9256125;
-		resultColor = xyY*brightnessScale;
+		resultColor = vec3(0.787077, 0.9898434, 1.9256125)*Y*brightnessScale;
 	}
 	else
 	{
@@ -89,5 +92,5 @@ vec3 adaptColorToVisionMode(vec3 rgb)
 		resultColor = vec3(2.04148*tmp.x-0.564977*tmp.y-0.344713*tmp.z, -0.969258*tmp.x+1.87599*tmp.y+0.0415557*tmp.z, 0.0134455*tmp.x-0.118373*tmp.y+1.01527*tmp.z);
 		resultColor*=brightnessScale;
 	}
-    return resultColor;
+    resultColor=dither(resultColor);
 }

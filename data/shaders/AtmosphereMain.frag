@@ -6,7 +6,6 @@ const float sunAngularRadius=0.00935/2;
 
 const vec2 sun_size=vec2(tan(sunAngularRadius),cos(sunAngularRadius));
 const vec3 earth_center=vec3(0,0,-earthRadius);
-const float exposure=0.6;
 
 uniform vec3 camera;
 uniform vec3 sun_direction;
@@ -16,8 +15,6 @@ out vec4 color;
 vec3 GetSolarLuminance();
 vec3 GetSkyLuminance(vec3 camera, vec3 view_ray, float shadow_length,
                      vec3 sun_direction, out vec3 transmittance);
-vec3 adaptColorToVisionMode(vec3 rgb);
-vec3 dither(vec3);
 void main()
 {
     vec3 view_direction=normalize(view_ray);
@@ -30,5 +27,5 @@ void main()
     if (dot(view_direction, sun_direction) > sun_size.y)
         radiance += transmittance * GetSolarLuminance();
      */
-    color = vec4(dither(pow(adaptColorToVisionMode(radiance * exposure), vec3(1.0 / 2.2))),1);
+    color = vec4(radiance,1);
 }
