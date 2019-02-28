@@ -6,7 +6,7 @@
         <file>shaders/xyYToRGB.glsl</file>
     </qresource>
     <qresource prefix="/">
-        <file>shaders/xyYToRGB.frag</file>
+        <file>shaders/AtmospherePostProcess.frag</file>
     </qresource>
     <qresource prefix="/">
         <file>shaders/AtmosphereFunctions.frag</file>

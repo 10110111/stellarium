@@ -66,6 +66,34 @@ void bindAndSetupTexture(QOpenGLFunctions& gl, GLenum target, GLuint texture)
 		gl.glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
+void checkFramebufferStatus(QOpenGLFunctions& gl)
+{
+	GLenum status=gl.glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if(status!=GL_FRAMEBUFFER_COMPLETE)
+	{
+		QString errorDescription;
+		switch(status)
+		{
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+			errorDescription="incomplete attachment";
+			break;
+		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+			errorDescription="missing attachment";
+			break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION:
+			errorDescription="invalid framebuffer operation";
+			break;
+		case GL_FRAMEBUFFER_UNSUPPORTED:
+			errorDescription="framebuffer unsupported";
+			break;
+		default:
+			errorDescription=QString("Unknown error %1").arg(status);
+			break;
+		}
+		qWarning() << "Error: framebuffer incomplete:" << errorDescription.toStdString().c_str();
+	}
+}
+
 } // namespace
 
 auto AtmosphereBruneton::getTextureSize4D(QVector<char> const& data) -> TextureSize4D
@@ -180,72 +208,160 @@ void AtmosphereBruneton::loadTextures()
 
 void AtmosphereBruneton::loadShaders()
 {
-	QOpenGLShader vShader(QOpenGLShader::Vertex);
-	if (!vShader.compileSourceFile(":/shaders/AtmosphereMain.vert"))
+	// Core atmosphere rendering shader program
 	{
-		qFatal("Error while compiling atmosphere vertex shader: %s", vShader.log().toLatin1().constData());
-	}
-	if (!vShader.log().isEmpty())
-	{
-		qWarning() << "Warnings while compiling atmosphere vertex shader: " << vShader.log();
-	}
-	QOpenGLShader ditherShader(QOpenGLShader::Fragment);
-	if (!ditherShader.compileSourceCode(makeDitheringShader()))
-	{
-		qFatal("Error while compiling atmosphere dithering shader: %s", ditherShader.log().toLatin1().constData());
-	}
-	if (!ditherShader.log().isEmpty())
-	{
-		qWarning() << "Warnings while compiling atmosphere dithering shader: " << ditherShader.log();
-	}
-	QOpenGLShader fShader(QOpenGLShader::Fragment);
-	if (!fShader.compileSourceFile(":/shaders/AtmosphereMain.frag"))
-	{
-		qFatal("Error while compiling atmosphere fragment shader: %s", fShader.log().toLatin1().constData());
-	}
-	if (!fShader.log().isEmpty())
-	{
-		qWarning() << "Warnings while compiling atmosphere fragment shader: " << fShader.log();
-	}
-	QOpenGLShader toneReproducerShader(QOpenGLShader::Fragment);
-	if (!toneReproducerShader.compileSourceFile(":/shaders/xyYToRGB.frag"))
-	{
-		qFatal("Error while compiling atmosphere tone reproducer shader: %s", toneReproducerShader.log().toLatin1().constData());
-	}
-	if (!toneReproducerShader.log().isEmpty())
-	{
-		qWarning() << "Warnings while compiling atmosphere tone reproducer shader: " << toneReproducerShader.log();
-	}
-	QOpenGLShader funcShader(QOpenGLShader::Fragment);
-	{
-		QFile file(":/shaders/AtmosphereFunctions.frag");
-		if(!file.open(QIODevice::ReadOnly))
-			throw std::runtime_error("Failed to read file "+file.fileName().toStdString());
-		QString source=file.readAll();
-		source.replace(QRegExp("(TRANSMITTANCE_TEXTURE_WIDTH = )[^;]+;"),  QString("\\1%1;").arg(transmittanceTextureSize.width()));
-		source.replace(QRegExp("(TRANSMITTANCE_TEXTURE_HEIGHT = )[^;]+;"), QString("\\1%1;").arg(transmittanceTextureSize.height()));
-		source.replace(QRegExp("(IRRADIANCE_TEXTURE_WIDTH = )[^;]+;"),     QString("\\1%1;").arg(irradianceTextureSize.width()));
-		source.replace(QRegExp("(IRRADIANCE_TEXTURE_HEIGHT = )[^;]+;"),    QString("\\1%1;").arg(irradianceTextureSize.height()));
-		source.replace(QRegExp("(SCATTERING_TEXTURE_R_SIZE = )[^;]+;"),    QString("\\1%1;").arg(scatteringTextureSize.r_size()));
-		source.replace(QRegExp("(SCATTERING_TEXTURE_MU_SIZE = )[^;]+;"),   QString("\\1%1;").arg(scatteringTextureSize.mu_size()));
-		source.replace(QRegExp("(SCATTERING_TEXTURE_MU_S_SIZE = )[^;]+;"), QString("\\1%1;").arg(scatteringTextureSize.muS_size()));
-		source.replace(QRegExp("(SCATTERING_TEXTURE_NU_SIZE = )[^;]+;"),   QString("\\1%1;").arg(scatteringTextureSize.nu_size()));
-		if(separateMieTexture) source.replace("#define COMBINED_SCATTERING_TEXTURES","");
-		if (!funcShader.compileSourceCode(source))
+		QOpenGLShader vShader(QOpenGLShader::Vertex);
+		if (!vShader.compileSourceFile(":/shaders/AtmosphereMain.vert"))
 		{
-			qFatal("Error while compiling atmosphere render functions shader: %s", funcShader.log().toLatin1().constData());
+			qFatal("Error while compiling atmosphere vertex shader: %s", vShader.log().toLatin1().constData());
 		}
-		if (!funcShader.log().isEmpty())
+		if (!vShader.log().isEmpty())
 		{
-			qWarning() << "Warnings while compiling atmosphere render functions shader: " << funcShader.log();
+			qWarning() << "Warnings while compiling atmosphere vertex shader: " << vShader.log();
 		}
+		QOpenGLShader fShader(QOpenGLShader::Fragment);
+		if (!fShader.compileSourceFile(":/shaders/AtmosphereMain.frag"))
+		{
+			qFatal("Error while compiling atmosphere fragment shader: %s", fShader.log().toLatin1().constData());
+		}
+		if (!fShader.log().isEmpty())
+		{
+			qWarning() << "Warnings while compiling atmosphere fragment shader: " << fShader.log();
+		}
+		QOpenGLShader funcShader(QOpenGLShader::Fragment);
+		{
+			QFile file(":/shaders/AtmosphereFunctions.frag");
+			if(!file.open(QIODevice::ReadOnly))
+				throw std::runtime_error("Failed to read file "+file.fileName().toStdString());
+			QString source=file.readAll();
+			source.replace(QRegExp("(TRANSMITTANCE_TEXTURE_WIDTH = )[^;]+;"),  QString("\\1%1;").arg(transmittanceTextureSize.width()));
+			source.replace(QRegExp("(TRANSMITTANCE_TEXTURE_HEIGHT = )[^;]+;"), QString("\\1%1;").arg(transmittanceTextureSize.height()));
+			source.replace(QRegExp("(IRRADIANCE_TEXTURE_WIDTH = )[^;]+;"),     QString("\\1%1;").arg(irradianceTextureSize.width()));
+			source.replace(QRegExp("(IRRADIANCE_TEXTURE_HEIGHT = )[^;]+;"),    QString("\\1%1;").arg(irradianceTextureSize.height()));
+			source.replace(QRegExp("(SCATTERING_TEXTURE_R_SIZE = )[^;]+;"),    QString("\\1%1;").arg(scatteringTextureSize.r_size()));
+			source.replace(QRegExp("(SCATTERING_TEXTURE_MU_SIZE = )[^;]+;"),   QString("\\1%1;").arg(scatteringTextureSize.mu_size()));
+			source.replace(QRegExp("(SCATTERING_TEXTURE_MU_S_SIZE = )[^;]+;"), QString("\\1%1;").arg(scatteringTextureSize.muS_size()));
+			source.replace(QRegExp("(SCATTERING_TEXTURE_NU_SIZE = )[^;]+;"),   QString("\\1%1;").arg(scatteringTextureSize.nu_size()));
+			if(separateMieTexture) source.replace("#define COMBINED_SCATTERING_TEXTURES","");
+			if (!funcShader.compileSourceCode(source))
+			{
+				qFatal("Error while compiling atmosphere render functions shader: %s", funcShader.log().toLatin1().constData());
+			}
+			if (!funcShader.log().isEmpty())
+			{
+				qWarning() << "Warnings while compiling atmosphere render functions shader: " << funcShader.log();
+			}
+		}
+		atmosphereRenderProgram->addShader(&vShader);
+		atmosphereRenderProgram->addShader(&fShader);
+		atmosphereRenderProgram->addShader(&funcShader);
+		StelPainter::linkProg(atmosphereRenderProgram.get(), "atmosphere");
 	}
-	atmoShaderProgram->addShader(&vShader);
-	atmoShaderProgram->addShader(&ditherShader);
-	atmoShaderProgram->addShader(&fShader);
-	atmoShaderProgram->addShader(&toneReproducerShader);
-	atmoShaderProgram->addShader(&funcShader);
-	StelPainter::linkProg(atmoShaderProgram.get(), "atmosphere");
+
+	// Post-processing shader program
+	{
+		QOpenGLShader vShader(QOpenGLShader::Vertex);
+		constexpr char src[]=R"(
+#version 130
+in vec4 vertex;
+out vec2 texCoord;
+void main()
+{
+    gl_Position=vertex;
+    texCoord=vertex.xy*0.5+0.5;
+}
+)";
+		if (!vShader.compileSourceCode(src))
+		{
+			qFatal("Error while compiling atmosphere post-processing vertex shader: %s", vShader.log().toLatin1().constData());
+		}
+		if (!vShader.log().isEmpty())
+		{
+			qWarning() << "Warnings while compiling atmosphere post-processing vertex shader: " << vShader.log();
+		}
+		QOpenGLShader ditherShader(QOpenGLShader::Fragment);
+		if (!ditherShader.compileSourceCode(makeDitheringShader()))
+		{
+			qFatal("Error while compiling atmosphere dithering shader: %s", ditherShader.log().toLatin1().constData());
+		}
+		if (!ditherShader.log().isEmpty())
+		{
+			qWarning() << "Warnings while compiling atmosphere dithering shader: " << ditherShader.log();
+		}
+		QOpenGLShader toneReproducerShader(QOpenGLShader::Fragment);
+		if (!toneReproducerShader.compileSourceFile(":/shaders/AtmospherePostProcess.frag"))
+		{
+			qFatal("Error while compiling atmosphere tone reproducer shader: %s", toneReproducerShader.log().toLatin1().constData());
+		}
+		if (!toneReproducerShader.log().isEmpty())
+		{
+			qWarning() << "Warnings while compiling atmosphere tone reproducer shader: " << toneReproducerShader.log();
+		}
+		postProcessProgram->addShader(&vShader);
+		postProcessProgram->addShader(&ditherShader);
+		postProcessProgram->addShader(&toneReproducerShader);
+		StelPainter::linkProg(postProcessProgram.get(), "atmosphere-post-process");
+	}
+}
+
+void AtmosphereBruneton::resizeRenderTarget(int width, int height)
+{
+	Q_ASSERT(fbo);
+	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
+	gl.glBindTexture(GL_TEXTURE_2D,textures[FBO_TEXTURE]);
+	gl.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA32F,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,nullptr);
+	gl.glBindTexture(GL_TEXTURE_2D,0);
+	gl.glBindFramebuffer(GL_FRAMEBUFFER,fbo);
+	gl.glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,textures[FBO_TEXTURE],0);
+	checkFramebufferStatus(gl);
+	gl.glBindFramebuffer(GL_FRAMEBUFFER,0);
+
+	fboPrevWidth=width;
+	fboPrevHeight=height;
+}
+
+void AtmosphereBruneton::setupRenderTarget()
+{
+	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
+	gl.glGenFramebuffers(1,&fbo);
+	gl.glBindTexture(GL_TEXTURE_2D,textures[FBO_TEXTURE]);
+	gl.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	gl.glBindTexture(GL_TEXTURE_2D,0);
+
+	GLint viewport[4];
+	gl.glGetIntegerv(GL_VIEWPORT, viewport);
+	resizeRenderTarget(viewport[2], viewport[3]);
+}
+
+void AtmosphereBruneton::setupBuffers()
+{
+	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
+
+	const auto GenVertexArrays=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLsizei,GLuint*)>
+		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glGenVertexArrays")));
+	const auto BindVertexArray=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLuint)>
+		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glBindVertexArray")));
+	// We assume at least OpenGL 3.0 (minimal requirements of Stellarium), and there this function must exist.
+	Q_ASSERT(GenVertexArrays);
+	Q_ASSERT(BindVertexArray);
+
+	(*GenVertexArrays)(1, &vao);
+	(*BindVertexArray)(vao);
+	gl.glGenBuffers(1, &vbo);
+	gl.glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	const GLfloat vertices[]=
+	{
+		-1, -1,
+		 1, -1,
+		-1,  1,
+		 1,  1,
+	};
+	gl.glBufferData(GL_ARRAY_BUFFER, sizeof vertices, vertices, GL_STATIC_DRAW);
+	constexpr GLuint attribIndex=0;
+	constexpr int coordsPerVertex=2;
+	gl.glVertexAttribPointer(attribIndex, coordsPerVertex, GL_FLOAT, false, 0, 0);
+	gl.glEnableVertexAttribArray(attribIndex);
+	(*BindVertexArray)(0);
 }
 
 AtmosphereBruneton::AtmosphereBruneton()
@@ -259,36 +375,50 @@ AtmosphereBruneton::AtmosphereBruneton()
 	, overrideAverageLuminance(false)
 	, eclipseFactor(1)
 	, lightPollutionLuminance(0)
-	, atmoShaderProgram(new QOpenGLShaderProgram())
+	, atmosphereRenderProgram(new QOpenGLShaderProgram())
+	, postProcessProgram(new QOpenGLShaderProgram())
 {
 	setFadeDuration(1.5);
 
 	loadTextures();
 	loadShaders();
+	setupRenderTarget();
+	setupBuffers();
 
-	atmoShaderProgram->bind();
-	shaderAttribLocations.bayerPattern = atmoShaderProgram->uniformLocation("bayerPattern");
-	shaderAttribLocations.rgbMaxValue = atmoShaderProgram->uniformLocation("rgbMaxValue");
-	shaderAttribLocations.alphaWaOverAlphaDa = atmoShaderProgram->uniformLocation("alphaWaOverAlphaDa");
-	shaderAttribLocations.oneOverGamma = atmoShaderProgram->uniformLocation("oneOverGamma");
-	shaderAttribLocations.term2TimesOneOverMaxdLpOneOverGamma = atmoShaderProgram->uniformLocation("term2TimesOneOverMaxdLpOneOverGamma");
-	shaderAttribLocations.brightnessScale = atmoShaderProgram->uniformLocation("brightnessScale");
-	shaderAttribLocations.sunDir = atmoShaderProgram->uniformLocation("sun_direction");
-	shaderAttribLocations.cameraPos = atmoShaderProgram->uniformLocation("camera");
-	shaderAttribLocations.projectionMatrix = atmoShaderProgram->uniformLocation("projectionMatrix");
-	shaderAttribLocations.skyVertex = atmoShaderProgram->attributeLocation("vertex");
-	shaderAttribLocations.viewRay = atmoShaderProgram->attributeLocation("viewRay");
-	shaderAttribLocations.transmittanceTexture = atmoShaderProgram->uniformLocation("transmittance_texture");
-	shaderAttribLocations.scatteringTexture = atmoShaderProgram->uniformLocation("scattering_texture");
-	shaderAttribLocations.irradianceTexture = atmoShaderProgram->uniformLocation("irradiance_texture");
-	shaderAttribLocations.singleMieScatteringTexture = atmoShaderProgram->uniformLocation("single_mie_scattering_texture");
-	atmoShaderProgram->release();
+	atmosphereRenderProgram->bind();
+	 shaderAttribLocations.cameraPos                  = atmosphereRenderProgram->uniformLocation("camera");
+	 shaderAttribLocations.sunDir                     = atmosphereRenderProgram->uniformLocation("sun_direction");
+	 shaderAttribLocations.projectionMatrix           = atmosphereRenderProgram->uniformLocation("projectionMatrix");
+	 shaderAttribLocations.transmittanceTexture       = atmosphereRenderProgram->uniformLocation("transmittance_texture");
+	 shaderAttribLocations.scatteringTexture          = atmosphereRenderProgram->uniformLocation("scattering_texture");
+	 shaderAttribLocations.irradianceTexture          = atmosphereRenderProgram->uniformLocation("irradiance_texture");
+	 shaderAttribLocations.singleMieScatteringTexture = atmosphereRenderProgram->uniformLocation("single_mie_scattering_texture");
+	 shaderAttribLocations.skyVertex                  = atmosphereRenderProgram->attributeLocation("vertex");
+	 shaderAttribLocations.viewRay                    = atmosphereRenderProgram->attributeLocation("viewRay");
+	atmosphereRenderProgram->release();
+
+	postProcessProgram->bind();
+	 shaderAttribLocations.rgbMaxValue                         = postProcessProgram->uniformLocation("rgbMaxValue");
+	 shaderAttribLocations.bayerPattern                        = postProcessProgram->uniformLocation("bayerPattern");
+	 shaderAttribLocations.radianceImage                       = postProcessProgram->uniformLocation("radiance");
+	 shaderAttribLocations.alphaWaOverAlphaDa                  = postProcessProgram->uniformLocation("alphaWaOverAlphaDa");
+	 shaderAttribLocations.oneOverGamma                        = postProcessProgram->uniformLocation("oneOverGamma");
+	 shaderAttribLocations.term2TimesOneOverMaxdLpOneOverGamma = postProcessProgram->uniformLocation("term2TimesOneOverMaxdLpOneOverGamma");
+	 shaderAttribLocations.brightnessScale                     = postProcessProgram->uniformLocation("brightnessScale");
+	postProcessProgram->release();
 }
 
 AtmosphereBruneton::~AtmosphereBruneton()
 {
 	if(auto*const ctx=QOpenGLContext::currentContext())
-		ctx->functions()->glDeleteTextures(TEX_COUNT, textures);
+	{
+		auto& gl=*ctx->functions();
+		gl.glDeleteTextures(TEX_COUNT, textures);
+		gl.glDeleteBuffers(1, &vbo);
+		const auto DeleteVertexArrays=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLsizei,const GLuint*)>
+			(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glDeleteVertexArrays")));
+		(*DeleteVertexArrays)(1, &vao);
+	}
 }
 
 void AtmosphereBruneton::regenerateGrid()
@@ -310,7 +440,7 @@ void AtmosphereBruneton::regenerateGrid()
 			Vec2f& v=posGrid[y*(1+gridMaxX)+x];
 			v[0] = viewportLeft + (x == 0 ? 0
 										  : x == gridMaxX ? width
-								   						  : (x-0.5*(y&1))*stepX);
+														  : (x-0.5*(y&1))*stepX);
 			v[1] = viewportBottom+y*stepY;
 		}
 	}
@@ -388,6 +518,113 @@ void AtmosphereBruneton::updateEclipseFactor(StelCore* core, Vec3d sunPos, Vec3d
 	// TODO: compute eclipse factor also for Lunar eclipses! (lp:#1471546)
 }
 
+void AtmosphereBruneton::drawAtmosphere(Mat4f const& projectionMatrix)
+{
+	atmosphereRenderProgram->bind();
+	atmosphereRenderProgram->setUniformValue(shaderAttribLocations.sunDir, sunDir[0], sunDir[1], sunDir[2]);
+	atmosphereRenderProgram->setUniformValue(shaderAttribLocations.cameraPos, 0, 0, altitude/kLengthUnitInMeters);
+	const auto& m = projectionMatrix;
+	atmosphereRenderProgram->setUniformValue(shaderAttribLocations.projectionMatrix,
+											 QMatrix4x4(m[0], m[4], m[8], m[12],
+														m[1], m[5], m[9], m[13],
+														m[2], m[6], m[10], m[14],
+														m[3], m[7], m[11], m[15]));
+
+	viewRayGridBuffer.bind();
+	atmosphereRenderProgram->setAttributeBuffer(shaderAttribLocations.viewRay, GL_FLOAT, 0, 4, 0);
+	viewRayGridBuffer.release();
+	atmosphereRenderProgram->enableAttributeArray(shaderAttribLocations.viewRay);
+	posGridBuffer.bind();
+	atmosphereRenderProgram->setAttributeBuffer(shaderAttribLocations.skyVertex, GL_FLOAT, 0, 2, 0);
+	posGridBuffer.release();
+	atmosphereRenderProgram->enableAttributeArray(shaderAttribLocations.skyVertex);
+
+	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
+
+	gl.glActiveTexture(GL_TEXTURE0);
+	gl.glBindTexture(GL_TEXTURE_2D, textures[TRANSMITTANCE_TEXTURE]);
+	gl.glUniform1i(shaderAttribLocations.transmittanceTexture, 0);
+	gl.glActiveTexture(GL_TEXTURE1);
+	gl.glBindTexture(GL_TEXTURE_3D, textures[SCATTERING_TEXTURE]);
+	gl.glUniform1i(shaderAttribLocations.scatteringTexture, 1);
+	gl.glActiveTexture(GL_TEXTURE2);
+	gl.glBindTexture(GL_TEXTURE_2D, textures[IRRADIANCE_TEXTURE]);
+	gl.glUniform1i(shaderAttribLocations.irradianceTexture, 2);
+	gl.glActiveTexture(GL_TEXTURE3);
+	gl.glBindTexture(GL_TEXTURE_3D, textures[MIE_SCATTERING_TEXTURE]);
+	gl.glUniform1i(shaderAttribLocations.singleMieScatteringTexture, 3);
+
+	GLint prevFBO;
+	gl.glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
+	gl.glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	indexBuffer.bind();
+	std::size_t shift=0;
+	for (int y=0;y<gridMaxY;++y)
+	{
+		gl.glDrawElements(GL_TRIANGLE_STRIP, (gridMaxX+1)*2, GL_UNSIGNED_SHORT, reinterpret_cast<void*>(shift));
+		shift += (gridMaxX+1)*2*2;
+	}
+	indexBuffer.release();
+
+	gl.glBindFramebuffer(GL_FRAMEBUFFER, prevFBO);
+
+	atmosphereRenderProgram->disableAttributeArray(shaderAttribLocations.skyVertex);
+	atmosphereRenderProgram->disableAttributeArray(shaderAttribLocations.viewRay);
+	atmosphereRenderProgram->release();
+
+	/* XXX: this is only for debugging */
+	// TODO: remove after debugged
+	{
+		GLint viewport[4];
+		gl.glGetIntegerv(GL_VIEWPORT, viewport);
+		const std::uint32_t w=viewport[2], h=viewport[3];
+
+		QVector<GLfloat> data(w*h*4);
+		gl.glBindFramebuffer(GL_FRAMEBUFFER,fbo);
+		gl.glReadPixels(0, 0, w,h, GL_RGBA, GL_FLOAT, data.data());
+		gl.glBindFramebuffer(GL_FRAMEBUFFER,0);
+
+		QFile file("/tmp/stellarium-fbo.f32");
+		if(!file.open(QIODevice::WriteOnly)) throw std::runtime_error("Failed to open debug image file for writing");
+		const std::uint32_t size[2]={w,h};
+		file.write(reinterpret_cast<const char*>(size),sizeof size);
+		if(!file.write(reinterpret_cast<const char*>(data.data()),data.size()*sizeof data[0]) || !file.flush())
+			qWarning() << "Failed to write image to file\n";
+	}
+}
+
+Vec4f AtmosphereBruneton::getMeanPixelValue(int texW, int texH)
+{
+	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
+
+	gl.glActiveTexture(GL_TEXTURE0);
+	gl.glBindTexture(GL_TEXTURE_2D, textures[FBO_TEXTURE]);
+	gl.glGenerateMipmap(GL_TEXTURE_2D);
+
+	using namespace std;
+	// Formula from the glspec, "Mipmapping" subsection in section 3.8.11 Texture Minification
+	const auto totalMipmapLevels = 1+floor(log2(max(texW,texH)));
+	const auto deepestLevel=totalMipmapLevels-1;
+
+#ifndef NDEBUG
+	// Sanity check
+	int deepestMipmapLevelWidth=-1, deepestMipmapLevelHeight=-1;
+	gl.glGetTexLevelParameteriv(GL_TEXTURE_2D, deepestLevel, GL_TEXTURE_WIDTH, &deepestMipmapLevelWidth);
+	gl.glGetTexLevelParameteriv(GL_TEXTURE_2D, deepestLevel, GL_TEXTURE_HEIGHT, &deepestMipmapLevelHeight);
+	assert(deepestMipmapLevelWidth==1);
+	assert(deepestMipmapLevelHeight==1);
+#endif
+
+	Vec4f pixel;
+	const auto GetTexImage=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLenum,GLint,GLenum,GLenum,GLvoid*)>
+							(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glGetTexImage")));
+	// We assume at least OpenGL 3.0 (minimal requirements of Stellarium), and there this function must exist.
+	Q_ASSERT(GetTexImage);
+	(*GetTexImage)(GL_TEXTURE_2D, deepestLevel, GL_RGBA, GL_FLOAT, &pixel[0]);
+	return pixel;
+}
+
 void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, float moonPhase, float moonMagnitude,
 							   StelCore* core, float latitude, float altitude, float temperature, float relativeHumidity)
 {
@@ -401,6 +638,9 @@ void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, fl
 		viewport = prj->getViewport();
 		regenerateGrid();
 	}
+	const auto width=viewport[2], height=viewport[3];
+	if(width!=fboPrevWidth || height!=fboPrevHeight)
+		resizeRenderTarget(width, height);
 
 	if (std::isnan(sunPos.length()))
 		sunPos.set(0.,0.,-1.*AU);
@@ -433,53 +673,34 @@ void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, fl
 	StelUtils::getDateFromJulianDay(JD, &year, &month, &day);
 	skyb.setDate(year, month, moonPhase, moonMagnitude);
 
-	// Variables used to compute the average sky luminance
-	float sumLum = 0;
+	// TODO:
+	// 1. Luminance due to the Sun and the Moon
+	// 2. Add airglow from Skybright (put Sun & Moon to nadir to avoid their influence)
+	// 3. Take eclipsed Sun (and Moon?) into account
+	// 4. Add star background luminance (1e-4f)
+	// 5. Add light pollution luminance (fader.getInterstate()*lightPollutionLuminance)
 
-	Vec3d point(1, 0, 0);
-	float lumi;
-
-	// Compute the sky color for every point above the ground
 	for (int i=0; i<(1+gridMaxX)*(1+gridMaxY); ++i)
 	{
-		const Vec2f &v(posGrid[i]);
-		prj->unProject(v[0],v[1],point);
-
-		Q_ASSERT(fabs(point.lengthSquared()-1.0) < 1e-10);
-
-		lumi = skyb.getLuminance(moonPos[0]*point[0]+moonPos[1]*point[1]+
-				 moonPos[2]*point[2], sunPos[0]*point[0]+sunPos[1]*point[1]+
-				 sunPos[2]*point[2], point[2]);
-		lumi *= eclipseFactor;
-		// Add star background luminance
-		lumi += 0.0001f;
-		// Multiply by the input scale of the ToneConverter (is not done automatically by the xyYtoRGB method called later)
-		//lumi*=eye->getInputScale();
-
-		// Add the light pollution luminance AFTER the scaling to avoid scaling it because it is the cause
-		// of the scaling itself
-		lumi += fader.getInterstate()*lightPollutionLuminance;
-
-		// Store for later statistics
-		sumLum+=lumi;
-
-		// Now need to compute the xy part of the color component
-		// This is done in the openGL shader
-		// Store the back projected position + luminance in the input color to the shader
-		viewRayGrid[i].set(point[0], point[1], point[2], lumi);
+		Vec3d point(1, 0, 0);
+		prj->unProject(posGrid[i][0],posGrid[i][1],point);
+		viewRayGrid[i].set(point[0], point[1], point[2], 1);
 	}
 
 	viewRayGridBuffer.bind();
 	viewRayGridBuffer.write(0, &viewRayGrid[0], viewRayGrid.size()*sizeof viewRayGrid[0]);
 	viewRayGridBuffer.release();
 
+	drawAtmosphere(prj->getProjectionMatrix());
+	const auto meanPixelValue=getMeanPixelValue(width, height);
+	// CIE 1931 luminance computed from linear sRGB
+	const auto meanY=0.2126729*meanPixelValue[0]+0.7151522*meanPixelValue[1]+0.0721750*meanPixelValue[2];
+
 	// Update average luminance
 	if (!overrideAverageLuminance)
-		averageLuminance = sumLum/((1+gridMaxX)*(1+gridMaxY));
+		averageLuminance = meanY;
 }
 
-// override computable luminance. This is for special operations only, e.g. for scripting of brightness-balanced image export.
-// To return to auto-computed values, set any negative value.
 void AtmosphereBruneton::setAverageLuminance(float overrideLum)
 {
 	if (overrideLum<0.f)
@@ -494,7 +715,6 @@ void AtmosphereBruneton::setAverageLuminance(float overrideLum)
 	}
 }
 
-// Draw the atmosphere using the precalc values stored in tab_sky
 void AtmosphereBruneton::draw(StelCore* core)
 {
 	if (StelApp::getInstance().getVisionModeNight())
@@ -507,65 +727,36 @@ void AtmosphereBruneton::draw(StelCore* core)
 
 	StelPainter sPainter(core->getProjection2d());
 	sPainter.setBlending(true, GL_ONE, GL_ONE);
+	auto& gl=*sPainter.glFuncs();
 
 	const float atm_intensity = fader.getInterstate();
 
-	atmoShaderProgram->bind();
+	postProcessProgram->bind();
 	float a, b, c;
 	eye->getShadersParams(a, b, c);
-	atmoShaderProgram->setUniformValue(shaderAttribLocations.alphaWaOverAlphaDa, a);
-	atmoShaderProgram->setUniformValue(shaderAttribLocations.oneOverGamma, b);
-	atmoShaderProgram->setUniformValue(shaderAttribLocations.term2TimesOneOverMaxdLpOneOverGamma, c);
-	atmoShaderProgram->setUniformValue(shaderAttribLocations.brightnessScale, atm_intensity);
-	atmoShaderProgram->setUniformValue(shaderAttribLocations.sunDir, sunDir[0], sunDir[1], sunDir[2]);
-	atmoShaderProgram->setUniformValue(shaderAttribLocations.cameraPos, 0, 0, altitude/kLengthUnitInMeters);
-	const Mat4f& m = sPainter.getProjector()->getProjectionMatrix();
-	atmoShaderProgram->setUniformValue(shaderAttribLocations.projectionMatrix,
-		QMatrix4x4(m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]));
+	postProcessProgram->setUniformValue(shaderAttribLocations.alphaWaOverAlphaDa, a);
+	postProcessProgram->setUniformValue(shaderAttribLocations.oneOverGamma, b);
+	postProcessProgram->setUniformValue(shaderAttribLocations.term2TimesOneOverMaxdLpOneOverGamma, c);
+	postProcessProgram->setUniformValue(shaderAttribLocations.brightnessScale, atm_intensity);
 
 	const auto rgbMaxValue=calcRGBMaxValue(sPainter.getDitheringMode());
-	atmoShaderProgram->setUniformValue(shaderAttribLocations.rgbMaxValue, rgbMaxValue[0], rgbMaxValue[1], rgbMaxValue[2]);
-	auto& gl=*sPainter.glFuncs();
+	postProcessProgram->setUniformValue(shaderAttribLocations.rgbMaxValue, rgbMaxValue[0], rgbMaxValue[1], rgbMaxValue[2]);
 
 	gl.glActiveTexture(GL_TEXTURE0);
-	gl.glBindTexture(GL_TEXTURE_2D, textures[TRANSMITTANCE_TEXTURE]);
-	gl.glUniform1i(shaderAttribLocations.transmittanceTexture, 0);
-	gl.glActiveTexture(GL_TEXTURE1);
-	gl.glBindTexture(GL_TEXTURE_3D, textures[SCATTERING_TEXTURE]);
-	gl.glUniform1i(shaderAttribLocations.scatteringTexture, 1);
-	gl.glActiveTexture(GL_TEXTURE2);
-	gl.glBindTexture(GL_TEXTURE_2D, textures[IRRADIANCE_TEXTURE]);
-	gl.glUniform1i(shaderAttribLocations.irradianceTexture, 2);
-	gl.glActiveTexture(GL_TEXTURE3);
-	gl.glBindTexture(GL_TEXTURE_3D, textures[MIE_SCATTERING_TEXTURE]);
-	gl.glUniform1i(shaderAttribLocations.singleMieScatteringTexture, 3);
+	gl.glBindTexture(GL_TEXTURE_2D, textures[FBO_TEXTURE]);
+	postProcessProgram->setUniformValue(shaderAttribLocations.radianceImage, 0);
 
-	gl.glActiveTexture(GL_TEXTURE4);
+	gl.glActiveTexture(GL_TEXTURE1);
 	if(!bayerPatternTex)
 		bayerPatternTex=makeBayerPatternTexture(*sPainter.glFuncs());
 	gl.glBindTexture(GL_TEXTURE_2D, bayerPatternTex);
-	atmoShaderProgram->setUniformValue(shaderAttribLocations.bayerPattern, 4);
+	postProcessProgram->setUniformValue(shaderAttribLocations.bayerPattern, 1);
 
-	viewRayGridBuffer.bind();
-	atmoShaderProgram->setAttributeBuffer(shaderAttribLocations.viewRay, GL_FLOAT, 0, 4, 0);
-	viewRayGridBuffer.release();
-	atmoShaderProgram->enableAttributeArray(shaderAttribLocations.viewRay);
-	posGridBuffer.bind();
-	atmoShaderProgram->setAttributeBuffer(shaderAttribLocations.skyVertex, GL_FLOAT, 0, 2, 0);
-	posGridBuffer.release();
-	atmoShaderProgram->enableAttributeArray(shaderAttribLocations.skyVertex);
+	const auto BindVertexArray=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLuint)>
+								(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glBindVertexArray")));
+	(*BindVertexArray)(vao);
+	gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	(*BindVertexArray)(0);
 
-	// And draw everything at once
-	indexBuffer.bind();
-	std::size_t shift=0;
-	for (int y=0;y<gridMaxY;++y)
-	{
-		sPainter.glFuncs()->glDrawElements(GL_TRIANGLE_STRIP, (gridMaxX+1)*2, GL_UNSIGNED_SHORT, reinterpret_cast<void*>(shift));
-		shift += (gridMaxX+1)*2*2;
-	}
-	indexBuffer.release();
-
-	atmoShaderProgram->disableAttributeArray(shaderAttribLocations.skyVertex);
-	atmoShaderProgram->disableAttributeArray(shaderAttribLocations.viewRay);
-	atmoShaderProgram->release();
+	postProcessProgram->release();
 }

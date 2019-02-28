@@ -83,24 +83,26 @@ private:
 	LinearFader fader;
 	float lightPollutionLuminance;
 
-	//! Vertex shader used for xyYToRGB computation
-	std::unique_ptr<QOpenGLShaderProgram> atmoShaderProgram;
+	std::unique_ptr<QOpenGLShaderProgram> atmosphereRenderProgram;
+	std::unique_ptr<QOpenGLShaderProgram> postProcessProgram;
 	struct {
-		int bayerPattern;
-		int rgbMaxValue;
-		int alphaWaOverAlphaDa;
-		int oneOverGamma;
-		int term2TimesOneOverMaxdLpOneOverGamma;
-		int brightnessScale;
 		int sunDir;
 		int cameraPos;
 		int projectionMatrix;
-		int skyVertex;
-		int viewRay;
-		int transmittanceTexture;
 		int scatteringTexture;
 		int irradianceTexture;
+		int transmittanceTexture;
 		int singleMieScatteringTexture;
+		int viewRay;
+		int skyVertex;
+
+		int rgbMaxValue;
+		int bayerPattern;
+		int oneOverGamma;
+		int radianceImage;
+		int brightnessScale;
+		int alphaWaOverAlphaDa;
+		int term2TimesOneOverMaxdLpOneOverGamma;
 	} shaderAttribLocations;
 
 	GLuint bayerPatternTex=0;
@@ -111,15 +113,27 @@ private:
 		SCATTERING_TEXTURE,
 		IRRADIANCE_TEXTURE,
 		MIE_SCATTERING_TEXTURE,
+		FBO_TEXTURE,
 
 		TEX_COUNT
 	};
 	GLuint textures[TEX_COUNT];
+	GLuint fbo;
+	int fboPrevWidth, fboPrevHeight;
 	Vec3d sunDir;
 	double altitude;
-	void loadTextures();
+	GLuint vao, vbo;
+
 	void loadShaders();
+	void loadTextures();
+	void setupBuffers();
 	void regenerateGrid();
+	void setupRenderTarget();
+	// Gets average value of the pixels rendered to the FBO texture as the value of the deepest
+	// mipmap level
+	Vec4f getMeanPixelValue(int texW, int texH);
+	void resizeRenderTarget(int width, int height);
+	void drawAtmosphere(Mat4f const& projectionMatrix);
 	void updateEclipseFactor(StelCore* core, Vec3d sunPos, Vec3d moonPos);
 	bool separateMieTexture=false;
 
