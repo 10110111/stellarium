@@ -34,7 +34,6 @@ void main()
         view_direction.z=-view_direction.z;
     }
 
-    float fragment_angular_size = length(dFdx(view_direction) + dFdy(view_direction));
     vec3 transmittance;
     vec3 radiance = GetSkyLuminance(camera - earth_center, view_direction, 0, sun_direction, transmittance);
     /*
