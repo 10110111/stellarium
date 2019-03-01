@@ -403,7 +403,7 @@ AtmosphereBruneton::AtmosphereBruneton()
 	 shaderAttribLocations.irradianceTexture          = atmosphereRenderProgram->uniformLocation("irradiance_texture");
 	 shaderAttribLocations.singleMieScatteringTexture = atmosphereRenderProgram->uniformLocation("single_mie_scattering_texture");
 	 shaderAttribLocations.skyVertex                  = atmosphereRenderProgram->attributeLocation("vertex");
-	 shaderAttribLocations.viewRay                    = atmosphereRenderProgram->attributeLocation("viewRay");
+	 shaderAttribLocations.viewRayAndAddLuminance     = atmosphereRenderProgram->attributeLocation("viewRayAndAddLuminance");
 	atmosphereRenderProgram->release();
 
 	postProcessProgram->bind();
@@ -540,9 +540,9 @@ void AtmosphereBruneton::drawAtmosphere(Mat4f const& projectionMatrix, Vec3d sun
 														m[3], m[7], m[11], m[15]));
 
 	viewRayGridBuffer.bind();
-	atmosphereRenderProgram->setAttributeBuffer(shaderAttribLocations.viewRay, GL_FLOAT, 0, 4, 0);
+	atmosphereRenderProgram->setAttributeBuffer(shaderAttribLocations.viewRayAndAddLuminance, GL_FLOAT, 0, 4, 0);
 	viewRayGridBuffer.release();
-	atmosphereRenderProgram->enableAttributeArray(shaderAttribLocations.viewRay);
+	atmosphereRenderProgram->enableAttributeArray(shaderAttribLocations.viewRayAndAddLuminance);
 	posGridBuffer.bind();
 	atmosphereRenderProgram->setAttributeBuffer(shaderAttribLocations.skyVertex, GL_FLOAT, 0, 2, 0);
 	posGridBuffer.release();
@@ -582,7 +582,7 @@ void AtmosphereBruneton::drawAtmosphere(Mat4f const& projectionMatrix, Vec3d sun
 	gl.glDisable(GL_BLEND);
 
 	atmosphereRenderProgram->disableAttributeArray(shaderAttribLocations.skyVertex);
-	atmosphereRenderProgram->disableAttributeArray(shaderAttribLocations.viewRay);
+	atmosphereRenderProgram->disableAttributeArray(shaderAttribLocations.viewRayAndAddLuminance);
 	atmosphereRenderProgram->release();
 }
 
@@ -657,31 +657,45 @@ void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, fl
 	const auto moonDir=moonPos;
 	this->altitude=altitude;
 
-	// Calculate the atmosphere RGB for each point of the grid
-
-	skyb.setLocation(latitude * M_PI/180, altitude, temperature, relativeHumidity);
-	skyb.setSunMoon(moonPos[2], sunPos[2]);
-
-	// Calculate the date from the julian day.
+	Skybright skyb;
 	int year, month, day;
 	StelUtils::getDateFromJulianDay(JD, &year, &month, &day);
+	// Put Sun & Moon to nadir: we only want to get airglow luminance, which in the model Skybright
+	// uses (Schaefer's model) doesn't depend on Sun & Moon positions.
 	skyb.setDate(year, month, moonPhase, moonMagnitude);
+	skyb.setLocation(latitude * M_PI/180, altitude, temperature, relativeHumidity);
+	skyb.setSunMoon(-1, -1);
 
 	// TODO:
 	// 1. (DONE) Luminance due to the Sun and the Moon
-	// 2. 		 Add airglow from Skybright (put Sun & Moon to nadir to avoid their influence)
+	// 2. (DONE) Add airglow from Skybright (put Sun & Moon to nadir to avoid their influence)
 	// 3. 		 Take eclipsed Sun into account.
 	// 4. (DONE) Take eclipsed Moon into account.
 	// 5. (DONE) Add star background luminance
-	// 6.(P.DONE)Add light pollution luminance (done only to calculate average luminance)
-	// 7.		 Draw light pollution
+	// 6. (DONE) Add light pollution luminance (done only to calculate average luminance)
+	// 7. (DONE) Draw light pollution
 
-	for (int i=0; i<(1+gridMaxX)*(1+gridMaxY); ++i)
+	float meanAdditionalLuminance=0;
+	const auto numPoints=(1+gridMaxX)*(1+gridMaxY);
+	for (int i=0; i<numPoints; ++i)
 	{
 		Vec3d point(1, 0, 0);
 		prj->unProject(posGrid[i][0],posGrid[i][1],point);
-		viewRayGrid[i].set(point[0], point[1], point[2], 1);
+
+		// Getting airglow luminance assuming the Sun & Moon are in nadir
+		const auto airglowLuminance=skyb.getLuminance(-point[2], -point[2], point[2]);
+		const auto starBackgroundLuminance=1e-4f;
+		const auto totalAdditionalLuminance = airglowLuminance + starBackgroundLuminance +
+												fader.getInterstate()*lightPollutionLuminance;
+		// FIXME: the way we draw light pollution, star background and airglow is ugly:
+		// we ignore their color and don't actually model their scattering at all, instead relying
+		// on Schaefer's model. It would be much better to actually relate them to the scattering
+		// model - it's possible, since all of them can be assumed spherically symmetric.
+		viewRayGrid[i].set(point[0], point[1], point[2], totalAdditionalLuminance);
+
+		meanAdditionalLuminance+=totalAdditionalLuminance;
 	}
+	meanAdditionalLuminance/=numPoints;
 
 	viewRayGridBuffer.bind();
 	viewRayGridBuffer.write(0, &viewRayGrid[0], viewRayGrid.size()*sizeof viewRayGrid[0]);
@@ -704,8 +718,7 @@ void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, fl
 		// CIE 1931 luminance computed from linear sRGB
 		const auto meanY=0.2126729*meanPixelValue[0]+0.7151522*meanPixelValue[1]+0.0721750*meanPixelValue[2];
 
-		const auto starBackgroundLuminance=1e-4f;
-		averageLuminance = meanY + starBackgroundLuminance + fader.getInterstate()*lightPollutionLuminance;
+		averageLuminance = meanY + meanAdditionalLuminance;
 	}
 }
 
