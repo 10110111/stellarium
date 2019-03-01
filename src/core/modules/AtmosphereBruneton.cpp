@@ -46,16 +46,6 @@ constexpr float kLengthUnitInMeters = 1000.000000;
 
 template<typename T> T sqr(T x) { return x*x; }
 
-QVector<char> readFileData(QString const& path)
-{
-	QFile file(path);
-	if(!file.open(QIODevice::ReadOnly)) throw std::runtime_error("Failed to open file \""+path.toStdString()+"\"");
-	QVector<char> data(file.size());
-	if(file.read(data.data(),file.size())!=file.size())
-		throw std::runtime_error("Failed to read file \""+path.toStdString()+"\"");
-	return data;
-}
-
 void bindAndSetupTexture(QOpenGLFunctions& gl, GLenum target, GLuint texture)
 {
 	gl.glBindTexture(target, texture);
@@ -97,24 +87,34 @@ void checkFramebufferStatus(QOpenGLFunctions& gl)
 
 } // namespace
 
+QVector<char> AtmosphereBruneton::readFileData(QString const& path)
+{
+	QFile file(path);
+	if(!file.open(QIODevice::ReadOnly)) throw InitFailure("Failed to open file \""+path.toStdString()+"\"");
+	QVector<char> data(file.size());
+	if(file.read(data.data(),file.size())!=file.size())
+		throw InitFailure("Failed to read file \""+path.toStdString()+"\"");
+	return data;
+}
+
 auto AtmosphereBruneton::getTextureSize4D(QVector<char> const& data) -> TextureSize4D
 {
 	std::int32_t dim;
 	std::memcpy(&dim, &data.back()+1-sizeof dim, sizeof dim);
 	if(dim!=4)
 	{
-		throw std::runtime_error("Bad dimension for 4D texture: "+std::to_string(dim)+
+		throw InitFailure("Bad dimension for 4D texture: "+std::to_string(dim)+
 								 " (texture size: "+std::to_string(data.size())+")");
 	}
 
 	TextureSize4D out;
 	if(unsigned(data.size())<=sizeof dim+sizeof out.sizes)
-		throw std::runtime_error("Too small texture file");
+		throw InitFailure("Too small texture file");
 
 	std::memcpy(&out.sizes[0], &data.back()+1-(sizeof dim+sizeof out.sizes), sizeof out.sizes);
 
 	if(unsigned(data.size())!=out.r_size()*out.mu_size()*out.muS_size()*out.nu_size()*sizeof(GLfloat)*4+sizeof dim+sizeof out.sizes)
-		throw std::runtime_error("Bad 4D texture size "+std::to_string(data.size()));
+		throw InitFailure("Bad 4D texture size "+std::to_string(data.size()));
 
 	return out;
 }
@@ -125,18 +125,18 @@ auto AtmosphereBruneton::getTextureSize2D(QVector<char> const& data) -> TextureS
 	std::memcpy(&dim, &data.back()+1-sizeof dim, sizeof dim);
 	if(dim!=2)
 	{
-		throw std::runtime_error("Bad dimension for 2D texture: "+std::to_string(dim)+
+		throw InitFailure("Bad dimension for 2D texture: "+std::to_string(dim)+
 								 " (texture size: "+std::to_string(data.size())+")");
 	}
 
 	TextureSize2D out;
 	if(unsigned(data.size())<=sizeof dim+sizeof out.sizes)
-		throw std::runtime_error("Too small texture file");
+		throw InitFailure("Too small texture file");
 
 	std::memcpy(&out.sizes[0], &data.back()+1-(sizeof dim+sizeof out.sizes), sizeof out.sizes);
 
 	if(unsigned(data.size())!=out.width()*out.height()*sizeof(GLfloat)*4+sizeof dim+sizeof out.sizes)
-		throw std::runtime_error("Bad 2D texture size "+std::to_string(data.size()));
+		throw InitFailure("Bad 2D texture size "+std::to_string(data.size()));
 
 	return out;
 }
@@ -156,8 +156,9 @@ void AtmosphereBruneton::loadTextures()
 																	GLsizei,GLsizei,GLint,GLenum,
 																	GLenum,const GLvoid*)>
 		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glTexImage3D")));
-	// We assume at least OpenGL 3.0 (minimal requirements of Stellarium), and there this function must exist.
-	Q_ASSERT(TexImage3D);
+	// We require at least OpenGL 3.0 (minimal requirements of Stellarium), and there this function must exist.
+	if(!TexImage3D)
+		throw InitFailure("glTexImage3D function not found");
 
 	{
 		bindAndSetupTexture(gl, GL_TEXTURE_2D, textures[TRANSMITTANCE_TEXTURE]);
@@ -201,10 +202,12 @@ void AtmosphereBruneton::loadTextures()
 		separateMieTexture=false;
 	}
 	if(separateMieTexture && mieScatteringTextureSize!=scatteringTextureSize)
-		throw std::runtime_error("Mie scattering texture must match Rayleight scattering texture in size");
+		throw InitFailure("Mie scattering texture must match Rayleigh scattering texture in size");
 
 	gl.glBindTexture(GL_TEXTURE_2D, 0);
-	Q_ASSERT(gl.glGetError()==GL_NO_ERROR);
+	const auto error=gl.glGetError();
+	if(error!=GL_NO_ERROR)
+		throw InitFailure("Texture loading: glGetError returned "+std::to_string(error));
 }
 
 void AtmosphereBruneton::loadShaders()
@@ -214,7 +217,7 @@ void AtmosphereBruneton::loadShaders()
 		QOpenGLShader vShader(QOpenGLShader::Vertex);
 		if (!vShader.compileSourceFile(":/shaders/AtmosphereMain.vert"))
 		{
-			qFatal("Error while compiling atmosphere vertex shader: %s", vShader.log().toLatin1().constData());
+			qCritical("Error while compiling atmosphere vertex shader: %s", vShader.log().toLatin1().constData());
 		}
 		if (!vShader.log().isEmpty())
 		{
@@ -223,7 +226,8 @@ void AtmosphereBruneton::loadShaders()
 		QOpenGLShader fShader(QOpenGLShader::Fragment);
 		if (!fShader.compileSourceFile(":/shaders/AtmosphereMain.frag"))
 		{
-			qFatal("Error while compiling atmosphere fragment shader: %s", fShader.log().toLatin1().constData());
+			qCritical("Error while compiling atmosphere fragment shader: %s", fShader.log().toLatin1().constData());
+			throw InitFailure("Shader compilation failed");
 		}
 		if (!fShader.log().isEmpty())
 		{
@@ -233,7 +237,7 @@ void AtmosphereBruneton::loadShaders()
 		{
 			QFile file(":/shaders/AtmosphereFunctions.frag");
 			if(!file.open(QIODevice::ReadOnly))
-				throw std::runtime_error("Failed to read file "+file.fileName().toStdString());
+				throw InitFailure("Failed to read file "+file.fileName().toStdString());
 			QString source=file.readAll();
 			source.replace(QRegExp("(TRANSMITTANCE_TEXTURE_WIDTH = )[^;]+;"),  QString("\\1%1;").arg(transmittanceTextureSize.width()));
 			source.replace(QRegExp("(TRANSMITTANCE_TEXTURE_HEIGHT = )[^;]+;"), QString("\\1%1;").arg(transmittanceTextureSize.height()));
@@ -246,7 +250,8 @@ void AtmosphereBruneton::loadShaders()
 			if(separateMieTexture) source.replace("#define COMBINED_SCATTERING_TEXTURES","");
 			if (!funcShader.compileSourceCode(source))
 			{
-				qFatal("Error while compiling atmosphere render functions shader: %s", funcShader.log().toLatin1().constData());
+				qCritical("Error while compiling atmosphere render functions shader: %s", funcShader.log().toLatin1().constData());
+				throw InitFailure("Shader compilation failed");
 			}
 			if (!funcShader.log().isEmpty())
 			{
@@ -274,7 +279,7 @@ void main()
 )";
 		if (!vShader.compileSourceCode(src))
 		{
-			qFatal("Error while compiling atmosphere post-processing vertex shader: %s", vShader.log().toLatin1().constData());
+			qCritical("Error while compiling atmosphere post-processing vertex shader: %s", vShader.log().toLatin1().constData());
 		}
 		if (!vShader.log().isEmpty())
 		{
@@ -283,7 +288,8 @@ void main()
 		QOpenGLShader ditherShader(QOpenGLShader::Fragment);
 		if (!ditherShader.compileSourceCode(makeDitheringShader()))
 		{
-			qFatal("Error while compiling atmosphere dithering shader: %s", ditherShader.log().toLatin1().constData());
+			qCritical("Error while compiling atmosphere dithering shader: %s", ditherShader.log().toLatin1().constData());
+			throw InitFailure("Shader compilation failed");
 		}
 		if (!ditherShader.log().isEmpty())
 		{
@@ -292,7 +298,8 @@ void main()
 		QOpenGLShader toneReproducerShader(QOpenGLShader::Fragment);
 		if (!toneReproducerShader.compileSourceFile(":/shaders/AtmospherePostProcess.frag"))
 		{
-			qFatal("Error while compiling atmosphere tone reproducer shader: %s", toneReproducerShader.log().toLatin1().constData());
+			qCritical("Error while compiling atmosphere tone reproducer shader: %s", toneReproducerShader.log().toLatin1().constData());
+			throw InitFailure("Shader compilation failed");
 		}
 		if (!toneReproducerShader.log().isEmpty())
 		{
@@ -301,7 +308,8 @@ void main()
 		postProcessProgram->addShader(&vShader);
 		postProcessProgram->addShader(&ditherShader);
 		postProcessProgram->addShader(&toneReproducerShader);
-		StelPainter::linkProg(postProcessProgram.get(), "atmosphere-post-process");
+		if(!StelPainter::linkProg(postProcessProgram.get(), "atmosphere-post-process"))
+			throw InitFailure("Shader program linking failed");
 	}
 }
 
@@ -342,9 +350,9 @@ void AtmosphereBruneton::setupBuffers()
 		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glGenVertexArrays")));
 	const auto BindVertexArray=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLuint)>
 		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glBindVertexArray")));
-	// We assume at least OpenGL 3.0 (minimal requirements of Stellarium), and there this function must exist.
-	Q_ASSERT(GenVertexArrays);
-	Q_ASSERT(BindVertexArray);
+	// We require at least OpenGL 3.0 (minimal requirements of Stellarium), and there these functions must exist.
+	if(!GenVertexArrays) throw InitFailure("glGenVertexArrays function not found");
+	if(!BindVertexArray) throw InitFailure("glBindVertexArray function not found");
 
 	(*GenVertexArrays)(1, &vao);
 	(*BindVertexArray)(vao);
@@ -603,8 +611,9 @@ Vec4f AtmosphereBruneton::getMeanPixelValue(int texW, int texH)
 	Vec4f pixel;
 	const auto GetTexImage=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLenum,GLint,GLenum,GLenum,GLvoid*)>
 							(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glGetTexImage")));
-	// We assume at least OpenGL 3.0 (minimal requirements of Stellarium), and there this function must exist.
-	Q_ASSERT(GetTexImage);
+	// We require at least OpenGL 3.0 (minimal requirements of Stellarium), and there this function must exist.
+	if(!GetTexImage)
+		throw InitFailure("glGetTexImage function not found");
 	(*GetTexImage)(GL_TEXTURE_2D, deepestLevel, GL_RGBA, GL_FLOAT, &pixel[0]);
 	return pixel;
 }

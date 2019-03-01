@@ -444,9 +444,22 @@ void LandscapeMgr::init()
 
 	const auto atmosphereModelConfig=conf->value("landscape/atmosphere_model", "preetham").toString();
 	if(atmosphereModelConfig=="preetham")
+	{
 		atmosphere = new AtmospherePreetham();
+	}
 	else if(atmosphereModelConfig=="bruneton")
-		atmosphere = new AtmosphereBruneton();
+	{
+		try
+		{
+			atmosphere = new AtmosphereBruneton();
+		}
+		catch(AtmosphereBruneton::InitFailure const& error)
+		{
+			qWarning() << "ERROR: Failed to initialize Bruneton's atmosphere model:" << error.what();
+			qWarning() << "WARNING: Falling back to Preetham's model";
+			atmosphere = new AtmospherePreetham();
+		}
+	}
 	else
 	{
 		qWarning() << "Unsupported atmosphere model" << atmosphereModelConfig;
