@@ -29,7 +29,9 @@ void main()
     float ray_earth_center_squared_distance = p_dot_p - sqr(p_dot_v);
     float distance_to_intersection = -p_dot_v - sqrt(
       sqr(earth_center.z) - ray_earth_center_squared_distance);
-    if(distance_to_intersection>0)
+    // camera.z==0 is a special case where distance to intersection calculation
+    // is unreliable (has a lot of noise in its sign), so check it separately
+    if(distance_to_intersection>0 || (camera.z==0 && view_direction.z<0))
     {
         view_direction.z=-view_direction.z;
     }
