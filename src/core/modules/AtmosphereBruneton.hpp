@@ -28,6 +28,7 @@
 
 #include <array>
 #include <memory>
+#include <stdexcept>
 #include <QOpenGLBuffer>
 
 class StelProjector;
@@ -64,6 +65,11 @@ public:
 	void setAverageLuminance(float overrideLum) override;
 	void setLightPollutionLuminance(float f) override { lightPollutionLuminance = f; }
 	float getLightPollutionLuminance() const override { return lightPollutionLuminance; }
+
+	struct InitFailure : std::runtime_error
+	{
+		using std::runtime_error::runtime_error;
+	};
 
 private:
 	Vec4i viewport;
@@ -128,6 +134,7 @@ private:
 	void setupBuffers();
 	void regenerateGrid();
 	void setupRenderTarget();
+	static QVector<char> readFileData(QString const& path);
 	// Gets average value of the pixels rendered to the FBO texture as the value of the deepest
 	// mipmap level
 	Vec4f getMeanPixelValue(int texW, int texH);
