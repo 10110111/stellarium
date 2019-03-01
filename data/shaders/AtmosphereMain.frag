@@ -10,6 +10,7 @@ const vec3 earth_center=vec3(0,0,-earthRadius);
 uniform vec3 camera;
 uniform vec3 sun_direction;
 
+in vec3 additionalLuminance;
 in vec3 view_ray;
 out vec4 color;
 vec3 GetSolarLuminance();
@@ -51,5 +52,6 @@ void main()
     if (dot(view_direction, sun_direction) > sun_size.y)
         radiance += transmittance * GetSolarLuminance();
      */
-    color = vec4(radiance,1);
+
+    color = vec4(radiance+additionalLuminance,1);
 }

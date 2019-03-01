@@ -73,7 +73,6 @@ public:
 
 private:
 	Vec4i viewport;
-	Skybright skyb;
 	int gridMaxY,gridMaxX;
 
 	QVector<Vec2f> posGrid;
@@ -99,7 +98,7 @@ private:
 		int irradianceTexture;
 		int transmittanceTexture;
 		int singleMieScatteringTexture;
-		int viewRay;
+		int viewRayAndAddLuminance; // View direction int xyz components, additional luminance in w
 		int skyVertex;
 
 		int rgbMaxValue;
