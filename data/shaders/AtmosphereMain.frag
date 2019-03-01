@@ -19,25 +19,32 @@ float sqr(float x) { return x*x; }
 void main()
 {
     vec3 view_direction=normalize(view_ray);
+    vec3 cameraPos=camera;
+
+    // FIXME: we simply clamp negative altitudes to zero currently. This is not
+    // quite correct: there are places with negative elevation above sea level.
+    // But at least this will avoid breakage of the model.
+    if(cameraPos.z<0)
+        cameraPos.z=0;
 
     // Don't draw any type of ground. Instead reflect the ray from mathematical
     // horizon. This isn't physical, but lets Tone Reproducer work without
     // overexposures.
-    vec3 p = camera - earth_center;
+    vec3 p = cameraPos - earth_center;
     float p_dot_v = dot(p, view_direction);
     float p_dot_p = dot(p, p);
     float ray_earth_center_squared_distance = p_dot_p - sqr(p_dot_v);
     float distance_to_intersection = -p_dot_v - sqrt(
       sqr(earth_center.z) - ray_earth_center_squared_distance);
-    // camera.z==0 is a special case where distance to intersection calculation
+    // cameraPos.z==0 is a special case where distance to intersection calculation
     // is unreliable (has a lot of noise in its sign), so check it separately
-    if(distance_to_intersection>0 || (camera.z==0 && view_direction.z<0))
+    if(distance_to_intersection>0 || (cameraPos.z==0 && view_direction.z<0))
     {
         view_direction.z=-view_direction.z;
     }
 
     vec3 transmittance;
-    vec3 radiance = GetSkyLuminance(camera - earth_center, view_direction, 0, sun_direction, transmittance);
+    vec3 radiance = GetSkyLuminance(cameraPos - earth_center, view_direction, 0, sun_direction, transmittance);
     /*
     // This 'if' case is useful when we want to check that the Sun is where
     // it's supposed to be and, ideally, has the color it's supposed to have
