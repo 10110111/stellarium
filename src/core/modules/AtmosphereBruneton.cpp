@@ -261,7 +261,8 @@ void AtmosphereBruneton::loadShaders()
 		atmosphereRenderProgram->addShader(&vShader);
 		atmosphereRenderProgram->addShader(&fShader);
 		atmosphereRenderProgram->addShader(&funcShader);
-		StelPainter::linkProg(atmosphereRenderProgram.get(), "atmosphere");
+		if(!StelPainter::linkProg(atmosphereRenderProgram.get(), "atmosphere rendering"))
+			throw InitFailure("Shader program linking failed");
 	}
 
 	// Post-processing shader program
@@ -308,7 +309,7 @@ void main()
 		postProcessProgram->addShader(&vShader);
 		postProcessProgram->addShader(&ditherShader);
 		postProcessProgram->addShader(&toneReproducerShader);
-		if(!StelPainter::linkProg(postProcessProgram.get(), "atmosphere-post-process"))
+		if(!StelPainter::linkProg(postProcessProgram.get(), "atmosphere post-processing"))
 			throw InitFailure("Shader program linking failed");
 	}
 }
