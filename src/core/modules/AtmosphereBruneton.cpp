@@ -212,27 +212,24 @@ void AtmosphereBruneton::loadTextures()
 
 void AtmosphereBruneton::loadShaders()
 {
+	const auto handleCompileStatus=[](bool success, QOpenGLShader const& shader, const char* what)
+		{
+			if(!success)
+			{
+				qCritical("Error while compiling %s: %s", what, shader.log().toLatin1().constData());
+				throw InitFailure("Shader compilation failed");
+			}
+			if(!shader.log().isEmpty())
+			{
+				qWarning("Warnings while compiling %s: %s", what, shader.log().toLatin1().constData());
+			}
+		};
 	// Core atmosphere rendering shader program
 	{
 		QOpenGLShader vShader(QOpenGLShader::Vertex);
-		if (!vShader.compileSourceFile(":/shaders/AtmosphereMain.vert"))
-		{
-			qCritical("Error while compiling atmosphere vertex shader: %s", vShader.log().toLatin1().constData());
-		}
-		if (!vShader.log().isEmpty())
-		{
-			qWarning() << "Warnings while compiling atmosphere vertex shader: " << vShader.log();
-		}
+		handleCompileStatus(vShader.compileSourceFile(":/shaders/AtmosphereMain.vert"), vShader, "atmosphere vertex shader");
 		QOpenGLShader fShader(QOpenGLShader::Fragment);
-		if (!fShader.compileSourceFile(":/shaders/AtmosphereMain.frag"))
-		{
-			qCritical("Error while compiling atmosphere fragment shader: %s", fShader.log().toLatin1().constData());
-			throw InitFailure("Shader compilation failed");
-		}
-		if (!fShader.log().isEmpty())
-		{
-			qWarning() << "Warnings while compiling atmosphere fragment shader: " << fShader.log();
-		}
+		handleCompileStatus(fShader.compileSourceFile(":/shaders/AtmosphereMain.frag"), fShader, "atmosphere fragment shader");
 		QOpenGLShader funcShader(QOpenGLShader::Fragment);
 		{
 			QFile file(":/shaders/AtmosphereFunctions.frag");
@@ -248,15 +245,7 @@ void AtmosphereBruneton::loadShaders()
 			source.replace(QRegExp("(SCATTERING_TEXTURE_MU_S_SIZE = )[^;]+;"), QString("\\1%1;").arg(scatteringTextureSize.muS_size()));
 			source.replace(QRegExp("(SCATTERING_TEXTURE_NU_SIZE = )[^;]+;"),   QString("\\1%1;").arg(scatteringTextureSize.nu_size()));
 			if(separateMieTexture) source.replace("#define COMBINED_SCATTERING_TEXTURES","");
-			if (!funcShader.compileSourceCode(source))
-			{
-				qCritical("Error while compiling atmosphere render functions shader: %s", funcShader.log().toLatin1().constData());
-				throw InitFailure("Shader compilation failed");
-			}
-			if (!funcShader.log().isEmpty())
-			{
-				qWarning() << "Warnings while compiling atmosphere render functions shader: " << funcShader.log();
-			}
+			handleCompileStatus(funcShader.compileSourceCode(source), funcShader, "atmosphere render functions shader");
 		}
 		atmosphereRenderProgram->addShader(&vShader);
 		atmosphereRenderProgram->addShader(&fShader);
@@ -278,34 +267,12 @@ void main()
     texCoord=vertex.xy*0.5+0.5;
 }
 )";
-		if (!vShader.compileSourceCode(src))
-		{
-			qCritical("Error while compiling atmosphere post-processing vertex shader: %s", vShader.log().toLatin1().constData());
-		}
-		if (!vShader.log().isEmpty())
-		{
-			qWarning() << "Warnings while compiling atmosphere post-processing vertex shader: " << vShader.log();
-		}
+		handleCompileStatus(vShader.compileSourceCode(src), vShader, "atmosphere post-processing vertex shader");
 		QOpenGLShader ditherShader(QOpenGLShader::Fragment);
-		if (!ditherShader.compileSourceCode(makeDitheringShader()))
-		{
-			qCritical("Error while compiling atmosphere dithering shader: %s", ditherShader.log().toLatin1().constData());
-			throw InitFailure("Shader compilation failed");
-		}
-		if (!ditherShader.log().isEmpty())
-		{
-			qWarning() << "Warnings while compiling atmosphere dithering shader: " << ditherShader.log();
-		}
+		handleCompileStatus(ditherShader.compileSourceCode(makeDitheringShader()), ditherShader, "atmosphere dithering shader");
 		QOpenGLShader toneReproducerShader(QOpenGLShader::Fragment);
-		if (!toneReproducerShader.compileSourceFile(":/shaders/AtmospherePostProcess.frag"))
-		{
-			qCritical("Error while compiling atmosphere tone reproducer shader: %s", toneReproducerShader.log().toLatin1().constData());
-			throw InitFailure("Shader compilation failed");
-		}
-		if (!toneReproducerShader.log().isEmpty())
-		{
-			qWarning() << "Warnings while compiling atmosphere tone reproducer shader: " << toneReproducerShader.log();
-		}
+		handleCompileStatus(toneReproducerShader.compileSourceFile(":/shaders/AtmospherePostProcess.frag"), toneReproducerShader,
+							"atmosphere tone reproducer shader");
 		postProcessProgram->addShader(&vShader);
 		postProcessProgram->addShader(&ditherShader);
 		postProcessProgram->addShader(&toneReproducerShader);
