@@ -357,6 +357,12 @@ AtmosphereBruneton::AtmosphereBruneton()
 {
 	setFadeDuration(1.5);
 
+	GetTexImage=reinterpret_cast<decltype(GetTexImage)>
+		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glGetTexImage")));
+	// We require at least OpenGL 3.0 (minimal requirements of Stellarium), and there this function must exist.
+	if(!GetTexImage)
+		throw InitFailure("glGetTexImage function not found");
+
 	loadTextures();
 	loadShaders();
 	setupRenderTarget();
@@ -577,11 +583,6 @@ Vec4f AtmosphereBruneton::getMeanPixelValue(int texW, int texH)
 #endif
 
 	Vec4f pixel;
-	const auto GetTexImage=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLenum,GLint,GLenum,GLenum,GLvoid*)>
-							(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glGetTexImage")));
-	// We require at least OpenGL 3.0 (minimal requirements of Stellarium), and there this function must exist.
-	if(!GetTexImage)
-		throw InitFailure("glGetTexImage function not found");
 	(*GetTexImage)(GL_TEXTURE_2D, deepestLevel, GL_RGBA, GL_FLOAT, &pixel[0]);
 	return pixel;
 }

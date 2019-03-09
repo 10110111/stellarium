@@ -127,6 +127,7 @@ private:
 	int fboPrevWidth, fboPrevHeight;
 	double altitude;
 	GLuint vao, vbo;
+	void(QOPENGLF_APIENTRYP GetTexImage)(GLenum,GLint,GLenum,GLenum,GLvoid*);
 
 	void loadShaders();
 	void loadTextures();
