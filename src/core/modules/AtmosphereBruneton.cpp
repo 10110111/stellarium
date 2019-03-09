@@ -46,6 +46,14 @@ constexpr float kLengthUnitInMeters = 1000.000000;
 
 template<typename T> T sqr(T x) { return x*x; }
 
+int roundDownToClosestPowerOfTwo(const int x)
+{
+	int shift=0;
+	for(auto v=x;v;v>>=1)
+		++shift;
+	return 1<<(shift-1);
+}
+
 void bindAndSetupTexture(QOpenGLFunctions& gl, GLenum target, GLuint texture)
 {
 	gl.glBindTexture(target, texture);
@@ -271,28 +279,72 @@ void main()
 		if(!StelPainter::linkProg(postProcessProgram.get(), "atmosphere post-processing"))
 			throw InitFailure("Shader program linking failed");
 	}
+
+	if(needNPOTMipmapWorkaround)
+	{
+		QOpenGLShader vShader(QOpenGLShader::Vertex);
+		constexpr char srcVert[]=R"(
+#version 120
+attribute vec4 vertex;
+varying vec2 texcoord;
+void main()
+{
+    gl_Position=vertex;
+    texcoord=vertex.st*0.5+vec2(0.5);
+}
+)";
+		handleCompileStatus(vShader.compileSourceCode(srcVert), vShader,
+							"NPOT to POT texture blit vertex shader");
+
+		QOpenGLShader fShader(QOpenGLShader::Fragment);
+		constexpr char srcFrag[]=R"(
+#version 130
+in vec2 texcoord;
+uniform sampler2D tex;
+void main()
+{
+    gl_FragColor=texture2D(tex, texcoord);
+}
+)";
+		handleCompileStatus(fShader.compileSourceCode(srcFrag), fShader,
+							"NPOT to POT texture blit fragment shader");
+		roundTextureSizeProgram->addShader(&vShader);
+		roundTextureSizeProgram->addShader(&fShader);
+		if(!StelPainter::linkProg(roundTextureSizeProgram.get(), "NPOT to POT texture blit"))
+			throw InitFailure("Shader program linking failed");
+	}
 }
 
 void AtmosphereBruneton::resizeRenderTarget(int width, int height)
 {
-	Q_ASSERT(fbo);
+	Q_ASSERT(fbos[FBO_MAIN]);
 	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
 	gl.glBindTexture(GL_TEXTURE_2D,textures[FBO_TEXTURE]);
 	gl.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA32F,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,nullptr);
 	gl.glBindTexture(GL_TEXTURE_2D,0);
-	gl.glBindFramebuffer(GL_FRAMEBUFFER,fbo);
+	gl.glBindFramebuffer(GL_FRAMEBUFFER,fbos[FBO_MAIN]);
 	gl.glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,textures[FBO_TEXTURE],0);
 	checkFramebufferStatus(gl);
 	gl.glBindFramebuffer(GL_FRAMEBUFFER,0);
 
 	fboPrevWidth=width;
 	fboPrevHeight=height;
+
+	const auto potW=roundDownToClosestPowerOfTwo(width);
+	const auto potH=roundDownToClosestPowerOfTwo(height);
+	gl.glBindTexture(GL_TEXTURE_2D,textures[FBO_TEXTURE_POT]);
+	gl.glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA32F,potW,potH,0,GL_RGBA,GL_UNSIGNED_BYTE,nullptr);
+	gl.glBindTexture(GL_TEXTURE_2D,0);
+	gl.glBindFramebuffer(GL_FRAMEBUFFER,fbos[FBO_POT]);
+	gl.glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,textures[FBO_TEXTURE_POT],0);
+	checkFramebufferStatus(gl);
+	gl.glBindFramebuffer(GL_FRAMEBUFFER,0);
 }
 
 void AtmosphereBruneton::setupRenderTarget()
 {
 	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
-	gl.glGenFramebuffers(1,&fbo);
+	gl.glGenFramebuffers(FBO_COUNT,fbos);
 	gl.glBindTexture(GL_TEXTURE_2D,textures[FBO_TEXTURE]);
 	gl.glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	gl.glBindTexture(GL_TEXTURE_2D,0);
@@ -346,6 +398,17 @@ void AtmosphereBruneton::resolveFunctions()
 	if(!DeleteVertexArrays) throw InitFailure("glDeleteVertexArrays function not found");
 }
 
+void AtmosphereBruneton::checkNeedForNPOTMipmapWorkaround()
+{
+	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
+	const QString version(reinterpret_cast<const char*>(gl.glGetString(GL_VERSION)));
+	if(version.contains(" Mesa "))
+	{
+		qWarning() << "Mesa detected. Enabling workaround for Mesa bug 109816.";
+		needNPOTMipmapWorkaround=true;
+	}
+}
+
 AtmosphereBruneton::AtmosphereBruneton()
 	: viewport(0,0,0,0)
 	, gridMaxY(44)
@@ -359,9 +422,11 @@ AtmosphereBruneton::AtmosphereBruneton()
 	, lightPollutionLuminance(0)
 	, atmosphereRenderProgram(new QOpenGLShaderProgram())
 	, postProcessProgram(new QOpenGLShaderProgram())
+	, roundTextureSizeProgram(new QOpenGLShaderProgram())
 {
 	setFadeDuration(1.5);
 
+	checkNeedForNPOTMipmapWorkaround();
 	resolveFunctions();
 	loadTextures();
 	loadShaders();
@@ -389,6 +454,13 @@ AtmosphereBruneton::AtmosphereBruneton()
 	 shaderAttribLocations.term2TimesOneOverMaxdLpOneOverGamma = postProcessProgram->uniformLocation("term2TimesOneOverMaxdLpOneOverGamma");
 	 shaderAttribLocations.brightnessScale                     = postProcessProgram->uniformLocation("brightnessScale");
 	postProcessProgram->release();
+
+	if(needNPOTMipmapWorkaround)
+	{
+		roundTextureSizeProgram->bind();
+		shaderAttribLocations.textureToRound = roundTextureSizeProgram->uniformLocation("tex");
+		roundTextureSizeProgram->release();
+	}
 }
 
 AtmosphereBruneton::~AtmosphereBruneton()
@@ -558,8 +630,52 @@ void AtmosphereBruneton::drawAtmosphere(Mat4f const& projectionMatrix, Vec3d sun
 	atmosphereRenderProgram->release();
 }
 
+/*! \details This function downsamples the texture to a power of two coarsely (using linear interpolation),
+ * then generates mipmap from that. Texel of the deepest level of this mipmap should be much better
+ * approximation of average than what we get with NPOT textures on Mesa up to at least version 18.3. For
+ * details see Mesa bug report: https://bugs.freedesktop.org/show_bug.cgi?id=109816 . This kludge can be
+ * removed after Mesa bug is fixed.
+ */
+Vec4f AtmosphereBruneton::getMeanPixelValueWithWorkaround(int texW, int texH)
+{
+	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
+
+	// Let's play it safe: we don't want to make the GPU struggle with very large textures if we happen
+	// to make them ~4 times larger. Instead round the dimensions down.
+	const auto potW=roundDownToClosestPowerOfTwo(texW);
+	const auto potH=roundDownToClosestPowerOfTwo(texH);
+
+	gl.glBindFramebuffer(GL_FRAMEBUFFER, fbos[FBO_POT]);
+	roundTextureSizeProgram->bind();
+	gl.glActiveTexture(GL_TEXTURE0);
+	gl.glBindTexture(GL_TEXTURE_2D, textures[FBO_TEXTURE]);
+	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	gl.glUniform1i(shaderAttribLocations.textureToRound, 0);
+	gl.glViewport(0,0,potW,potH);
+	(*BindVertexArray)(vao);
+	gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	(*BindVertexArray)(0);
+	gl.glViewport(0,0,texW,texH);
+	roundTextureSizeProgram->release();
+	gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	using namespace std;
+	const auto totalMipmapLevels = 1+floor(log2(max(potW,potH)));
+	const auto deepestLevel=totalMipmapLevels-1;
+
+	gl.glBindTexture(GL_TEXTURE_2D, textures[FBO_TEXTURE_POT]);
+	gl.glGenerateMipmap(GL_TEXTURE_2D);
+	Vec4f pixel;
+	(*GetTexImage)(GL_TEXTURE_2D, deepestLevel, GL_RGBA, GL_FLOAT, &pixel[0]);
+	gl.glBindTexture(GL_TEXTURE_2D, 0);
+	return pixel;
+}
+
 Vec4f AtmosphereBruneton::getMeanPixelValue(int texW, int texH)
 {
+	if(needNPOTMipmapWorkaround)
+		return getMeanPixelValueWithWorkaround(texW, texH);
+
 	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
 
 	gl.glActiveTexture(GL_TEXTURE0);
@@ -671,7 +787,7 @@ void AtmosphereBruneton::computeColor(double JD, Vec3d sunPos, Vec3d moonPos, fl
 	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
 	GLint prevFBO;
 	gl.glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevFBO);
-	gl.glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	gl.glBindFramebuffer(GL_FRAMEBUFFER, fbos[FBO_MAIN]);
 	gl.glClearColor(0,0,0,0);
 	gl.glClear(GL_COLOR_BUFFER_BIT);
 	 drawAtmosphere(prj->getProjectionMatrix(), sunDir, 1.0);

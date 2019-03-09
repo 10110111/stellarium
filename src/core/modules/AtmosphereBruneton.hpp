@@ -90,6 +90,8 @@ private:
 
 	std::unique_ptr<QOpenGLShaderProgram> atmosphereRenderProgram;
 	std::unique_ptr<QOpenGLShaderProgram> postProcessProgram;
+	std::unique_ptr<QOpenGLShaderProgram> roundTextureSizeProgram; // for getMeanPixelValueWithWorkaround()
+	bool needNPOTMipmapWorkaround=false;
 	struct {
 		int sunDir;
 		int cameraPos;
@@ -108,6 +110,8 @@ private:
 		int brightnessScale;
 		int alphaWaOverAlphaDa;
 		int term2TimesOneOverMaxdLpOneOverGamma;
+
+		int textureToRound=-1; // for getMeanPixelValueWithWorkaround()
 	} shaderAttribLocations;
 
 	GLuint bayerPatternTex=0;
@@ -119,11 +123,19 @@ private:
 		IRRADIANCE_TEXTURE,
 		MIE_SCATTERING_TEXTURE,
 		FBO_TEXTURE,
+		FBO_TEXTURE_POT, // for getMeanPixelValueWithWorkaround()
 
 		TEX_COUNT
 	};
 	GLuint textures[TEX_COUNT];
-	GLuint fbo;
+	enum
+	{
+		FBO_MAIN,
+		FBO_POT, // for getMeanPixelValueWithWorkaround()
+
+		FBO_COUNT
+	};
+	GLuint fbos[FBO_COUNT];
 	int fboPrevWidth, fboPrevHeight;
 	double altitude;
 	GLuint vao, vbo;
@@ -136,6 +148,7 @@ private:
 	void(QOPENGLF_APIENTRYP BindVertexArray)(GLuint);
 	void(QOPENGLF_APIENTRYP DeleteVertexArrays)(GLsizei,const GLuint*);
 
+	void checkNeedForNPOTMipmapWorkaround();
 	void resolveFunctions();
 	void loadShaders();
 	void loadTextures();
@@ -146,6 +159,9 @@ private:
 	// Gets average value of the pixels rendered to the FBO texture as the value of the deepest
 	// mipmap level
 	Vec4f getMeanPixelValue(int texW, int texH);
+	//! \brief Functionally the same as @ref getMeanPixelValue, but works around Mesa bug 109816.
+	//  It's less precise, so isn't used for all OpenGL implementations.
+	Vec4f getMeanPixelValueWithWorkaround(int texW, int texH);
 	void resizeRenderTarget(int width, int height);
 	void drawAtmosphere(Mat4f const& projectionMatrix, Vec3d sunDir, float brightness);
 	void updateEclipseFactor(StelCore* core, Vec3d sunPos, Vec3d moonPos);
