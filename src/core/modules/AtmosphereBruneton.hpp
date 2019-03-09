@@ -127,8 +127,16 @@ private:
 	int fboPrevWidth, fboPrevHeight;
 	double altitude;
 	GLuint vao, vbo;
-	void(QOPENGLF_APIENTRYP GetTexImage)(GLenum,GLint,GLenum,GLenum,GLvoid*);
 
+	void(QOPENGLF_APIENTRYP TexImage3D)(GLenum,GLint,GLint,GLsizei,
+										GLsizei,GLsizei,GLint,GLenum,
+										GLenum,const GLvoid*);
+	void(QOPENGLF_APIENTRYP GetTexImage)(GLenum,GLint,GLenum,GLenum,GLvoid*);
+	void(QOPENGLF_APIENTRYP GenVertexArrays)(GLsizei,GLuint*);
+	void(QOPENGLF_APIENTRYP BindVertexArray)(GLuint);
+	void(QOPENGLF_APIENTRYP DeleteVertexArrays)(GLsizei,const GLuint*);
+
+	void resolveFunctions();
 	void loadShaders();
 	void loadTextures();
 	void setupBuffers();

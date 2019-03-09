@@ -152,14 +152,6 @@ void AtmosphereBruneton::loadTextures()
 
 	gl.glActiveTexture(GL_TEXTURE0);
 
-	const auto TexImage3D=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLenum,GLint,GLint,GLsizei,
-																	GLsizei,GLsizei,GLint,GLenum,
-																	GLenum,const GLvoid*)>
-		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glTexImage3D")));
-	// We require at least OpenGL 3.0 (minimal requirements of Stellarium), and there this function must exist.
-	if(!TexImage3D)
-		throw InitFailure("glTexImage3D function not found");
-
 	{
 		bindAndSetupTexture(gl, GL_TEXTURE_2D, textures[TRANSMITTANCE_TEXTURE]);
 		const auto data=readFileData(StelFileMgr::findFile("textures/atmosphere/transmittance.dat"));
@@ -314,14 +306,6 @@ void AtmosphereBruneton::setupBuffers()
 {
 	QOpenGLFunctions& gl=*QOpenGLContext::currentContext()->functions();
 
-	const auto GenVertexArrays=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLsizei,GLuint*)>
-		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glGenVertexArrays")));
-	const auto BindVertexArray=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLuint)>
-		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glBindVertexArray")));
-	// We require at least OpenGL 3.0 (minimal requirements of Stellarium), and there these functions must exist.
-	if(!GenVertexArrays) throw InitFailure("glGenVertexArrays function not found");
-	if(!BindVertexArray) throw InitFailure("glBindVertexArray function not found");
-
 	(*GenVertexArrays)(1, &vao);
 	(*BindVertexArray)(vao);
 	gl.glGenBuffers(1, &vbo);
@@ -341,6 +325,27 @@ void AtmosphereBruneton::setupBuffers()
 	(*BindVertexArray)(0);
 }
 
+void AtmosphereBruneton::resolveFunctions()
+{
+	TexImage3D=reinterpret_cast<decltype(TexImage3D)>
+		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glTexImage3D")));
+	GetTexImage=reinterpret_cast<decltype(GetTexImage)>
+		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glGetTexImage")));
+	GenVertexArrays=reinterpret_cast<decltype(GenVertexArrays)>
+		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glGenVertexArrays")));
+	BindVertexArray=reinterpret_cast<decltype(BindVertexArray)>
+		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glBindVertexArray")));
+	DeleteVertexArrays=reinterpret_cast<decltype(DeleteVertexArrays)>
+		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glDeleteVertexArrays")));
+
+	// We require at least OpenGL 3.0 (minimal requirements of Stellarium), and there these functions must exist.
+	if(!TexImage3D)         throw InitFailure("glTexImage3D function not found");
+	if(!GetTexImage)        throw InitFailure("glGetTexImage function not found");
+	if(!GenVertexArrays)    throw InitFailure("glGenVertexArrays function not found");
+	if(!BindVertexArray)    throw InitFailure("glBindVertexArray function not found");
+	if(!DeleteVertexArrays) throw InitFailure("glDeleteVertexArrays function not found");
+}
+
 AtmosphereBruneton::AtmosphereBruneton()
 	: viewport(0,0,0,0)
 	, gridMaxY(44)
@@ -357,12 +362,7 @@ AtmosphereBruneton::AtmosphereBruneton()
 {
 	setFadeDuration(1.5);
 
-	GetTexImage=reinterpret_cast<decltype(GetTexImage)>
-		(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glGetTexImage")));
-	// We require at least OpenGL 3.0 (minimal requirements of Stellarium), and there this function must exist.
-	if(!GetTexImage)
-		throw InitFailure("glGetTexImage function not found");
-
+	resolveFunctions();
 	loadTextures();
 	loadShaders();
 	setupRenderTarget();
@@ -398,8 +398,6 @@ AtmosphereBruneton::~AtmosphereBruneton()
 		auto& gl=*ctx->functions();
 		gl.glDeleteTextures(TEX_COUNT, textures);
 		gl.glDeleteBuffers(1, &vbo);
-		const auto DeleteVertexArrays=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLsizei,const GLuint*)>
-			(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glDeleteVertexArrays")));
 		(*DeleteVertexArrays)(1, &vao);
 	}
 }
@@ -742,8 +740,6 @@ void AtmosphereBruneton::draw(StelCore* core)
 	gl.glBindTexture(GL_TEXTURE_2D, bayerPatternTex);
 	postProcessProgram->setUniformValue(shaderAttribLocations.bayerPattern, 1);
 
-	const auto BindVertexArray=reinterpret_cast<void(QOPENGLF_APIENTRYP)(GLuint)>
-								(QOpenGLContext::currentContext()->getProcAddress(QByteArrayLiteral("glBindVertexArray")));
 	(*BindVertexArray)(vao);
 	gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	(*BindVertexArray)(0);
