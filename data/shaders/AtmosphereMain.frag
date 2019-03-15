@@ -17,6 +17,15 @@ vec3 GetSolarLuminance();
 vec3 GetSkyLuminance(vec3 camera, vec3 view_ray, float shadow_length,
                      vec3 sun_direction, out vec3 transmittance);
 float sqr(float x) { return x*x; }
+
+// cos(zenithAngle) for a ray tangential to horizon and originating at given altitude
+float horizonMu(float altitude)
+{
+    float R=earthRadius;
+    float h=altitude;
+    return -sqrt(2*h*R+sqr(h))/(R+h);
+}
+
 void main()
 {
     vec3 view_direction=normalize(view_ray);
@@ -41,7 +50,7 @@ void main()
     // is unreliable (has a lot of noise in its sign), so check it separately
     if(distance_to_intersection>0 || (cameraPos.z==0 && view_direction.z<0))
     {
-        view_direction.z=-view_direction.z;
+        view_direction.z=2*horizonMu(cameraPos.z)-view_direction.z;
     }
 
     vec3 transmittance;
