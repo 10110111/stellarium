@@ -4,7 +4,9 @@ const float kLengthUnitInMeters = 1000.000000;
 const float earthRadius=6.36e6/kLengthUnitInMeters;
 const float sunAngularRadius=0.00935/2;
 
-const vec2 sun_size=vec2(tan(sunAngularRadius),cos(sunAngularRadius));
+// This one is non-const because some broken drivers (e.g. nvidia-340, which is
+// the latest for NVIDIA ION) think tan&cos are non-constant-expressions
+vec2 sun_size=vec2(tan(sunAngularRadius),cos(sunAngularRadius));
 const vec3 earth_center=vec3(0,0,-earthRadius);
 
 uniform vec3 camera;
