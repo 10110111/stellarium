@@ -164,10 +164,6 @@ Q_IMPORT_PLUGIN(ExoplanetsStelPluginInterface)
 Q_IMPORT_PLUGIN(EquationOfTimeStelPluginInterface)
 #endif
 
-#ifdef USE_STATIC_PLUGIN_FOV
-Q_IMPORT_PLUGIN(FOVStelPluginInterface)
-#endif
-
 #ifdef USE_STATIC_PLUGIN_POINTERCOORDINATES
 Q_IMPORT_PLUGIN(PointerCoordinatesStelPluginInterface)
 #endif
@@ -188,10 +184,14 @@ Q_IMPORT_PLUGIN(RemoteControlStelPluginInterface)
 Q_IMPORT_PLUGIN(RemoteSyncStelPluginInterface)
 #endif
 
+#ifdef USE_STATIC_PLUGIN_VTS
+Q_IMPORT_PLUGIN(VtsStelPluginInterface)
+#endif
+
 // Initialize static variables
 StelApp* StelApp::singleton = Q_NULLPTR;
 qint64 StelApp::startMSecs = 0;
-float StelApp::animationScale = 1.f;
+double StelApp::animationScale = 1.;
 
 void StelApp::initStatic()
 {
@@ -227,7 +227,7 @@ StelApp::StelApp(StelMainView *parent)
 	, scriptMgr(Q_NULLPTR)
 #endif
 	, stelGui(Q_NULLPTR)
-	, devicePixelsPerPixel(1.f)
+	, devicePixelsPerPixel(1.)
 	, globalScalingRatio(1.f)
 	, fps(0)
 	, frame(0)
@@ -235,8 +235,8 @@ StelApp::StelApp(StelMainView *parent)
 	, flagNightVision(false)
 	, confSettings(Q_NULLPTR)
 	, initialized(false)
-	, saveProjW(-1)
-	, saveProjH(-1)
+	, saveProjW(-1.)
+	, saveProjH(-1.)
 	, nbDownloadedFiles(0)
 	, totalDownloadedSize(0)
 	, nbUsedCache(0)
@@ -249,6 +249,7 @@ StelApp::StelApp(StelMainView *parent)
 	, flagUseAzimuthFromSouth(false)
 	, flagUseFormattingOutput(false)
 	, flagUseCCSDesignation(false)
+	, flagOverwriteInfoColor(false)
 	#ifdef ENABLE_SPOUT
 	, spoutSender(Q_NULLPTR)
 	#endif
@@ -275,7 +276,7 @@ StelApp::StelApp(StelMainView *parent)
 *************************************************************************/
 StelApp::~StelApp()
 {
-	qDebug() << qPrintable(QString("Downloaded %1 files (%2 kbytes) in a session of %3 sec (average of %4 kB/s + %5 files from cache (%6 kB)).").arg(nbDownloadedFiles).arg(totalDownloadedSize/1024).arg(getTotalRunTime()).arg((double)(totalDownloadedSize/1024)/getTotalRunTime()).arg(nbUsedCache).arg(totalUsedCacheSize/1024));
+	qDebug() << qPrintable(QString("Downloaded %1 files (%2 kbytes) in a session of %3 sec (average of %4 kB/s + %5 files from cache (%6 kB)).").arg(nbDownloadedFiles).arg(totalDownloadedSize/1024).arg(getTotalRunTime()).arg(static_cast<double>(totalDownloadedSize/1024)/getTotalRunTime()).arg(nbUsedCache).arg(totalUsedCacheSize/1024));
 
 	stelObjectMgr->unSelect();
 	moduleMgr->unloadModule("StelVideoMgr", false);  // We need to delete it afterward
@@ -415,7 +416,7 @@ void StelApp::init(QSettings* conf)
 	setGuiFontSize(confSettings->value("gui/gui_font_size", 13).toInt());
 
 	core = new StelCore();
-	if (saveProjW!=-1 && saveProjH!=-1)
+	if (!fuzzyEquals(saveProjW, -1.) && !fuzzyEquals(saveProjH, -1.))
 		core->windowHasBeenResized(0, 0, saveProjW, saveProjH);
 
 	SplashScreen::showMessage(q_("Initializing textures..."));
@@ -614,9 +615,10 @@ void StelApp::init(QSettings* conf)
 	setFlagSouthAzimuthUsage(confSettings->value("gui/flag_use_azimuth_from_south", false).toBool());
 	setFlagUseFormattingOutput(confSettings->value("gui/flag_use_formatting_output", false).toBool());
 	setFlagUseCCSDesignation(confSettings->value("gui/flag_use_ccs_designations", false).toBool());
+	setFlagOverwriteInfoColor(confSettings->value("gui/flag_overwrite_info_color", false).toBool());
 
 	// Animation
-	animationScale = confSettings->value("gui/pointer_animation_speed", 1.f).toFloat();
+	animationScale = confSettings->value("gui/pointer_animation_speed", 1.).toDouble();
 	
 #ifdef ENABLE_SPOUT
 	//qDebug() << "Property spout is" << qApp->property("spout").toString();
@@ -642,7 +644,7 @@ void StelApp::init(QSettings* conf)
 
 			if (!spoutSender->isValid())
 			{
-				QMessageBox::warning(0, "Stellarium SPOUT", q_("Cannot create Spout sender. See log for details."), QMessageBox::Ok);
+				QMessageBox::warning(Q_NULLPTR, "Stellarium SPOUT", q_("Cannot create Spout sender. See log for details."), QMessageBox::Ok);
 				delete spoutSender;
 				spoutSender = Q_NULLPTR;
 				qApp->setProperty("spout", "");
@@ -724,7 +726,7 @@ void StelApp::update(double deltaTime)
 	if (frameTimeAccum > 1.)
 	{
 		// Calc the FPS rate every seconds
-		fps=(double)frame/frameTimeAccum;
+		fps=static_cast<float>(frame)/static_cast<float>(frameTimeAccum);
 		frame = 0;
 		frameTimeAccum=0.;
 	}
@@ -774,7 +776,7 @@ void StelApp::draw()
 	GL(gl->glGetIntegerv(GL_FRAMEBUFFER_BINDING, &drawFbo));
 
 	prepareRenderBuffer();
-	currentFbo = renderBuffer ? renderBuffer->handle() : drawFbo;
+	currentFbo = renderBuffer ? renderBuffer->handle() : static_cast<GLuint>(drawFbo);
 
 	core->preDraw();
 
@@ -787,9 +789,9 @@ void StelApp::draw()
 #ifdef ENABLE_SPOUT
 	// At this point, the sky scene has been drawn, but no GUI panels.
 	if(spoutSender)
-		spoutSender->captureAndSendFrame(drawFbo);
+		spoutSender->captureAndSendFrame(static_cast<GLuint>(drawFbo));
 #endif
-	applyRenderBuffer(drawFbo);
+	applyRenderBuffer(static_cast<GLuint>(drawFbo));
 }
 
 /*************************************************************************
@@ -813,7 +815,7 @@ void StelApp::glWindowHasBeenResized(const QRectF& rect)
 	setViewportEffect(effect);
 #ifdef ENABLE_SPOUT
 	if (spoutSender)
-		spoutSender->resize(rect.width(),rect.height());
+		spoutSender->resize(static_cast<uint>(rect.width()),static_cast<uint>(rect.height()));
 #endif
 }
 
@@ -821,13 +823,13 @@ void StelApp::glWindowHasBeenResized(const QRectF& rect)
 void StelApp::handleClick(QMouseEvent* inputEvent)
 {
 	QPointF pos = inputEvent->pos();
-	float x, y;
+	qreal x, y;
 	x = pos.x();
 	y = pos.y();
 	if (viewportEffect)
 		viewportEffect->distortXY(x, y);
 
-	QMouseEvent event(inputEvent->type(), QPoint(x*devicePixelsPerPixel, y*devicePixelsPerPixel), inputEvent->button(), inputEvent->buttons(), inputEvent->modifiers());
+	QMouseEvent event(inputEvent->type(), QPoint(qRound(x*devicePixelsPerPixel), qRound(y*devicePixelsPerPixel)), inputEvent->button(), inputEvent->buttons(), inputEvent->modifiers());
 	event.setAccepted(false);
 	
 	// Send the event to every StelModule
@@ -861,8 +863,8 @@ void StelApp::handleWheel(QWheelEvent* event)
 	wheelEventTimer->start();
 
 	// Create a new event with the accumulated delta
-	QWheelEvent deltaEvent(QPoint(event->pos().x()*devicePixelsPerPixel, event->pos().y()*devicePixelsPerPixel),
-	                       QPoint(event->globalPos().x()*devicePixelsPerPixel, event->globalPos().y()*devicePixelsPerPixel),
+	QWheelEvent deltaEvent(QPoint(qRound(event->pos().x()*devicePixelsPerPixel), qRound(event->pos().y()*devicePixelsPerPixel)),
+			       QPoint(qRound(event->globalPos().x()*devicePixelsPerPixel), qRound(event->globalPos().y()*devicePixelsPerPixel)),
 	                       wheelEventDelta[deltaIndex], event->buttons(), event->modifiers(), event->orientation());
 	deltaEvent.setAccepted(false);
 	// Reset the collected values
@@ -879,14 +881,14 @@ void StelApp::handleWheel(QWheelEvent* event)
 }
 
 // Handle mouse move
-bool StelApp::handleMove(float x, float y, Qt::MouseButtons b)
+bool StelApp::handleMove(qreal x, qreal y, Qt::MouseButtons b)
 {
 	if (viewportEffect)
 		viewportEffect->distortXY(x, y);
 	// Send the event to every StelModule
 	for (auto* i : moduleMgr->getCallOrders(StelModule::ActionHandleMouseMoves))
 	{
-		if (i->handleMouseMoves(x*devicePixelsPerPixel, y*devicePixelsPerPixel, b))
+		if (i->handleMouseMoves(qRound(x*devicePixelsPerPixel), qRound(y*devicePixelsPerPixel), b))
 			return true;
 	}
 	return false;
@@ -935,6 +937,14 @@ void StelApp::setVisionModeNight(bool b)
 	}
 }
 
+void StelApp::setFlagOverwriteInfoColor(bool b)
+{
+	if (flagOverwriteInfoColor!=b)
+	{
+		flagOverwriteInfoColor=b;
+		emit(flagOverwriteInfoColorChanged(b));
+	}
+}
 
 void StelApp::setFlagShowDecimalDegrees(bool b)
 {
@@ -979,13 +989,13 @@ void StelApp::ensureGLContextCurrent()
 // Return the time since when stellarium is running in second.
 double StelApp::getTotalRunTime()
 {
-	return (double)(QDateTime::currentMSecsSinceEpoch() - StelApp::startMSecs)/1000.;
+	return static_cast<double>(QDateTime::currentMSecsSinceEpoch() - StelApp::startMSecs)/1000.;
 }
 
 // Return the scaled time since when stellarium is running in second.
 double StelApp::getAnimationTime()
 {
-	return (double)(QDateTime::currentMSecsSinceEpoch() - StelApp::startMSecs)*StelApp::animationScale/1000.;
+	return static_cast<double>(QDateTime::currentMSecsSinceEpoch() - StelApp::startMSecs)*StelApp::animationScale/1000.;
 }
 
 void StelApp::reportFileDownloadFinished(QNetworkReply* reply)
@@ -1009,10 +1019,10 @@ void StelApp::quit()
 	QCoreApplication::exit(0);
 }
 
-void StelApp::setDevicePixelsPerPixel(float dppp)
+void StelApp::setDevicePixelsPerPixel(qreal dppp)
 {
 	// Check that the device-independent pixel size didn't change
-	if (!viewportEffect && devicePixelsPerPixel!=dppp)
+	if (!viewportEffect && !fuzzyEquals(devicePixelsPerPixel, dppp))
 	{
 		devicePixelsPerPixel = dppp;
 		StelProjector::StelProjectorParams params = core->getCurrentStelProjectorParams();
@@ -1037,6 +1047,11 @@ void StelApp::setViewportEffect(const QString& name)
 	}
 	if (name == "none") return;
 
+	if (!core)
+	{
+		qDebug() << "No core to set viewport effect";
+		return;
+	}
 	StelProjector::StelProjectorParams params = core->getCurrentStelProjectorParams();
 	int w = params.viewportXywh[2];
 	int h = params.viewportXywh[3];

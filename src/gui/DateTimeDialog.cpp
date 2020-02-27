@@ -24,6 +24,7 @@
 #include "StelCore.hpp"
 #include "StelLocaleMgr.hpp"
 #include "StelUtils.hpp"
+#include "StelGui.hpp"
 
 #include "ui_dateTimeDialogGui.h"
 
@@ -42,7 +43,8 @@ DateTimeDialog::DateTimeDialog(QObject* parent) :
 	jd(0),
 	oldyear(0),
 	oldmonth(0),
-	oldday(0)
+	oldday(0),
+	enableFocus(false)
 {
 	ui = new Ui_dateTimeDialogForm;
 	updateTimer=new QTimer(this); // parenting will auto-delete timer on destruction!
@@ -73,6 +75,24 @@ void DateTimeDialog::createDialogContent()
 	ui->dateDelimiterLabel2->setText(delimiter);
 
 	connectSpinnerEvents();
+	StelGui* gui = dynamic_cast<StelGui*>(StelApp::getInstance().getGui());
+	if (gui)
+	{
+		connect(gui, SIGNAL(flagEnableFocusOnDaySpinnerChanged(bool)), this, SLOT(setFlagEnableFocus(bool)));
+		setFlagEnableFocus(gui->getFlagEnableFocusOnDaySpinner());
+	}
+}
+
+void DateTimeDialog::setFlagEnableFocus(bool b)
+{
+	if (enableFocus!=b)
+	{
+		enableFocus=b;
+		if (enableFocus)
+			ui->spinner_day->setFocus();
+		else
+			ui->dateTimeTab->setFocus();
+	}
 }
 
 void DateTimeDialog::connectSpinnerEvents() const
@@ -223,9 +243,15 @@ void DateTimeDialog::pushToWidgets()
 	ui->spinner_jd->setValue(jd);
 	ui->spinner_mjd->setValue(getMjd());
 	if (jd<2299161) // 1582-10-15
+	{
 		ui->dateTimeTab->setToolTip(q_("Date and Time in Julian calendar"));
+		ui->dateTimeTabWidget->setTabToolTip(0, q_("Date and Time in Julian calendar"));
+	}
 	else
+	{
 		ui->dateTimeTab->setToolTip(q_("Date and Time in Gregorian calendar"));
+		ui->dateTimeTabWidget->setTabToolTip(0, q_("Date and Time in Gregorian calendar"));
+	}
 	connectSpinnerEvents();
 }
 

@@ -22,7 +22,6 @@
 #include <QObject>
 #include <QtDebug>
 #include <QBuffer>
-#include <QTest>
 
 #include <stdexcept>
 
@@ -118,8 +117,8 @@ void TestStelSphericalGeometry::testSphericalCap()
 	QVERIFY(h2.intersects(h2));
 	QVERIFY(h3.intersects(h3));
 	QVERIFY(h4.intersects(h4));
-	#ifndef Q_OS_WIN
-	// FIXME: It fails on Windows/MinGW GCC
+	#ifndef __MINGW32__
+	// NOTE: It fails on Windows/MinGW GCC
 	QVERIFY(h5.intersects(h5));
 	#endif
 	QVERIFY(h6.intersects(h0));
@@ -146,8 +145,8 @@ void TestStelSphericalGeometry::testSphericalCap()
 	QVERIFY(h1.contains(h1));
 	QVERIFY(h2.contains(h2));
 	QVERIFY(h3.contains(h3));
-	#ifndef Q_OS_WIN
-	// FIXME: It fails on Windows/MinGW GCC
+	#ifndef __MINGW32__
+	// NOTE: It fails on Windows/MinGW GCC
 	QVERIFY(h4.contains(h4));	
 	QVERIFY(h5.contains(h5));
 	#endif
@@ -371,7 +370,7 @@ void TestStelSphericalGeometry::testLoading()
 	}
 
 	QVERIFY(reg->getType()==SphericalRegion::Polygon);
-	qDebug() << reg->getArea()*180./M_PI*180/M_PI;
+	qDebug() << reg->getArea()*M_180_PI*M_180_PI;
 
 	// FIXME: WTF?!?
 	//StelVertexArray vertexAr = reg->getOutlineVertexArray();

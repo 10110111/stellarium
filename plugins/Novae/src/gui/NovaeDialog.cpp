@@ -25,6 +25,7 @@
 #include <QFileDialog>
 
 #include "StelApp.hpp"
+#include "StelCore.hpp"
 #include "ui_novaeDialog.h"
 #include "NovaeDialog.hpp"
 #include "Novae.hpp"

@@ -21,7 +21,7 @@
 #define TESTDATES_HPP
 
 #include <QObject>
-#include <QTest>
+#include <QtTest>
 
 class TestDates : public QObject
 {
@@ -34,6 +34,7 @@ private slots:
 	void testLeapYears();
 	void testNumberOfDaysInMonthInYear();
 	void testFixedFromGregorian();
+	void testWeekdays();
 	void benchmarkOldGetDateFromJulianDay();
 	void benchmarkGetDateFromJulianDayFloatingPoint();
 	void benchmarkGetDateFromJulianDay();

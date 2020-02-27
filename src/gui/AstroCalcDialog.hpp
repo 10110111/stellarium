@@ -41,12 +41,14 @@ class Ui_astroCalcDialogForm;
 class QListWidgetItem;
 class QSortFilterProxyModel;
 class QStringListModel;
+class AstroCalcExtraEphemerisDialog;
 
 struct Ephemeris
 {
 	Vec3d coord;
 	int colorIndex;
-	QString objDate;
+	double objDate;
+	QString objDateStr;
 	float magnitude;
 };
 Q_DECLARE_METATYPE(Ephemeris)
@@ -84,29 +86,51 @@ public:
 		EphemerisCount		//! total number of columns
 	};
 
+	//! Defines the number and the order of the columns in the transit table
+	//! @enum TransitColumns
+	enum TransitColumns {
+		TransitCOName,		//! name of celestial object
+		TransitDate,			//! date and time of transit
+		TransitAltitude,			//! altitude
+		TransitMagnitude,		//! magnitude
+		TransitElongation,		//! elongation (from the Sun)
+		TransitAngularDistance,	//! angular distance (from the Moon)
+		TransitCount			//! total number of columns
+	};
+
 	//! Defines the number and the order of the columns in the phenomena table
 	//! @enum PhenomenaColumns
 	enum PhenomenaColumns {
 		PhenomenaType,			//! type of phenomena
 		PhenomenaDate,			//! date and time of ephemeris
 		PhenomenaObject1,			//! first object
+		PhenomenaMagnitude1,		//! magnitude of first object
 		PhenomenaObject2,			//! second object
+		PhenomenaMagnitude2,		//! magnitude of second object
 		PhenomenaSeparation,		//! angular separation
 		PhenomenaElongation,		//! elongation (from the Sun)
 		PhenomenaAngularDistance,	//! angular distance (from the Moon)
 		PhenomenaCount			//! total number of columns
 	};
 
+	enum PhenomenaTypeIndex {
+		Conjuction		= 0,
+		Opposition		= 1,
+		GreatestElongation	= 2,
+		StationaryPoint		= 3,
+		OrbitalPoint		= 4
+	};
+
 	//! Defines the number and the order of the columns in the WUT tool
 	//! @enum WUTColumns
 	enum WUTColumns {
-		WUTObjectName,		//! object name
-		WUTMagnitude,		//! magnitude
-		WUTRiseTime,			//! rise time
-		WUTTransitTime,		//! transit time
-		WUTSetTime,			//! set time
-		WUTAngularSize,		//! angular size
-		WUTCount			//! total number of columns
+		WUTObjectName,	//! object name
+		WUTMagnitude,	//! magnitude
+		WUTRiseTime,		//! rise time
+		WUTTransitTime,	//! transit time
+		WUTSetTime,		//! set time
+		WUTAngularSize,	//! angular size
+		WUTCount		//! total number of columns
 	};
 
 	//! Defines the type of graphs
@@ -119,7 +143,9 @@ public:
 		GraphAngularSizeVsTime		= 5,
 		GraphPhaseAngleVsTime		= 6,
 		GraphHDistanceVsTime		= 7,
-		GraphTransitAltitudeVsTime	= 8
+		GraphTransitAltitudeVsTime	= 8,
+		GraphRightAscensionVsTime	= 9,
+		GraphDeclinationVsTime		= 10
 	};
 
 	AstroCalcDialog(QObject* parent);
@@ -154,7 +180,7 @@ private slots:
 	void saveCelestialPositionsHorizontalCoordinatesFlag(bool b);
 	void saveCelestialPositionsCategory(int index);
 
-	//! Calculate ephemeris for selected celestial body and fill the list.
+	//! Calculating ephemeris for selected celestial body and fill the list.
 	void generateEphemeris();
 	void cleanupEphemeris();
 	void selectCurrentEphemeride(const QModelIndex &modelIndex);
@@ -162,21 +188,31 @@ private slots:
 	void onChangedEphemerisPosition(const QModelIndex &modelIndex);	
 	void reGenerateEphemeris();
 
+	//! Calculating the transits for selected celestial body and fill the list.
+	void generateTransits();
+	void cleanupTransits();
+	void selectCurrentTransit(const QModelIndex &modelIndex);
+	void saveTransits();
+	void setTransitCelestialBodyName();
+
 	void saveEphemerisCelestialBody(int index);
 	void saveEphemerisTimeStep(int index);
 	void initEphemerisFlagNakedEyePlanets(void);
 	void saveEphemerisFlagNakedEyePlanets(bool flag);
 
-	//! Calculate phenomena for selected celestial body and fill the list.
+	//! Calculating phenomena for selected celestial body and fill the list.
 	void calculatePhenomena();
 	void cleanupPhenomena();
 	void selectCurrentPhenomen(const QModelIndex &modelIndex);
 	void savePhenomena();
 	void savePhenomenaAngularSeparation();
+	//! Populates the drop-down list of groups of celestial bodies.
+	void populateGroupCelestialBodyList();
 
 	void savePhenomenaCelestialBody(int index);
 	void savePhenomenaCelestialGroup(int index);
 	void savePhenomenaOppositionFlag(bool b);
+	void savePhenomenaPerihelionAphelionFlag(bool b);
 
 	//! Compute planetary data
 	void saveFirstCelestialBody(int index);
@@ -217,6 +253,7 @@ private slots:
 	void saveGraphsCelestialBody(int index);
 	void saveGraphsFirstId(int index);
 	void saveGraphsSecondId(int index);
+	void updateGraphsDuration(int duration);
 	void drawXVsTimeGraphs();
 
 	void drawMonthlyElevationGraph();
@@ -244,7 +281,10 @@ private slots:
 
 	void updateSolarSystemData();
 
+	void showExtraEphemerisDialog();
+
 private:
+	class AstroCalcExtraEphemerisDialog* extraEphemerisDialog;
 	class StelCore* core;
 	class SolarSystem* solarSystem;
 	class NebulaMgr* dsoMgr;
@@ -264,6 +304,8 @@ private:
 	void setCelestialPositionsHeaderNames();
 	//! Update header names for ephemeris table
 	void setEphemerisHeaderNames();
+	//! update header names for transit table
+	void setTransitHeaderNames();
 	//! Update header names for phenomena table
 	void setPhenomenaHeaderNames();
 	//! Update header names for WUT table
@@ -273,6 +315,8 @@ private:
 	void initListCelestialPositions();
 	//! Init header and list of ephemeris
 	void initListEphemeris();
+	//! Init header and list of transits
+	void initListTransit();
 	//! Init header and list of phenomena
 	void initListPhenomena();
 	//! Init header and list of WUT
@@ -285,10 +329,8 @@ private:
 	void populateCelestialBodyList();	
 	//! Populates the drop-down list of time steps.
 	void populateEphemerisTimeStepsList();
-	//! Populates the drop-down list of major planets.
-	void populateMajorPlanetList();
-	//! Populates the drop-down list of groups of celestial bodies.
-	void populateGroupCelestialBodyList();	
+	//! Populates the drop-down list of planets.
+	void populatePlanetList();
 	//! Prepare graph settings
 	void prepareAxesAndGraph();
 	void prepareAziVsTimeAxesAndGraph();
@@ -307,8 +349,8 @@ private:
 	void adjustWUTColumns();
 
 	QPair<QString, QString> getStringCoordinates(const Vec3d coord, const bool horizon, const bool southAzimuth, const bool decimalDegrees);
-	void fillWUTTable(QString objectName, QString designation, double magnitude, Vec3f RTSTime, double angularSize, bool decimalDegrees = false);
-	void fillCelestialPositionTable(QString objectName, QString RA, QString Dec, double magnitude,
+	void fillWUTTable(QString objectName, QString designation, float magnitude, Vec3f RTSTime, double angularSize, bool decimalDegrees = false);
+	void fillCelestialPositionTable(QString objectName, QString RA, QString Dec, float magnitude,
 					QString angularSize, QString angularSizeToolTip, QString extraData,
 					QString extraDataToolTip, QString transitTime, QString objectType);
 
@@ -316,25 +358,38 @@ private:
 	//! @note Ported from KStars, should be improved, because this feature calculate
 	//! angular separation ("conjunction" defined as equality of right ascension
 	//! of two body) and current solution is not accurate and slow.	
-	QMap<double, double> findClosestApproach(PlanetP& object1, StelObjectP& object2, double startJD, double stopJD, double maxSeparation, bool opposition);	
-	double findDistance(double JD, PlanetP object1, StelObjectP object2, bool opposition);	
+	//! @note modes: 0 - conjuction, 1 - opposition, 2 - greatest elongation
+	QMap<double, double> findClosestApproach(PlanetP& object1, StelObjectP& object2, double startJD, double stopJD, double maxSeparation, int mode);
+	double findDistance(double JD, PlanetP object1, StelObjectP object2, int mode);
 	double findInitialStep(double startJD, double stopJD, QStringList objects);
-	bool findPrecise(QPair<double, double>* out, PlanetP object1, StelObjectP object2, double JD, double step, int prevSign, bool opposition);
-	void fillPhenomenaTable(const QMap<double, double> list, const PlanetP object1, const StelObjectP object2, bool opposition);
+	bool findPrecise(QPair<double, double>* out, PlanetP object1, StelObjectP object2, double JD, double step, int prevSign, int mode);
+	void fillPhenomenaTable(const QMap<double, double> list, const PlanetP object1, const StelObjectP object2, int mode);
 	void fillPhenomenaTable(const QMap<double, double> list, const PlanetP object1, const NebulaP object2);
-	void fillPhenomenaTable(const QMap<double, double> list, const PlanetP object1, const PlanetP object2, bool opposition);
-	void fillPhenomenaTableVis(QString phenomenType, double JD, QString firstObjectName, QString secondObjectName,
-				   QString separation, QString elongation, QString angularDistance,
-				   QString elongTooltip="", QString angDistTooltip="");
+	//! @note modes: 0 - conjuction, 1 - opposition, 2 - greatest elongation
+	void fillPhenomenaTable(const QMap<double, double> list, const PlanetP object1, const PlanetP object2, int mode);
+	void fillPhenomenaTableVis(QString phenomenType, double JD, QString firstObjectName, float firstObjectMagnitude,
+				   QString secondObjectName, float secondObjectMagnitude, QString separation, QString elongation,
+				   QString angularDistance, QString elongTooltip="", QString angDistTooltip="");
+	//! Calculation greatest elongations
+	QMap<double, double> findGreatestElongationApproach(PlanetP& object1, StelObjectP& object2, double startJD, double stopJD);
+	bool findPreciseGreatestElongation(QPair<double, double>* out, PlanetP object1, StelObjectP object2, double JD, double stopJD, double step);
+	//! Calculation stationary points
+	QMap<double, double> findStationaryPointApproach(PlanetP& object1, double startJD, double stopJD);
+	bool findPreciseStationaryPoint(QPair<double, double>* out, PlanetP object, double JD, double stopJD, double step, bool retrograde);
+	double findRightAscension(double JD, PlanetP object);
+	//! Calculation perihelion and aphelion points
+	QMap<double, double> findOrbitalPointApproach(PlanetP& object1, double startJD, double stopJD);
+	bool findPreciseOrbitalPoint(QPair<double, double>* out, PlanetP object1, double JD, double stopJD, double step, bool minimal);
+	double findHeliocentricDistance(double JD, PlanetP object1);
 
 	bool plotAltVsTime, plotAltVsTimeSun, plotAltVsTimeMoon, plotAltVsTimePositive, plotMonthlyElevation, plotMonthlyElevationPositive, plotDistanceGraph, plotAngularDistanceGraph, plotAziVsTime;
-	int altVsTimePositiveLimit, monthlyElevationPositiveLimit;
-	QString delimiter, acEndl;
-	QStringList ephemerisHeader, phenomenaHeader, positionsHeader, wutHeader;
+	int altVsTimePositiveLimit, monthlyElevationPositiveLimit, graphsDuration;
+	QStringList ephemerisHeader, phenomenaHeader, positionsHeader, wutHeader, transitHeader;
 	static float brightLimit;
 	static double minY, maxY, minYme, maxYme, minYsun, maxYsun, minYmoon, maxYmoon, transitX, minY1, maxY1, minY2, maxY2,
 			     minYld, maxYld, minYad, maxYad, minYadm, maxYadm, minYaz, maxYaz;
 	static QString yAxis1Legend, yAxis2Legend;
+	static const QString dash, delimiter;
 
 	//! Make sure that no tabs icons are outside of the viewport.
 	//! @todo Limit the width to the width of the screen *available to the window*.
@@ -437,6 +492,39 @@ private:
 };
 
 // Reimplements the QTreeWidgetItem class to fix the sorting bug
+class ACTransitTreeWidgetItem : public QTreeWidgetItem
+{
+public:
+	ACTransitTreeWidgetItem(QTreeWidget* parent)
+		: QTreeWidgetItem(parent)
+	{
+	}
+
+private:
+	bool operator < (const QTreeWidgetItem &other) const
+	{
+		int column = treeWidget()->sortColumn();
+
+		if (column == AstroCalcDialog::TransitDate)
+		{
+			return data(column, Qt::UserRole).toFloat() < other.data(column, Qt::UserRole).toFloat();
+		}
+		else if (column == AstroCalcDialog::TransitMagnitude)
+		{
+			return text(column).toFloat() < other.text(column).toFloat();
+		}
+		else if (column == AstroCalcDialog::TransitAltitude || column == AstroCalcDialog::TransitElongation || column == AstroCalcDialog::TransitAngularDistance)
+		{
+			return StelUtils::getDecAngle(text(column)) < StelUtils::getDecAngle(other.text(column));
+		}
+		else
+		{
+			return text(column).toLower() < other.text(column).toLower();
+		}
+	}
+};
+
+// Reimplements the QTreeWidgetItem class to fix the sorting bug
 class ACPhenTreeWidgetItem : public QTreeWidgetItem
 {
 public:
@@ -457,6 +545,10 @@ private:
 		else if (column == AstroCalcDialog::PhenomenaDate)
 		{
 			return data(column, Qt::UserRole).toFloat() < other.data(column, Qt::UserRole).toFloat();
+		}
+		else if (column == AstroCalcDialog::PhenomenaMagnitude1 || column == AstroCalcDialog::PhenomenaMagnitude2)
+		{
+			return text(column).toFloat() < other.text(column).toFloat();
 		}
 		else
 		{

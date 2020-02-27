@@ -58,11 +58,10 @@ StelPluginInfo NavStarsStelPluginInterface::getPluginInfo() const
 	return info;
 }
 
-
-
 NavStars::NavStars()
 	: currentNSSet(AngloAmerican)
 	, enableAtStartup(false)
+	, starLabelsState(true)
 	, toolbarButton(Q_NULLPTR)
 {
 	setObjectName("NavStars");
@@ -71,12 +70,10 @@ NavStars::NavStars()
 	mainWindow = new NavStarsWindow();
 }
 
-
 NavStars::~NavStars()
 {
 	delete mainWindow;
 }
-
 
 double NavStars::getCallOrder(StelModuleActionName actionName) const
 {
@@ -87,7 +84,6 @@ double NavStars::getCallOrder(StelModuleActionName actionName) const
 	return 0;
 }
 
-
 void NavStars::init()
 {
 	if (!conf->childGroups().contains("NavigationalStars"))
@@ -95,6 +91,8 @@ void NavStars::init()
 		qDebug() << "[NavStars] no coordinates section exists in main config file - creating with defaults";
 		restoreDefaultConfiguration();
 	}
+	// save default state for star labels
+	starLabelsState = propMgr->getStelPropertyValue("StarMgr.flagLabelsDisplayed").toBool();
 
 	// populate settings from main config file.
 	loadConfiguration();
@@ -111,6 +109,8 @@ void NavStars::init()
 	// key bindings and other actions
 	addAction("actionShow_NavStars", N_("Navigational Stars"), N_("Mark the navigational stars"), "navStarsVisible", "");
 
+	connect(StelApp::getInstance().getCore(), SIGNAL(configurationDataSaved()), this, SLOT(saveSettings()));
+
 	// Toolbar button
 	StelGui* gui = dynamic_cast<StelGui*>(StelApp::getInstance().getGui());
 	if (gui!=Q_NULLPTR)
@@ -126,11 +126,7 @@ void NavStars::init()
 		}
 		gui->getButtonBar()->addButton(toolbarButton, "065-pluginsGroup");
 	}
-
-	// Sync global settings for stars labels
-	connect(GETSTELMODULE(StarMgr), SIGNAL(starLabelsDisplayedChanged(bool)), this, SLOT(starNamesChanged(bool)));
 }
-
 
 void NavStars::deinit()
 {
@@ -152,7 +148,7 @@ bool NavStars::configureGui(bool show)
 void NavStars::draw(StelCore* core)
 {
 	// Drawing is enabled?
-	if (markerFader.getInterstate() <= 0.0)
+	if (markerFader.getInterstate() <= 0.0f)
 	{
 		return;
 	}
@@ -188,7 +184,7 @@ void NavStars::draw(StelCore* core)
 				painter.setBlending(true);
 				painter.setColor(markerColor[0], markerColor[1], markerColor[2], markerFader.getInterstate());
 				markerTexture->bind();
-				painter.drawSprite2dMode(pos[0], pos[1], 11.f);
+				painter.drawSprite2dMode(static_cast<float>(pos[0]), static_cast<float>(pos[1]), 11.f);
 			}
 
 			// Draw the localized name of the star and its ordinal number
@@ -197,41 +193,33 @@ void NavStars::draw(StelCore* core)
 				label = QString("%1").arg(i+1);
 			else
 				label = QString("%1 (%2)").arg(label).arg(i+1);
-			painter.drawText(pos[0], pos[1], label, 0, 10.f, 10.f, false);
+			painter.drawText(static_cast<float>(pos[0]), static_cast<float>(pos[1]), label, 0, 10.f, 10.f, false);
 		}
 	}
 }
 
-
 void NavStars::update(double deltaTime)
 {
-	markerFader.update((int)(deltaTime*1000));
+	markerFader.update(static_cast<int>(deltaTime*1000));
 }
-
 
 void NavStars::setNavStarsMarks(const bool b)
 {
-	if (b != getNavStarsMarks())
-	{
-		propMgr->setStelPropertyValue("StarMgr.flagLabelsDisplayed", !b);
-		markerFader = b;
-		emit navStarsMarksChanged(b);
-	}
-}
+	if (b==getNavStarsMarks())
+		return;
 
+	if (b)
+		propMgr->setStelPropertyValue("StarMgr.flagLabelsDisplayed", !b);
+	else
+		propMgr->setStelPropertyValue("StarMgr.flagLabelsDisplayed", starLabelsState);
+
+	markerFader = b;
+	emit navStarsMarksChanged(b);
+}
 
 bool NavStars::getNavStarsMarks() const
 {
 	return markerFader;
-}
-
-
-void NavStars::starNamesChanged(const bool b)
-{
-	if (b && getNavStarsMarks())
-	{
-		setNavStarsMarks(false);
-	}
 }
 
 void NavStars::restoreDefaultConfiguration(void)
@@ -269,7 +257,7 @@ void NavStars::saveConfiguration(void)
 void NavStars::setCurrentNavigationalStarsSetKey(QString key)
 {
 	const QMetaEnum& en = metaObject()->enumerator(metaObject()->indexOfEnumerator("NavigationalStarsSet"));
-	NavigationalStarsSet nsSet = (NavigationalStarsSet)en.keyToValue(key.toLatin1().data());
+	NavigationalStarsSet nsSet = static_cast<NavigationalStarsSet>(en.keyToValue(key.toLatin1().data()));
 	if (nsSet<0)
 	{
 		qWarning() << "Unknown navigational stars set:" << key << "setting \"AngloAmerican\" instead";

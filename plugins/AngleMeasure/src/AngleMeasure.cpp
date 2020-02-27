@@ -56,7 +56,7 @@ StelPluginInfo AngleMeasureStelPluginInterface::getPluginInfo() const
 	info.displayedName = N_("Angle Measure");
 	info.authors = "Matthew Gates";
 	info.contact = "https://github.com/Stellarium/stellarium";
-	info.description = N_("Provides an angle measurement tool");
+	info.description = N_("Provides an angle measurement tool");	
 	info.version = ANGLEMEASURE_PLUGIN_VERSION;
 	info.license = ANGLEMEASURE_PLUGIN_LICENSE;
 	return info;
@@ -164,8 +164,8 @@ void AngleMeasure::init()
 
 void AngleMeasure::update(double deltaTime)
 {
-	messageFader.update((int)(deltaTime*1000));
-	lineVisible.update((int)(deltaTime*1000));
+	messageFader.update(static_cast<int>(deltaTime*1000));
+	lineVisible.update(static_cast<int>(deltaTime*1000));
 	static StelCore *core=StelApp::getInstance().getCore();
 
 	withDecimalDegree = StelApp::getInstance().getFlagShowDecimalDegrees();

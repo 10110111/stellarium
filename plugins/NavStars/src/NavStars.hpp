@@ -126,13 +126,13 @@ public slots:
 	//! Set the set of navigational stars from its key
 	void setCurrentNavigationalStarsSetKey(QString key);
 
+private slots:
+	//! Call when button "Save settings" in main GUI are pressed
+	void 	saveSettings() { saveConfiguration(); }
+
 signals:
 	//! Emitted when display of markers have been changed.
 	void navStarsMarksChanged(bool b);
-
-private slots:
-	//! Called setNavStarsMarks() if the value changes.
-	void starNamesChanged(const bool b);
 
 private:
 	NavStarsWindow* mainWindow;
@@ -143,6 +143,7 @@ private:
 	NavigationalStarsSet currentNSSet;
 
 	bool enableAtStartup;
+	bool starLabelsState;
 
 	//! List of the navigational stars' HIP numbers.
 	QList<int> starNumbers;

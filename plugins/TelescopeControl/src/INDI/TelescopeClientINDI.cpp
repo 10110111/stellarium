@@ -85,7 +85,17 @@ void TelescopeClientINDI::telescopeGoto(const Vec3d &positionJ2000, StelObjectP 
 	positionJNow.RA = longitudeRad;
 	positionJNow.DEC = latitudeRad;
 
+	// unpark telescope before slewing!
+	// TODO: Add commands and buttons for park/unpark telescope for all telescopes
+	mConnection.unParkTelescope();
 	mConnection.setPosition(positionJNow);
+}
+
+void TelescopeClientINDI::telescopeSync(const Vec3d &positionJ2000, StelObjectP selectObject)
+{
+	Q_UNUSED(selectObject)
+	Q_UNUSED(positionJ2000)
+	return;
 }
 
 bool TelescopeClientINDI::isConnected() const

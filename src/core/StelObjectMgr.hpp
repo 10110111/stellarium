@@ -84,7 +84,7 @@ public:
 	//! @param maxNbItem the maximum number of returned object names.
 	//! @param useStartOfWords the autofill mode for returned objects names
 	//! @return a list of matching object names by order of relevance, or an empty list if nothing match
-	QStringList listMatchingObjects(const QString& objPrefix, unsigned int maxNbItem=5, bool useStartOfWords=false, bool inEnglish=true) const;
+	QStringList listMatchingObjects(const QString& objPrefix, int maxNbItem=5, bool useStartOfWords=false, bool inEnglish=true) const;
 
 	QStringList listAllModuleObjects(const QString& moduleId, bool inEnglish) const;
 	QMap<QString, QString> objectModulesMap() const;
@@ -135,7 +135,7 @@ public:
 	StelObjectP searchByID(const QString& type, const QString& id) const;
 
 	//! Set the radius in pixel in which objects will be searched when clicking on a point in sky.
-	void setObjectSearchRadius(float radius) {searchRadiusPixel=radius;}
+	void setObjectSearchRadius(double radius) {searchRadiusPixel=radius;}
 
 	//! Set the weight of the distance factor when choosing the best object to select.
 	//! Default to 1.
@@ -151,16 +151,22 @@ public slots:
 	void nextTransit();
 	//! Set simulation time to the time of previous transit of selected object
 	void previousTransit();
+	//! Set simulation time to the time of today's transit of selected object
+	void todayTransit();
 
 	//! Set simulation time to the time of next rising of selected object (if applicable)
 	void nextRising();
 	//! Set simulation time to the time of previous rising of selected object (if applicable)
 	void previousRising();
+	//! Set simulation time to the time of today's rising of selected object (if applicable)
+	void todayRising();
 
 	//! Set simulation time to the time of next setting of selected object (if applicable)
 	void nextSetting();
 	//! Set simulation time to the time of previous setting of selected object (if applicable)
 	void previousSetting();
+	//! Set simulation time to the time of today's setting of selected object (if applicable)
+	void todaySetting();
 
 signals:
 	//! Indicate that the selected StelObjects has changed.
@@ -169,7 +175,7 @@ signals:
 
 private:
 	// The list of StelObjectModule that are referenced in Stellarium
-	QList<StelObjectModule*> objectsModule;
+	QList<StelObjectModule*> objectsModules;
 	QMap<QString, StelObjectModule*> typeToModuleMap;
 	QMap<QString, QString> objModulesMap;
 
@@ -185,7 +191,7 @@ private:
 	StelObjectP cleverFind(const StelCore* core, int x, int y) const;
 
 	// Radius in pixel in which objects will be searched when clicking on a point in sky.
-	float searchRadiusPixel;
+	double searchRadiusPixel;
 
 	// Weight of the distance factor when choosing the best object to select.
 	float distanceWeight;

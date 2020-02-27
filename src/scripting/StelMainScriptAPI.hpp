@@ -190,6 +190,7 @@ public slots:
 	//! - parallacticAngle : parallactic angle in decimal degrees (for non-star objects only)
 	//! - hourAngle-dd : hour angle in decimal degrees
 	//! - hourAngle-hms : hour angle in HMS format (formatted string)
+	//! - iauConstellation : 3-letter abbreviation of IAU constellation (string)
 	//! - meanSidTm : mean sidereal time, in decimal degrees (on Earth only!)
 	//! - appSidTm : mean sidereal time, in decimal degrees (on Earth only!)
 	//! - glong : galactic longitude in decimal degrees
@@ -217,6 +218,13 @@ public slots:
 	//! - elongation : elongation of object in radians (for Solar system objects only!)
 	//! - elongation-dms : elongation of object in DMS (for Solar system objects only!)
 	//! - elongation-deg : elongation of object in decimal degrees (for Solar system objects only!)
+	//! - velocity: the planet velocity around the parent planet in ecliptical coordinates in AU/d (for Solar system objects only!)
+	//! - velocity-kms: the planet velocity around the parent planet in km/s (for Solar system objects only!)
+	//! - heliocentric-velocity: the planet's heliocentric velocity in the solar system in ecliptical coordinates in AU/d (for Solar system objects only!)
+	//! - heliocentric-velocity-kms: the planet heliocentric velocity in the solar system in km/s (for Solar system objects only!)
+	//! - scale: scale factor for Solar system bodies (for Solar system objects only!)
+	//! - eclipse-obscuration: value of obscuration for solar eclipse (for Sun only!)
+	//! - eclipse-magnitude: value of magnitude for solar eclipse (for Sun only!)
 	//! Other StelObject derivates, also those defined in plugins, may add more,
 	//! these fields are documented in the respective classes, or simply try what you get:
 	//! You can print a complete set of entries into output with the following commands:
@@ -229,6 +237,12 @@ public slots:
 	//! Fetch a map with data about the latest selected object's position, magnitude and so on
 	//! @return a map of object data.  See description for getObjectInfo(const QString& name);
 	static QVariantMap getSelectedObjectInfo();
+
+	//! Add some arbitrary string to the object information of the currently selected object.
+	//! if @arg replace==true, replace this extra string, if false, add to it.
+	//! Note that while most objects keep this information after unselection and reselection,
+	//! stars will start with no extra information when they become selected again.
+	static void addToSelectedObjectInfoString(const QString &str, bool replace=false);
 
 	//! Clear the display options, setting a "standard" view.
 	//! Preset states:
@@ -269,6 +283,15 @@ public slots:
 	//! Get the current viewing direction Declination angle in J2000 frame at center of view.
 	//! @return the Declination angle in J2000 frame in decimal degrees.
 	static double getViewDecJ2000Angle();
+
+	//! Move the current viewing direction to some object.
+	//! @param name is the English name of the object
+	//! @param duration the duration of the movement in seconds
+	static void moveToObject(const QString& name, float duration=1.);
+
+	//! Move the current viewing direction to selected object.
+	//! @param duration the duration of the movement in seconds
+	static void moveToSelectedObject(float duration=1.);
 
 	//! move the current viewing direction to some specified altitude and azimuth.
 	//! The move will run in AltAz coordinates. This will look different from moveToRaDec() when timelapse is fast.
@@ -324,7 +347,7 @@ public slots:
 	//! of locations - do a search in the Location window to see what
 	//! where is.  e.g. "York, UnitedKingdom".
 	//! @param duration the number of seconds to take to move location.
-	static void setObserverLocation(const QString& id, float duration=1.);
+	static void setObserverLocation(const QString& id, double duration=1.);
 
 	//! Get the ID of the current observer location.
 	static QString getObserverLocation();
@@ -596,7 +619,6 @@ public slots:
 	//! @return duration[ms] if known, 0 if unknown (e.g. during load/before playing), -1 in case of error.
 	static qint64 getSoundDuration(const QString& id);
 
-
 	//! Load a video from a file.
 	//! @param filename the name of the file to load, relative to the scripts directory.
 	//! @param id the identifier which will be used to refer to the video
@@ -761,36 +783,6 @@ public slots:
 	//! Go to defaults position and direction of view
 	void goHome();
 
-	//! Show or hide the Milky Way.
-	//! @param b if true, show the Milky Way, if false, hide the Milky Way.
-	//! @deprecated This method will be removed in version 0.20. Use MilkyWay.setFlagShow(b) instead.
-	static void setMilkyWayVisible(bool b);
-
-	//! Set Milky Way intensity.
-	//! @param i value of intensity for the Milky Way
-	//! @deprecated This method will be removed in version 0.20. Use MilkyWay.setIntensity(i) instead.
-	static void setMilkyWayIntensity(double i);
-
-	//! Get Milky Way intensity.
-	//! @return value of Milky Way intensity, e.g. "1.2"
-	//! @deprecated This method will be removed in version 0.20. Use MilkyWay.getIntensity() instead.
-	static double getMilkyWayIntensity();
-
-	//! Show or hide the Zodiacal Light.
-	//! @param b if true, show the Zodiacal Light, if false, hide the Zodiacal Light.
-	//! @deprecated This method will be removed in version 0.20. Use ZodiacalLight.setFlagShow(b) instead.
-	static void setZodiacalLightVisible(bool b);
-
-	//! Set Zodiacal Light intensity.
-	//! @param i value of intensity for the Zodiacal Light
-	//! @deprecated This method will be removed in version 0.20. Use ZodiacalLight.setIntensity(i) instead.
-	static void setZodiacalLightIntensity(double i);
-
-	//! Get Zodiacal Light intensity.
-	//! @return value of Zodiacal Light intensity, e.g. "1.2"
-	//! @deprecated This method will be removed in version 0.20. Use ZodiacalLight.getIntensity() instead.
-	static double getZodiacalLightIntensity();
-
 	//! Returns the currently set Bortle scale index, which is used to simulate light pollution.
 	//! Wrapper for StelSkyDrawer::getBortleScaleIndex
 	//! @see https://en.wikipedia.org/wiki/Bortle_scale
@@ -804,14 +796,10 @@ public slots:
 	//! @param index the new Bortle scale index, must be in range [1,9]
 	static void setBortleScaleIndex(int index);
 
-	//! Show or hide the DSS (photorealistic sky).
-	//! @param b if true, show the DSS, if false, hide the DSS layer.
-	//! @deprecated This method will be removed in version 0.20. Use ToastMgr.setFlagShow(b) instead.
-	static void setDSSMode(bool b);
-	//! Get the current status of DSS mode.
-	//! @return The current status of DSS mode.
-	//! @deprecated This method will be removed in version 0.20. Use ToastMgr.getFlagShow() instead.
-	static bool isDSSModeEnabled();
+	//! Apply refraction with current atmospheric parameters to altitude.
+	//! @param altitude: degrees
+	//! @param apparent: true to remove refraction from an apparent (observed) altitude
+	static double refraction(double altitude, bool apparent=false);
 
 	//! For use in setDate and waitFor
 	//! For parameter descriptions see setDate().
@@ -859,7 +847,6 @@ public slots:
 	static bool isMediaPlaybackSupported(void);
 
 signals:
-
 	void requestLoadSkyImage(const QString& id, const QString& filename,
 							 double c1, double c2,
 							 double c3, double c4,

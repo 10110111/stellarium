@@ -101,6 +101,8 @@ void PointerCoordinates::init()
 
 	addAction("actionShow_MousePointer_Coordinates", N_("Pointer Coordinates"), N_("Show coordinates of the mouse pointer"), "enabled", "");
 
+	connect(StelApp::getInstance().getCore(), SIGNAL(configurationDataSaved()), this, SLOT(saveSettings()));
+
 	enableCoordinates(getFlagEnableAtStartup());
 	setFlagShowCoordinatesButton(flagShowCoordinatesButton);
 	setFlagShowConstellation(flagShowConstellation);
@@ -131,6 +133,7 @@ void PointerCoordinates::draw(StelCore *core)
 
 	QString coordsSystem, cxt, cyt;
 	double cx, cy;
+	float ppx = static_cast<float>(params.devicePixelsPerPixel);
 	int x, y;
 	switch (getCurrentCoordinateSystem())
 	{
@@ -169,9 +172,7 @@ void PointerCoordinates::draw(StelCore *core)
 		case AltAzi:
 		{
 			StelUtils::rectToSphe(&cy,&cx,core->j2000ToAltAz(mousePosition, StelCore::RefractionAuto));
-			float direction = 3.; // N is zero, E is 90 degrees
-			if (useSouthAzimuth)
-				direction = 2.;
+			const double direction = (useSouthAzimuth ? 2. : 3.); // N is zero, E is 90 degrees
 			cy = direction*M_PI - cy;
 			if (cy > M_PI*2)
 				cy -= M_PI*2;
@@ -292,16 +293,16 @@ void PointerCoordinates::draw(StelCore *core)
 	y = getCoordinatesPlace(coordsText).second;
 	if (getCurrentCoordinatesPlace()!=Custom)
 	{
-		x *= params.devicePixelsPerPixel;
-		y *= params.devicePixelsPerPixel;
+		x *= ppx;
+		y *= ppx;
 	}
 	sPainter.drawText(x, y, coordsText);
 
 	if (flagShowCrossedLines)
 	{
 		QPoint m = StelMainView::getInstance().getMousePos();
-		sPainter.drawLine2d(m.x()*params.devicePixelsPerPixel, 0, m.x()*params.devicePixelsPerPixel, params.viewportXywh[3]*params.devicePixelsPerPixel);
-		sPainter.drawLine2d(0, (params.viewportXywh[3]-m.y())*params.devicePixelsPerPixel, params.viewportXywh[2]*params.devicePixelsPerPixel, (params.viewportXywh[3]-m.y())*params.devicePixelsPerPixel);
+		sPainter.drawLine2d(m.x()*ppx, 0, m.x()*ppx, params.viewportXywh[3]*ppx);
+		sPainter.drawLine2d(0, (params.viewportXywh[3]-m.y())*ppx, params.viewportXywh[2]*ppx, (params.viewportXywh[3]-m.y())*ppx);
 	}
 }
 
@@ -406,7 +407,7 @@ void PointerCoordinates::setFlagShowCoordinatesButton(bool b)
 void PointerCoordinates::setCurrentCoordinatesPlaceKey(QString key)
 {
 	const QMetaEnum& en = metaObject()->enumerator(metaObject()->indexOfEnumerator("CoordinatesPlace"));
-	CoordinatesPlace coordPlace = (CoordinatesPlace)en.keyToValue(key.toLatin1().data());
+	CoordinatesPlace coordPlace = static_cast<CoordinatesPlace>(en.keyToValue(key.toLatin1().data()));
 	if (coordPlace<0)
 	{
 		qWarning() << "Unknown coordinates place: " << key << "setting \"TopRight\" instead";
@@ -424,7 +425,7 @@ QString PointerCoordinates::getCurrentCoordinatesPlaceKey() const
 void PointerCoordinates::setCurrentCoordinateSystemKey(QString key)
 {
 	const QMetaEnum& en = metaObject()->enumerator(metaObject()->indexOfEnumerator("CoordinateSystem"));
-	CoordinateSystem coordSystem = (CoordinateSystem)en.keyToValue(key.toLatin1().data());
+	CoordinateSystem coordSystem = static_cast<CoordinateSystem>(en.keyToValue(key.toLatin1().data()));
 	if (coordSystem<0)
 	{
 		qWarning() << "Unknown coordinate system: " << key << "setting \"RaDecJ2000\" instead";
@@ -449,18 +450,18 @@ QPair<int, int> PointerCoordinates::getCoordinatesPlace(QString text)
 		case TopCenter:
 		{
 			x = gui->getSkyGui()->getSkyGuiWidth()/2 - fs.width()/2;
-			y = gui->getSkyGui()->getSkyGuiHeight() - fs.height()*coeff;
+			y = gui->getSkyGui()->getSkyGuiHeight() - static_cast<int>(fs.height()*coeff);
 			break;
 		}
 		case TopRight:
 		{
 			x = 3*gui->getSkyGui()->getSkyGuiWidth()/4 - fs.width()/2;
-			y = gui->getSkyGui()->getSkyGuiHeight() - fs.height()*coeff;
+			y = gui->getSkyGui()->getSkyGuiHeight() - static_cast<int>(fs.height()*coeff);
 			break;
 		}
 		case RightBottomCorner:
 		{
-			x = gui->getSkyGui()->getSkyGuiWidth() - fs.width() - 10*coeff;
+			x = gui->getSkyGui()->getSkyGuiWidth() - static_cast<int>(fs.width() - 10*coeff);
 			y = fs.height();
 			break;
 		}

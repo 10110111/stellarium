@@ -161,7 +161,7 @@ void Exoplanets::init()
 		// populate settings from main config file.
 		loadConfiguration();
 
-		jsonCatalogPath = StelFileMgr::findFile("modules/Exoplanets", (StelFileMgr::Flags)(StelFileMgr::Directory|StelFileMgr::Writable)) + "/exoplanets.json";
+		jsonCatalogPath = StelFileMgr::findFile("modules/Exoplanets", static_cast<StelFileMgr::Flags>(StelFileMgr::Directory|StelFileMgr::Writable)) + "/exoplanets.json";
 		if (jsonCatalogPath.isEmpty())
 			return;
 
@@ -209,6 +209,7 @@ void Exoplanets::init()
 	updateTimer->start();
 
 	connect(this, SIGNAL(jsonUpdateComplete(void)), this, SLOT(reloadCatalog()));
+	connect(StelApp::getInstance().getCore(), SIGNAL(configurationDataSaved()), this, SLOT(saveSettings()));
 
 	GETSTELMODULE(StelObjectMgr)->registerStelObjectMgr(this);
 }
@@ -249,7 +250,7 @@ void Exoplanets::drawPointer(StelCore* core, StelPainter& painter)
 		painter.setColor(c[0],c[1],c[2]);
 		texPointer->bind();
 		painter.setBlending(true);
-		painter.drawSprite2dMode(screenpos[0], screenpos[1], 13.f, StelApp::getInstance().getTotalRunTime()*40.);
+		painter.drawSprite2dMode(static_cast<float>(screenpos[0]), static_cast<float>(screenpos[1]), 13.f, static_cast<float>(StelApp::getInstance().getTotalRunTime())*40.f);
 	}
 }
 
@@ -262,7 +263,7 @@ QList<StelObjectP> Exoplanets::searchAround(const Vec3d& av, double limitFov, co
 
 	Vec3d v(av);
 	v.normalize();
-	double cosLimFov = cos(limitFov * M_PI/180.);
+	const double cosLimFov = cos(limitFov * M_PI/180.);
 	Vec3d equPos;
 
 	for (const auto& eps : ep)
@@ -271,7 +272,7 @@ QList<StelObjectP> Exoplanets::searchAround(const Vec3d& av, double limitFov, co
 		{
 			equPos = eps->XYZ;
 			equPos.normalize();
-			if (equPos[0]*v[0] + equPos[1]*v[1] + equPos[2]*v[2]>=cosLimFov)
+			if (equPos.dot(v) >= cosLimFov)
 			{
 				result.append(qSharedPointerCast<StelObject>(eps));
 			}
@@ -732,7 +733,7 @@ void Exoplanets::saveConfiguration(void)
 int Exoplanets::getSecondsToUpdate(void)
 {
 	QDateTime nextUpdate = lastUpdate.addSecs(updateFrequencyHours * 3600);
-	return QDateTime::currentDateTime().secsTo(nextUpdate);
+	return static_cast<int>(QDateTime::currentDateTime().secsTo(nextUpdate));
 }
 
 void Exoplanets::checkForUpdate(void)
@@ -867,7 +868,7 @@ void Exoplanets::setFlagShowExoplanets(bool b)
 void Exoplanets::setCurrentTemperatureScaleKey(QString key)
 {
 	const QMetaEnum& en = metaObject()->enumerator(metaObject()->indexOfEnumerator("TemperatureScale"));
-	TemperatureScale ts = (TemperatureScale)en.keyToValue(key.toLatin1().data());
+	TemperatureScale ts = static_cast<TemperatureScale>(en.keyToValue(key.toLatin1().data()));
 	if (ts<0)
 	{
 		qWarning() << "Unknown temperature scale:" << key << "setting \"Celsius\" instead";
@@ -933,11 +934,11 @@ void Exoplanets::updateDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 		//Round to the greatest possible derived unit
 		while (bytesTotal > 1024)
 		{
-			bytesReceived = std::floor(bytesReceived / 1024.);
-			bytesTotal    = std::floor(bytesTotal / 1024.);
+			bytesReceived = static_cast<qint64>(std::floor(bytesReceived / 1024.));
+			bytesTotal    = static_cast<qint64>(std::floor(bytesTotal / 1024.));
 		}
-		currentValue = bytesReceived;
-		endValue = bytesTotal;
+		currentValue = static_cast<int>(bytesReceived);
+		endValue = static_cast<int>(bytesTotal);
 	}
 
 	progressBar->setValue(currentValue);

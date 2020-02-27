@@ -331,6 +331,20 @@ class GridLinesMgr : public StelModule
 		   WRITE setColorAntisolarPoint
 		   NOTIFY antisolarPointColorChanged)
 
+	Q_PROPERTY(bool apexPointsDisplayed
+		   READ getFlagApexPoints
+		   WRITE setFlagApexPoints
+		   NOTIFY apexPointsDisplayedChanged)
+	Q_PROPERTY(Vec3f apexPointsColor
+		   READ getColorApexPoints
+		   WRITE setColorApexPoints
+		   NOTIFY apexPointsColorChanged)
+
+	Q_PROPERTY(int lineThickness
+		   READ getLineThickness
+		   WRITE setLineThickness
+		   NOTIFY lineThicknessChanged)
+
 public:
 	GridLinesMgr();
 	virtual ~GridLinesMgr();
@@ -822,8 +836,29 @@ public slots:
 	//! @endcode
 	void setColorAntisolarPoint(const Vec3f& newColor);
 
+	//! Setter for displaying the Apex and Antapex points, i.e. where the observer planet is heading to or coming from, respectively
+	void setFlagApexPoints(const bool displayed);
+	//! Accessor for displaying Apex/Antapex points.
+	bool getFlagApexPoints(void) const;
+	//! Get the current color of the Apex/Antapex points.
+	Vec3f getColorApexPoints(void) const;
+	//! Set the color of the Apex/Antapex points.
+	//! @param newColor The color of Apex/Antapex points.
+	//! @code
+	//! // example of usage in scripts
+	//! GridLinesMgr.setColorApexPoints(Vec3f(1.0,0.0,0.0));
+	//! @endcode
+	void setColorApexPoints(const Vec3f& newColor);
+
+	//! Set the thickness of lines
+	//! @param thickness of line in pixels
+	void setLineThickness(const int thickness);
+	//! Get the thickness of lines
+	int getLineThickness() const;
+
 signals:
 	void gridlinesDisplayedChanged(const bool) const;
+	void lineThicknessChanged(const int) const;
 	void azimuthalGridDisplayedChanged(const bool) const;
 	void azimuthalGridColorChanged(const Vec3f & newColor) const;
 	void equatorGridDisplayedChanged(const bool displayed) const;
@@ -888,11 +923,13 @@ signals:
 	void solsticePointsColorChanged(const Vec3f & newColor) const;
 	void antisolarPointDisplayedChanged(const bool displayed) const;
 	void antisolarPointColorChanged(const Vec3f & newColor) const;
+	void apexPointsDisplayedChanged(const bool displayed) const;
+	void apexPointsColorChanged(const Vec3f & newColor) const;
 
 private slots:
 	//! Re-translate the labels of the great circles.
-	//! Contains only calls to SkyLine::updateLabel().
-	void updateLineLabels();
+	//! Contains only calls to SkyLine::updateLabel() and SkyPoint::updateLabel().
+	void updateLabels();
 	//! Connect the earth shared pointer.
 	//! Must be connected to SolarSystem::solarSystemDataReloaded()
 	void connectEarthFromSolarSystem();
@@ -901,7 +938,7 @@ private slots:
 	void setFontSizeFromApp(int size);
 
 private:
-	QSharedPointer<Planet> earth;           // shortcut Earth pointer. Must be reconnected whenever solar system has been reloaded.
+	QSharedPointer<Planet> earth;	// shortcut Earth pointer. Must be reconnected whenever solar system has been reloaded.
 	bool gridlinesDisplayed;			// master switch to switch off all grids/lines. (useful for oculars plugin)
 	SkyGrid * equGrid;				// Equatorial grid
 	SkyGrid * equJ2000Grid;			// Equatorial J2000 grid
@@ -933,11 +970,12 @@ private:
 	SkyPoint * eclipticPoles;			// Ecliptic poles
 	SkyPoint * galacticPoles;			// Galactic poles
 	SkyPoint * supergalacticPoles;		// Supergalactic poles
-	SkyPoint * equinoxJ2000Points;	// Equinox points of J2000
+	SkyPoint * equinoxJ2000Points;		// Equinox points of J2000
 	SkyPoint * equinoxPoints;			// Equinox points
 	SkyPoint * solsticeJ2000Points;		// Solstice points of J2000
 	SkyPoint * solsticePoints;			// Solstice points
-	SkyPoint * antisolarPoint;			// Solstice points
+	SkyPoint * antisolarPoint;			// Antisolar point
+	SkyPoint * apexPoints;			// Apex and Antapex points, i.e. the point where the observer planet is moving to or receding from
 };
 
 #endif // GRIDLINESMGR_HPP

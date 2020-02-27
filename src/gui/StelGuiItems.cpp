@@ -61,7 +61,7 @@ QPixmap getTextPixmap(const QString& str, QFont font)
 {
 	// Render the text str into a QPixmap.
 	QRect strRect = QFontMetrics(font).boundingRect(str);
-	int w = strRect.width()+1+(int)(0.02f*strRect.width());
+	int w = strRect.width()+1+static_cast<int>(0.02f*strRect.width());
 	int h = strRect.height();
 
 	QPixmap strPixmap(w, h);
@@ -427,9 +427,14 @@ void BottomStelBar::setFontSizeFromApp(int size)
 	location->setFont(font);
 	fov->setFont(font);
 	fps->setFont(font);
-	SkyGui* skyGui=dynamic_cast<StelGui*>(StelApp::getInstance().getGui()) ->getSkyGui();
-	if (skyGui)
-		skyGui->updateBarsPos();
+	StelGui* gui = dynamic_cast<StelGui*>(StelApp::getInstance().getGui());
+	if (gui)
+	{
+		// to avoid crash
+		SkyGui* skyGui=gui->getSkyGui();
+		if (skyGui)
+			skyGui->updateBarsPos();
+	}
 }
 
 //! connect from StelApp to resize fonts on the fly.
@@ -440,9 +445,14 @@ void BottomStelBar::setFont(QFont font)
 	location->setFont(font);
 	fov->setFont(font);
 	fps->setFont(font);
-	SkyGui* skyGui=dynamic_cast<StelGui*>(StelApp::getInstance().getGui()) ->getSkyGui();
-	if (skyGui)
-		skyGui->updateBarsPos();
+	StelGui* gui = dynamic_cast<StelGui*>(StelApp::getInstance().getGui());
+	if (gui)
+	{
+		// to avoid crash
+		SkyGui* skyGui=gui->getSkyGui();
+		if (skyGui)
+			skyGui->updateBarsPos();
+	}
 }
 
 BottomStelBar::~BottomStelBar()

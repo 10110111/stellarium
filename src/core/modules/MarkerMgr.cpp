@@ -43,7 +43,7 @@ class StelMarker
 {
 public:
 	StelMarker(const float& mSize, const Vec3f& mColor);
-	virtual ~StelMarker() {;}
+	virtual ~StelMarker() {}
 
 	//! draw the marker on the sky
 	//! @param core the StelCore object
@@ -87,7 +87,8 @@ public:
 		SquaredDCircle	= 8,
 		CrossedCircle	= 9,
 		Target		= 10,
-		Gear		= 11
+		Gear			= 11,
+		Disk			= 12
 	};
 
 	//! Constructor of a SkyMarker which is "attached" to the equatorial coordinates for epoch J2000.0
@@ -151,12 +152,12 @@ StelMarker::StelMarker(const float& mSize, const Vec3f& mColor)
 
 void StelMarker::update(double deltaTime)
 {
-	markerFader.update((int)(deltaTime*1000));
+	markerFader.update(static_cast<int>(deltaTime*1000));
 }
 
 void StelMarker::setFadeDuration(float duration)
 {
-	markerFader.setDuration(duration);
+	markerFader.setDuration(static_cast<int>(1000.f*duration));
 }
 
 void StelMarker::setColor(const Vec3f& color)
@@ -183,44 +184,21 @@ SkyMarker::SkyMarker(Vec3d pos, const float& size, const Vec3f& color, SkyMarker
 	, markerPosition(pos)
 	, markerType(style)
 {
-	QString fileName = "cross.png";
 	// TODO: Use unicode chars for markers or SVG instead?
-	switch (markerType)
-	{
-		case Cross:
-			fileName = "cross.png";
-			break;
-		case Circle:
-			fileName = "neb_lrg.png";
-			break;
-		case Ellipse:
-			fileName = "neb_gal_lrg.png";
-			break;
-		case Square:
-			fileName = "neb_dif_lrg.png";
-			break;
-		case DottedCircle:
-			fileName = "neb_ocl_lrg.png";
-			break;
-		case CircledCross:
-			fileName = "neb_gcl_lrg.png";
-			break;
-		case DashedSquare:
-			fileName = "neb_drk_lrg.png";
-			break;
-		case SquaredDCircle:
-			fileName = "neb_ocln_lrg.png";
-			break;
-		case CrossedCircle:
-			fileName = "neb_pnb.png";
-			break;
-		case Target:
-			fileName = "pointer2.png";
-			break;
-		case Gear:
-			fileName = "gear.png";
-			break;
-	}
+	static const QMap<SkyMarker::MarkerType, QString>map={
+		{ Cross,          "cross.png"},
+		{ Circle,         "neb_lrg.png"},
+		{ Ellipse,        "neb_gal_lrg.png"},
+		{ Square,         "neb_dif_lrg.png"},
+		{ DottedCircle,   "neb_ocl_lrg.png"},
+		{ CircledCross,   "neb_gcl_lrg.png"},
+		{ DashedSquare,   "neb_drk_lrg.png"},
+		{ SquaredDCircle, "neb_ocln_lrg.png"},
+		{ CrossedCircle,  "neb_pnb.png"},
+		{ Target,         "pointeur2.png"},
+		{ Gear,           "gear.png"},
+		{ Disk,           "disk.png"}};
+	const QString fileName = map.value(markerType, "cross.png");
 	markerTexture = StelApp::getInstance().getTextureManager().createTexture(StelFileMgr::getInstallationDir()+"/textures/"+fileName);
 }
 
@@ -242,35 +220,28 @@ bool SkyMarker::draw(StelCore* core, StelPainter& sPainter)
 
 	sPainter.setBlending(true, GL_ONE, GL_ONE);
 	sPainter.setColor(markerColor[0], markerColor[1], markerColor[2], markerFader.getInterstate());
-	sPainter.drawSprite2dMode(xyPos[0], xyPos[1], markerSize);
+	sPainter.drawSprite2dMode(static_cast<float>(xyPos[0]), static_cast<float>(xyPos[1]), markerSize);
 
 	return true;
 }
 
 SkyMarker::MarkerType SkyMarker::stringToMarkerType(const QString &s)
 {
-	if (s.toLower()=="circle")
-		return SkyMarker::Circle;
-	else if (s.toLower()=="ellipse")
-		return SkyMarker::Ellipse;
-	else if (s.toLower()=="square")
-		return SkyMarker::Square;
-	else if (s.toLower()=="dotted-circle")
-		return SkyMarker::DottedCircle;
-	else if (s.toLower()=="circled-cross" || s.toLower()=="circled-plus")
-		return SkyMarker::CircledCross;
-	else if (s.toLower()=="dashed-square")
-		return SkyMarker::DashedSquare;
-	else if (s.toLower()=="squared-dotted-circle" || s.toLower()=="squared-dcircle")
-		return SkyMarker::SquaredDCircle;
-	else if (s.toLower()=="crossed-circle")
-		return SkyMarker::SquaredDCircle;
-	else if (s.toLower()=="target")
-		return SkyMarker::Target;
-	else if (s.toLower()=="gear")
-		return SkyMarker::Gear;
-	else
-		return SkyMarker::Cross;
+	static const QMap<QString, SkyMarker::MarkerType>map={
+		{ "circle",                SkyMarker::Circle},
+		{ "ellipse",               SkyMarker::Ellipse},
+		{ "square",                SkyMarker::Square},
+		{ "dotted-circle",         SkyMarker::DottedCircle},
+		{ "circled-cross",         SkyMarker::CircledCross},
+		{ "circled-plus",          SkyMarker::CircledCross},
+		{ "dashed-square",         SkyMarker::DashedSquare},
+		{ "squared-dotted-circle", SkyMarker::SquaredDCircle},
+		{ "squared-dcircle",       SkyMarker::SquaredDCircle},
+		{ "crossed-circle",        SkyMarker::CrossedCircle},
+		{ "target",                SkyMarker::Target},
+		{ "gear",                  SkyMarker::Gear},
+		{ "disk",                  SkyMarker::Disk}};
+		return map.value(s.toLower(), SkyMarker::Cross);
 }
 
 ///////////////////////
@@ -281,45 +252,22 @@ HorizonMarker::HorizonMarker(const float az, const float alt, const float& size,
 	, markerTexture(Q_NULLPTR)
 	, markerType(style)
 {
-	StelUtils::spheToRect((180.0f-az)*M_PI/180.0, alt*M_PI/180.0, altaz);
-	QString fileName = "cross.png";
+	StelUtils::spheToRect((180.0-static_cast<double>(az))*M_PI/180.0, static_cast<double>(alt)*M_PI/180.0, altaz);
 	// TODO: Use unicode chars for markers or SVG instead?
-	switch (markerType)
-	{
-		case SkyMarker::Cross:
-			fileName = "cross.png";
-			break;
-		case SkyMarker::Circle:
-			fileName = "neb_lrg.png";
-			break;
-		case SkyMarker::Ellipse:
-			fileName = "neb_gal_lrg.png";
-			break;
-		case SkyMarker::Square:
-			fileName = "neb_dif_lrg.png";
-			break;
-		case SkyMarker::DottedCircle:
-			fileName = "neb_ocl_lrg.png";
-			break;
-		case SkyMarker::CircledCross:
-			fileName = "neb_gcl_lrg.png";
-			break;
-		case SkyMarker::DashedSquare:
-			fileName = "neb_drk_lrg.png";
-			break;
-		case SkyMarker::SquaredDCircle:
-			fileName = "neb_ocln_lrg.png";
-			break;
-		case SkyMarker::CrossedCircle:
-			fileName = "neb_pnb.png";
-			break;
-		case SkyMarker::Target:
-			fileName = "pointer2.png";
-			break;
-		case SkyMarker::Gear:
-			fileName = "gear.png";
-			break;
-	}
+	static const QMap<SkyMarker::MarkerType, QString>map={
+		{ SkyMarker::Cross,          "cross.png"},
+		{ SkyMarker::Circle,         "neb_lrg.png"},
+		{ SkyMarker::Ellipse,        "neb_gal_lrg.png"},
+		{ SkyMarker::Square,         "neb_dif_lrg.png"},
+		{ SkyMarker::DottedCircle,   "neb_ocl_lrg.png"},
+		{ SkyMarker::CircledCross,   "neb_gcl_lrg.png"},
+		{ SkyMarker::DashedSquare,   "neb_drk_lrg.png"},
+		{ SkyMarker::SquaredDCircle, "neb_ocln_lrg.png"},
+		{ SkyMarker::CrossedCircle,  "neb_pnb.png"},
+		{ SkyMarker::Target,         "pointeur2.png"},
+		{ SkyMarker::Gear,           "gear.png"},
+		{ SkyMarker::Disk,           "disk.png"}};
+	const QString fileName = map.value(markerType, "cross.png");
 	markerTexture = StelApp::getInstance().getTextureManager().createTexture(StelFileMgr::getInstallationDir()+"/textures/"+fileName);
 }
 
@@ -342,7 +290,7 @@ bool HorizonMarker::draw(StelCore *core, StelPainter& sPainter)
 	markerTexture->bind();
 	sPainter.setBlending(true, GL_ONE, GL_ONE);
 	sPainter.setColor(markerColor[0], markerColor[1], markerColor[2], markerFader.getInterstate());
-	sPainter.drawSprite2dMode(xyPos[0], xyPos[1], markerSize);
+	sPainter.drawSprite2dMode(static_cast<float>(xyPos[0]), static_cast<float>(xyPos[1]), markerSize);
 	sPainter.setProjector(keepProj);
 	return true;
 }
@@ -395,7 +343,7 @@ void MarkerMgr::markerVisibleTimeout()
 			disconnect(m->timer, SIGNAL(timeout()), this, SLOT(markerVisibleTimeout()));
 			connect(m->timer, SIGNAL(timeout()), this, SLOT(markerDeleteTimeout()));
 			m->setFlagShow(false);
-			m->timer->setInterval(m->markerFader.getDuration()*1000);
+			m->timer->setInterval(qRound(m->markerFader.getDuration()*1000.f));
 			m->timer->start();
 			return;
 		}
@@ -485,8 +433,8 @@ int MarkerMgr::markerHorizon(const QString& az,
 			     bool autoDelete,
 			     int autoDeleteTimeoutMs)
 {
-	float dAzi	= StelUtils::getDecAngle(az)*180.f/M_PI;
-	float dAlt	= StelUtils::getDecAngle(alt)*180.f/M_PI;
+	float dAzi	= static_cast<float>(StelUtils::getDecAngle(az)*M_180_PI);
+	float dAlt	= static_cast<float>(StelUtils::getDecAngle(alt)*M_180_PI);
 
 	StelMarker* m = new HorizonMarker(dAzi, dAlt, size, StelUtils::htmlColorToVec3f(color), SkyMarker::stringToMarkerType(mtype));
 	if (m==Q_NULLPTR)

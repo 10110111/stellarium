@@ -257,7 +257,7 @@ public:
 	void loadSettings();
 
 	//! Save the plugin's settings to the main configuration file.
-	void saveSettings();
+	void saveSettingsToConfig();
 
 	//! Get the groups used in the currently loaded satellite collection.
 	//! See @ref groups for details. Use getGroupIdList() if you need a list.
@@ -360,6 +360,10 @@ public:
 	static void parseTleFile(QFile& openFile,
 	                         TleDataHash& tleList,
 				 bool addFlagValue = false);
+
+	//! Insert a three line TLE into the hash array.
+	//! @param[in] line The second line from the TLE
+	static QString getSatIdFromLine2(const QString& line);
 
 	//! Reads qs.mag file and its parsing for getting id and standard magnitude
 	//! for satellites.
@@ -483,6 +487,8 @@ public slots:
 private slots:
 	//! Update satellites visibility on wide range of dates changes - by month or year
 	void updateSatellitesVisibility();
+	//! Call when button "Save settings" in main GUI are pressed
+	void saveSettings() { saveSettingsToConfig(); }
 
 private:
 	//! Add to the current collection the satellite described by the data.
@@ -552,7 +558,7 @@ private:
 	QList<SatelliteP> satellites;
 	SatellitesListModel* satelliteListModel;
 
-	QHash<QString, double> qsMagList;
+	QHash<int, double> qsMagList;
 	
 	//! Union of the groups used by all loaded satellites - see @ref groups.
 	//! For simplicity, it can only grow until the plug-in is unloaded -
@@ -570,7 +576,6 @@ private:
 	// FIXME: Possible bug with the Solar System recreated by the SSEditor.
 	QSharedPointer<Planet> earth;
 	Vec3f defaultHintColor;
-	Vec3f defaultOrbitColor;
 	QFont labelFont;
 	
 	//! @name Updater module

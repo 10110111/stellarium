@@ -22,6 +22,7 @@
 #include "ui_navStarsWindow.h"
 
 #include "StelApp.hpp"
+#include "StelCore.hpp"
 #include "StelLocaleMgr.hpp"
 #include "StelModule.hpp"
 #include "StelModuleMgr.hpp"
@@ -73,7 +74,7 @@ void NavStarsWindow::createDialogContent()
 	ui->displayAtStartupCheckBox->setChecked(ns->getEnableAtStartup());
 	connect(ui->displayAtStartupCheckBox, SIGNAL(stateChanged(int)), this, SLOT(setDisplayAtStartupEnabled(int)));
 
-	connect(ui->pushButtonSave, SIGNAL(clicked()), this, SLOT(saveSettings()));
+	connect(ui->pushButtonSave, SIGNAL(clicked()), this, SLOT(saveSettings()));	
 	connect(ui->pushButtonReset, SIGNAL(clicked()), this, SLOT(resetSettings()));
 
 	// About tab

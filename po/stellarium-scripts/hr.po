@@ -3,13 +3,17 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
+# Translators:
+# Orr Nuts <orrnuts@gmail.com>, 2020
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: stellarium@googlegroups.com\n"
-"POT-Creation-Date: 2019-06-26 17:35+0600\n"
+"POT-Creation-Date: 2020-02-19 13:55+0700\n"
 "PO-Revision-Date: 2019-01-19 14:25+0000\n"
+"Last-Translator: Orr Nuts <orrnuts@gmail.com>, 2020\n"
 "Language-Team: Croatian (https://www.transifex.com/stellarium/teams/80998/hr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -17,34 +21,34 @@ msgstr ""
 "Language: hr\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 
-#: scripts/analemma.ssc:15
+#: scripts/analemma.ssc:16
 msgid "Analemma"
 msgstr ""
 
-#: scripts/analemma.ssc:40
+#: scripts/analemma.ssc:41
 msgid "Week"
-msgstr ""
+msgstr "Tjedan"
 
-#: scripts/analemma.ssc:46
+#: scripts/analemma.ssc:47
 msgid "Near winter solstice"
-msgstr ""
+msgstr "Blizu zimskog solsticija"
 
-#: scripts/analemma.ssc:50
+#: scripts/analemma.ssc:51
 msgid "Near summer solstice"
-msgstr ""
+msgstr "Blizu ljetnog solsticija"
 
-#: scripts/analemma.ssc:54 scripts/martian_analemma.ssc:47
-#: scripts/saturnian_analemma.ssc:47 scripts/uranian_analemma.ssc:47
+#: scripts/analemma.ssc:55 scripts/martian_analemma.ssc:48
+#: scripts/saturnian_analemma.ssc:48 scripts/uranian_analemma.ssc:48
 msgid "Yearly path of the Sun"
-msgstr ""
+msgstr "Godišnja putanja Sunca"
 
 #: scripts/bennett.ssc:47
 msgid "The Jack Bennett Catalog of Southern Deep-Sky Objects"
-msgstr ""
+msgstr "Jack Bennett katalog objekata južnog  dubokog svemira"
 
 #: scripts/bennett.ssc:48 scripts/best_ngc.ssc:27 scripts/binosky.ssc:20
 msgid "objects in all"
-msgstr ""
+msgstr "objekata sveukupno"
 
 #: scripts/best_ngc.ssc:26
 msgid "Best objects in the New General Catalog"
@@ -52,15 +56,15 @@ msgstr ""
 
 #: scripts/best_ngc.ssc:42
 msgid "Object #"
-msgstr ""
+msgstr "Objekt #"
 
 #: scripts/binocular_highlights.ssc:12
 msgid "Chapter 1"
-msgstr ""
+msgstr "1. Poglavlje"
 
 #: scripts/binocular_highlights.ssc:12
 msgid "December to February"
-msgstr ""
+msgstr "Od prosinca do veljače"
 
 #: scripts/binocular_highlights.ssc:13
 msgid "Kemble's Cascade"
@@ -76,7 +80,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:14
 msgid "NGC 884 and NGC 869"
-msgstr ""
+msgstr "NGC 884 i NGC 869"
 
 #: scripts/binocular_highlights.ssc:15
 msgid "The Alpha Persei Association"
@@ -88,11 +92,11 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:17
 msgid "Watching the Demon Star"
-msgstr ""
+msgstr "Promatranje Demonske zvijezde"
 
 #: scripts/binocular_highlights.ssc:18
 msgid "The Pleiades"
-msgstr ""
+msgstr "Plejade"
 
 #: scripts/binocular_highlights.ssc:19
 msgid "Corralling the Hyades"
@@ -112,7 +116,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:22
 msgid "M36 and M38"
-msgstr ""
+msgstr "M36 i M38"
 
 #: scripts/binocular_highlights.ssc:23
 msgid "Another Double Cluster"
@@ -132,11 +136,11 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:26
 msgid "Orion's Sword"
-msgstr ""
+msgstr "Orionov Mač"
 
 #: scripts/binocular_highlights.ssc:26
 msgid "NGC 1981, M42, M43 and Struve 747"
-msgstr ""
+msgstr "NGC 1981, M42, M43 i Struve 747"
 
 #: scripts/binocular_highlights.ssc:27
 msgid "The Overlooked Open Cluster: M41"
@@ -156,7 +160,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:30
 msgid "Cr 132 and Cr 140"
-msgstr ""
+msgstr "Cr 132 i Cr 140"
 
 #: scripts/binocular_highlights.ssc:31
 msgid "Two Southern Delights"
@@ -172,11 +176,11 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:32
 msgid "March to May"
-msgstr ""
+msgstr "Od ožujka do svibnja"
 
 #: scripts/binocular_highlights.ssc:33
 msgid "The Engagement Ring"
-msgstr ""
+msgstr "Zaručnički prsten"
 
 #: scripts/binocular_highlights.ssc:34
 msgid "The Power of Power"
@@ -184,7 +188,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:34
 msgid "M81 and M82"
-msgstr ""
+msgstr "M81 i M82"
 
 #: scripts/binocular_highlights.ssc:35
 msgid "M101 in the Mind's Eye"
@@ -204,7 +208,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:39
 msgid "Globular Cluster M3"
-msgstr ""
+msgstr "Kuglasti skup M3"
 
 #: scripts/binocular_highlights.ssc:40
 msgid "In and Around Melotte 111"
@@ -281,11 +285,11 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:54
 msgid "Chapter 3"
-msgstr ""
+msgstr "3. poglavlje"
 
 #: scripts/binocular_highlights.ssc:54
 msgid "June to August"
-msgstr ""
+msgstr "Od lipnja do kolovoza"
 
 #: scripts/binocular_highlights.ssc:55
 msgid "Resolving Nu Draconis"
@@ -334,7 +338,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:62
 msgid "Open Cluster M39 in Cygnus"
-msgstr ""
+msgstr "Otvoreni skup M39 u Labudu"
 
 #: scripts/binocular_highlights.ssc:63
 msgid "The Road to the Cocoon"
@@ -346,11 +350,11 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:64
 msgid "Summer's Other Triangle"
-msgstr ""
+msgstr "Drugi ljetni trokut"
 
 #: scripts/binocular_highlights.ssc:64
 msgid "Epsilon, Zeta and Alpha Lyrae"
-msgstr ""
+msgstr "Epsilon, Zeta i Alfa Lyrae"
 
 #: scripts/binocular_highlights.ssc:65
 msgid "M57 and Expectations"
@@ -374,7 +378,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:68
 msgid "A Milky Way Surprise"
-msgstr ""
+msgstr "Iznenađenje Mliječne staze"
 
 #: scripts/binocular_highlights.ssc:68
 msgid "Brocchi's Cluster (Cr 399) or Coathanger"
@@ -386,7 +390,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:69
 msgid "B143 near Altair"
-msgstr ""
+msgstr "B143 u blizini Altaira"
 
 #: scripts/binocular_highlights.ssc:70
 msgid "M11 in Scutum"
@@ -426,7 +430,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:76
 msgid "A Solar Twin"
-msgstr ""
+msgstr "Sunčev blizanac"
 
 #: scripts/binocular_highlights.ssc:76
 msgid "18 Scorpii"
@@ -446,7 +450,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:78
 msgid "M4 and M80"
-msgstr ""
+msgstr "M4 i M80"
 
 #: scripts/binocular_highlights.ssc:79
 msgid "A Gorgeous Duo"
@@ -454,7 +458,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:79
 msgid "M6 and M7"
-msgstr ""
+msgstr "M6 i M7"
 
 #: scripts/binocular_highlights.ssc:80
 msgid "A False Comet"
@@ -474,7 +478,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:82
 msgid "M16, M17 and M18"
-msgstr ""
+msgstr "M16, M17 i M18"
 
 #: scripts/binocular_highlights.ssc:83
 msgid "The Lagoon Nebula"
@@ -542,7 +546,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:94
 msgid "Open Cluster M103"
-msgstr ""
+msgstr "Otvoreni skup M103"
 
 #: scripts/binocular_highlights.ssc:95
 msgid "Magnificent M31"
@@ -629,7 +633,7 @@ msgstr ""
 
 #: scripts/double_stars.ssc:30
 msgid "θ Tauri"
-msgstr ""
+msgstr "θ Tauri"
 
 #: scripts/double_stars.ssc:30
 msgid "5.6 arcminutes (NNW)"
@@ -743,7 +747,7 @@ msgstr ""
 
 #: scripts/double_stars.ssc:40
 msgid "μ Scorpii"
-msgstr ""
+msgstr "μ Scorpii"
 
 #: scripts/double_stars.ssc:40
 msgid "5.8 arcminutes (ENE)"
@@ -771,7 +775,7 @@ msgstr ""
 
 #: scripts/double_stars.ssc:43
 msgid "δ Lyrae"
-msgstr ""
+msgstr "δ Lyrae"
 
 #: scripts/double_stars.ssc:43
 msgid "10.3 arcminutes (WNW)"
@@ -821,9 +825,9 @@ msgstr ""
 msgid "Martian analemma"
 msgstr ""
 
-#: scripts/martian_analemma.ssc:41
+#: scripts/martian_analemma.ssc:42
 msgid "Sol"
-msgstr ""
+msgstr "Sol"
 
 #: scripts/morsels_1.ssc:15 scripts/morsels_1.ssc:16 scripts/morsels_1.ssc:18
 #: scripts/morsels_1.ssc:22 scripts/morsels_1.ssc:23 scripts/morsels_1.ssc:29
@@ -852,21 +856,21 @@ msgstr ""
 #: scripts/morsels_1.ssc:62 scripts/morsels_2.ssc:78 scripts/morsels_3.ssc:52
 #: scripts/morsels_4.ssc:70
 msgid "phenomena in all"
-msgstr ""
+msgstr "pojave sveukupno"
 
 #: scripts/morsels_1.ssc:77 scripts/morsels_2.ssc:98 scripts/morsels_3.ssc:62
 #: scripts/morsels_4.ssc:81
 msgid "Event #"
-msgstr ""
+msgstr "Događaj #"
 
 #: scripts/morsels_1.ssc:78 scripts/morsels_2.ssc:99 scripts/morsels_3.ssc:63
 #: scripts/morsels_4.ssc:82
 msgid "Date:"
-msgstr ""
+msgstr "Datum:"
 
 #: scripts/morsels_1.ssc:79
 msgid "Time:"
-msgstr ""
+msgstr "Vrijeme:"
 
 #: scripts/morsels_2.ssc:76
 msgid "Jupiter without Galilean satellites"
@@ -886,43 +890,43 @@ msgstr ""
 
 #: scripts/supernova.ssc:22
 msgid "Europe, Uraniborg."
-msgstr ""
+msgstr "Europa, Uraniborg."
 
 #: scripts/supernova.ssc:30
 msgid "Evening of 20 October 1572"
-msgstr ""
+msgstr "Večer na 20. Listopad 1572."
 
 #: scripts/supernova.ssc:39
 msgid "Constellation Cassiopeia"
-msgstr ""
+msgstr "Zviježđe Kasiopeja"
 
 #: scripts/supernova.ssc:60
 msgid "5 days later..."
-msgstr ""
+msgstr "5 dana kasnije..."
 
 #: scripts/supernova.ssc:66
 msgid "Next 3 days..."
-msgstr ""
+msgstr "Slijedeća 3 dana..."
 
 #: scripts/supernova.ssc:72
 msgid "New star! But people have not seen it yet..."
-msgstr ""
+msgstr "Nova zvijezda! Ali ljudi je još nisu primjetili..."
 
 #: scripts/supernova.ssc:77
 msgid "Evening of 31 October 1572"
-msgstr ""
+msgstr "Večer na 31. Listopad 1572."
 
 #: scripts/supernova.ssc:85
 msgid "Evening of "
-msgstr ""
+msgstr "Večer"
 
 #: scripts/supernova.ssc:85
 msgid " November 1572"
-msgstr ""
+msgstr " Studeni 1572."
 
 #: scripts/supernova.ssc:92
 msgid "Hooray! First observations in Korea and Europe."
-msgstr ""
+msgstr "Hura! Prva zapažanja u Koreji i Europi."
 
 #: scripts/supernova.ssc:100
 msgid "First observations in China."
@@ -935,7 +939,7 @@ msgstr ""
 
 #: scripts/supernova.ssc:117
 msgid "Next 60 days..."
-msgstr ""
+msgstr "Slijedećih 60 dana..."
 
 #: scripts/supernova.ssc:128
 msgid "Next other 40 days..."
@@ -987,10 +991,13 @@ msgid ""
 "The quoted size is the average size parameter, the true\n"
 "value is from 1,340-1,940."
 msgstr ""
+"PZ Cas se nalazi u području neba s velikom ekstinkcijom zbog prašine.\n"
+"Navedena veličina je parametar prosječne veličine, stvarna\n"
+"vrijednost je od 1,340-1,940."
 
 #: scripts/largest_known_stars.ssc:14
 msgid "VX Sagittarii"
-msgstr ""
+msgstr "VX Sagittarii"
 
 #: scripts/largest_known_stars.ssc:15
 msgid ""
@@ -1000,7 +1007,7 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:16
 msgid "VV Cephei A"
-msgstr ""
+msgstr "VV Cephei A"
 
 #: scripts/largest_known_stars.ssc:17
 msgid ""
@@ -1022,7 +1029,7 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:20
 msgid "VY Canis Majoris"
-msgstr ""
+msgstr "VY Canis Majoris"
 
 #: scripts/largest_known_stars.ssc:21
 msgid ""
@@ -1058,11 +1065,11 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:27
 msgid "BC Cygni"
-msgstr ""
+msgstr "BC Cygni"
 
 #: scripts/largest_known_stars.ssc:28
 msgid "RT Carinae"
-msgstr ""
+msgstr "RT Carinae"
 
 #: scripts/largest_known_stars.ssc:29
 msgid "Betelgeuse"
@@ -1070,7 +1077,7 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:30
 msgid "Ninth brightest star in the night sky."
-msgstr ""
+msgstr "Deveta najsjajnija zvijezda noćnog neba."
 
 #: scripts/largest_known_stars.ssc:31
 msgid "Mu Cephei (Herschel's \"Garnet Star\")"
@@ -1078,7 +1085,7 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:32
 msgid "S Persei"
-msgstr ""
+msgstr "S Persei"
 
 #: scripts/largest_known_stars.ssc:33
 msgid "In the Perseus Double Cluster."
@@ -1090,7 +1097,7 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:35
 msgid "Antares A"
-msgstr ""
+msgstr "Antares A"
 
 #: scripts/largest_known_stars.ssc:36
 msgid "Theta Muscae"
@@ -1098,11 +1105,11 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:37
 msgid "V1749 Cygni"
-msgstr ""
+msgstr "V1749 Cygni"
 
 #: scripts/largest_known_stars.ssc:38
 msgid "TZ Cassiopeiae"
-msgstr ""
+msgstr "TZ Cassiopeiae"
 
 #: scripts/largest_known_stars.ssc:39
 msgid "IX Carinae"
@@ -1114,11 +1121,11 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:41
 msgid "T Cephei"
-msgstr ""
+msgstr "T Cephei"
 
 #: scripts/largest_known_stars.ssc:42
 msgid "V382 Carinae"
-msgstr ""
+msgstr "V382 Carinae"
 
 #: scripts/largest_known_stars.ssc:43 scripts/largest_known_stars.ssc:45
 msgid "Yellow hypergiant, one of the rarest types of star."
@@ -1126,7 +1133,7 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:44
 msgid "V509 Cassiopeiae"
-msgstr ""
+msgstr "V509 Cassiopeiae"
 
 #: scripts/largest_known_stars.ssc:46
 msgid "CE Tauri (\"Ruby Star\")"
@@ -1152,7 +1159,7 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:51
 msgid "Rho Cassiopeiae"
-msgstr ""
+msgstr "Rho Cassiopeiae"
 
 #: scripts/largest_known_stars.ssc:52
 msgid "A yellow hypergiant, one of the rarest types of a star."
@@ -1160,7 +1167,7 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:53
 msgid "Mira A (Omicron Ceti)"
-msgstr ""
+msgstr "Mira A (Omicron Ceti)"
 
 #: scripts/largest_known_stars.ssc:54
 msgid "Prototype Mira variable"
@@ -1184,19 +1191,19 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:59
 msgid "Deneb (Alpha Cygni)"
-msgstr ""
+msgstr "Deneb (Alfa Cygni)"
 
 #: scripts/largest_known_stars.ssc:60
 msgid "19th brightest star in the night sky."
-msgstr ""
+msgstr "19-ta najsjajnija zvijezda noćnog neba."
 
 #: scripts/largest_known_stars.ssc:61
 msgid "Rigel A (Beta Orionis A)"
-msgstr ""
+msgstr "Rigel A (Beta Orionis A)"
 
 #: scripts/largest_known_stars.ssc:62
 msgid "Seventh brightest star in the night sky."
-msgstr ""
+msgstr "Sedma najsjajnija zvijezda noćnog neba."
 
 #: scripts/largest_known_stars.ssc:63
 msgid "Canopus (Alpha Carinae)"
@@ -1204,7 +1211,7 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:64
 msgid "Second brightest star in the night sky."
-msgstr ""
+msgstr "Druga najsjajnija zvijezda noćnog neba."
 
 #: scripts/largest_known_stars.ssc:65
 msgid "Aldebaran (Alpha Tauri)"
@@ -1212,7 +1219,7 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:66
 msgid "VV Cephei B"
-msgstr ""
+msgstr "VV Cephei B"
 
 #: scripts/largest_known_stars.ssc:67
 msgid "The B-type main sequence companion of VV Cephei A."
@@ -1229,11 +1236,11 @@ msgstr ""
 
 #: scripts/triple_sunrise_and_sunsets.ssc:17
 msgid "Location: Mercury, 0N, 90E"
-msgstr ""
+msgstr "Položaj: Merkur, 0 S, 90 I"
 
 #: scripts/triple_sunrise_and_sunsets.ssc:51
 msgid "Just Before Sunrise....."
-msgstr ""
+msgstr "Malo prije izlaska....."
 
 #: scripts/triple_sunrise_and_sunsets.ssc:54
 msgid "Surface of Mercury"
@@ -1241,11 +1248,11 @@ msgstr ""
 
 #: scripts/triple_sunrise_and_sunsets.ssc:57
 msgid "Day"
-msgstr ""
+msgstr "Dan"
 
 #: scripts/triple_sunrise_and_sunsets.ssc:92
 msgid "Sunrise #1"
-msgstr ""
+msgstr "Izlazak #1"
 
 #: scripts/triple_sunrise_and_sunsets.ssc:120
 msgid "Retro"
@@ -1253,36 +1260,421 @@ msgstr ""
 
 #: scripts/triple_sunrise_and_sunsets.ssc:141
 msgid "Sunset #1"
-msgstr ""
+msgstr "Zalazak #1"
 
 #: scripts/triple_sunrise_and_sunsets.ssc:159
 msgid "Sunrise #2"
-msgstr ""
+msgstr "Izlazak #2"
 
 #: scripts/triple_sunrise_and_sunsets.ssc:173
 msgid "Later in the afternoon"
-msgstr ""
+msgstr "Kasnije poslijepodne"
 
 #: scripts/triple_sunrise_and_sunsets.ssc:205
 msgid "Sunset #2"
-msgstr ""
+msgstr "Zalazak #2"
 
 #: scripts/triple_sunrise_and_sunsets.ssc:225
 msgid "Sunrise #3"
-msgstr ""
+msgstr "Izlazak #3"
 
 #: scripts/triple_sunrise_and_sunsets.ssc:244
 msgid "Sunset #3"
-msgstr ""
+msgstr "Zalazak #3"
 
 #: scripts/saturnian_analemma.ssc:16
 msgid "Saturnian analemma"
 msgstr ""
 
-#: scripts/saturnian_analemma.ssc:41 scripts/uranian_analemma.ssc:41
+#: scripts/saturnian_analemma.ssc:42 scripts/uranian_analemma.ssc:42
 msgid "Solar day"
-msgstr ""
+msgstr "Solarni dan"
 
 #: scripts/uranian_analemma.ssc:16
 msgid "Uranian analemma"
 msgstr ""
+
+#: scripts/messier_marathon.ssc:17
+msgid "Messier Marathon"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:84
+msgid "Difficulty is 0"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:85
+msgid "Very diffuse, very dark, very difficult"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:86
+msgid "Easier than M74, small"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:87
+msgid "Visible to the naked eye, no difficulty"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:88
+msgid "More difficult than M110 to verify, small"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:89
+msgid "In the west of M31, it is easy to detect"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:90
+msgid "Diffuse, great, brighter"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:91
+msgid "Small, easy to locate, not as horror as imagined"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:92
+msgid "Difficult to locate, easy to detect and verify"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:93
+msgid "Small, easy to locate, don't confuse with NGC663"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:94
+msgid "Large, scattered, easy"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:95
+msgid "Fuzzy, easy to find, accompanied by a small star"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:96
+msgid "Visible to the naked eye, better than M31"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:97
+msgid "Very close to M42, not easy to see the fuzzy"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:98
+msgid "Small, dark, few stars around"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:99
+msgid "Easy to locate, easy to detect in a good transparency."
+msgstr ""
+
+#: scripts/messier_marathon.ssc:100
+msgid "Visible to the naked eye, easier"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:101 scripts/messier_marathon.ssc:153
+#: scripts/messier_marathon.ssc:174
+msgid "Easy to locate and verify"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:102 scripts/messier_marathon.ssc:103
+msgid "Large, scattered"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:104
+msgid "Bright, easy to verify, difficult to locate"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:105
+msgid "Large, difficult to locate, easy to confuse with NGC2506"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:106
+msgid "Easy, more scattered"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:107
+msgid "Easy, fuzzy"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:108
+msgid "Easy, scattered"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:109
+msgid "Easy, large, scattered"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:110
+msgid "Very close to M96 and M105"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:111
+msgid "Easy to locate and verify, assist to verify M95 and M105"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:112
+msgid "Dark"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:113
+msgid "Very close, it’s like M81 and M82"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:114
+msgid "There is NGC3628 nearby, don't think you have found a new comet"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:115
+msgid "Like the darkened M33, require a high sky conditions"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:116
+msgid "Difficult to locate, 4 stars of the inverted 7 shape beside"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:117
+msgid "Easy, you can see the companion galaxy"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:118
+msgid "Easy to verify"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:119
+msgid "Not easy to locate, small, slightly dark"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:120
+msgid "Not easy to locate, bright"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:121
+msgid "Not easy to locate, no bright stars nearby"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:122
+msgid "Easy to locate"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:123
+msgid "Beside M60, it is easy to verify"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:124
+msgid "It’s an easier one"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:125
+msgid "As bright as M85, easy to verify"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:126
+msgid "Dark, hard to look"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:127
+msgid "Easy to detect than M89, easy to locate"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:128
+msgid "Easy to locate, detect once"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:129
+msgid "There is an NGC4438 near M84 and M86, don't make a mistake"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:130
+msgid "M84 are together, closer to NGC4438"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:131
+msgid "Just above M90, almost like M90"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:132
+msgid "Look hard"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:133
+msgid "This bunch of things in the Virgo Cluster is not easy"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:134
+msgid "M99 is easier to verify than M98"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:135
+msgid "First find M100 and then find M98 and M99"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:136
+msgid "Far away, but very bright, easy to find"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:137
+msgid "Small, not easy to locate, a little difficult"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:138
+msgid "Not easy to locate, easy to verify"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:139
+msgid "Easy to locate and verify, small"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:140
+msgid "Easy to verify, a star 5 magnitude nearby"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:141
+msgid "Visible to the naked eye, big, bright"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:142
+msgid "Bright and big in the galaxies, not hard to find"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:143
+msgid "Bright, easy to verify"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:144
+msgid "Easy to verify in a right location"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:145
+msgid "Famous, like the shoulder pole star"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:146
+msgid "It may be easier to locate from the Dragon"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:147
+msgid "Small, 20 times or more is still easy to detect"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:148
+msgid "More difficult than M57, not easy to locate, very small"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:149
+msgid "Easy, small, looks like a cluster of stars 7-8 magnitude"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:150
+msgid "Larger than imagined, very scattered, not easy to locate"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:151
+msgid "Find M71 first, then find M27, and will be easier to locate"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:152
+msgid "Easy to locate, easy to verify in 50 binos"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:154
+msgid "Bright, like M13, easy to find"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:155
+msgid "Detect it with M12, brighter than M12"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:156
+msgid "Difficult to locate, easy to verify"
+msgstr "Teže za pronaći, lako za provjeriti"
+
+#: scripts/messier_marathon.ssc:157
+msgid "Small, not easy to verify"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:158
+msgid "Bright, big, don't forget to detect NGC6144 nearby"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:159
+msgid "Not easy to verify at low power, easy at high power"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:160
+msgid "Follow the line of M4 and Antares, easy to verify"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:161
+msgid "Looking down from M19, darker than M19, but easy to verify"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:162
+msgid "Easy to locate, bright, and almost like M13"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:163
+msgid "Easy to locate M26 by M11"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:164
+msgid "Easy"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:165 scripts/messier_marathon.ssc:178
+msgid "Difficult to locate, bright, easy to verify"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:166
+msgid "Beside M81, vertical to each other"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:167
+msgid "Large, a little fuzzy"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:167
+msgid "Beside M20"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:168
+msgid "It’s not hard to see the diffuse nebula"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:169
+msgid "Visible to the naked eye, extremely easy"
+msgstr "Vidljiv golim okom, izuzetno lagan"
+
+#: scripts/messier_marathon.ssc:170
+msgid "Big, easy"
+msgstr "Velik, lagan"
+
+#: scripts/messier_marathon.ssc:170
+msgid "Easy to locate and verify, bright"
+msgstr "Lagan za pronaći i potvrditi, sjajan"
+
+#: scripts/messier_marathon.ssc:171
+msgid "M13 second"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:172
+msgid "Too big, scattered, not easy to verify"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:173
+msgid "Bigger than M6"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:175
+msgid "Brighter than imagined, can be detected with 60 binos"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:176
+msgid "Darker than M97, long strips, look hard"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:177
+msgid "Easy to verify with more than 20 times binos"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:179
+msgid "In the morning light, it looks too hard, dark"
+msgstr ""
+
+#: scripts/messier_marathon.ssc:288
+msgid "cannot be seen now"
+msgstr "trenutno nije vidljiv"

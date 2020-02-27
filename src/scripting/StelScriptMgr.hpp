@@ -175,7 +175,7 @@ public slots:
 	//! because the script running at normal rate might set the simulation time rate
 	//! to be non-real time.
 	//! @param r rate, e.g. 2.0 = script runs at twice the normal rate
-	void setScriptRate(float r);
+	void setScriptRate(double r);
 	
 	//! Get the rate at which the script is running as a multiple of the normal
 	//! execution rate.
@@ -212,6 +212,8 @@ signals:
 	void runningScriptIdChanged(const QString& id);
 	//! Notification when a script starts running
 	void scriptRunning();
+	//! Notification when a script has paused running
+	void scriptPaused();
 	//! Notification when a script has stopped running 
 	void scriptStopped();
 	//! Notification of a script event - warnings, current execution line etc.

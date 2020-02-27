@@ -54,6 +54,7 @@ StelPluginInfo RemoteSyncStelPluginInterface::getPluginInfo() const
 	info.authors = "Florian Schaukowitsch and Georg Zotti";
 	info.contact = "http://homepage.univie.ac.at/Georg.Zotti";
 	info.description = N_("Provides state synchronization for multiple Stellarium instances running in a network. See manual for detailed description.");
+	info.acknowledgements = N_("This plugin was created in the 2015/2016 campaigns of the ESA Summer of Code in Space programme.");
 	info.version = REMOTESYNC_PLUGIN_VERSION;
 	info.license = REMOTESYNC_PLUGIN_LICENSE;
 	return info;
@@ -184,11 +185,13 @@ void RemoteSync::init()
 		qCDebug(remoteSync)<<"Connecting to server from command line";
 		connectToServer();
 	}
+
+	connect(StelApp::getInstance().getCore(), SIGNAL(configurationDataSaved()), this, SLOT(saveSettings()));
 }
 
 void RemoteSync::update(double deltaTime)
 {
-	Q_UNUSED(deltaTime);
+	Q_UNUSED(deltaTime)
 	if(server)
 	{
 		//pass update on to server, client does not need this
@@ -219,7 +222,7 @@ void RemoteSync::setClientServerPort(const int port)
 {
 	if(port != this->clientServerPort)
 	{
-		this->clientServerPort = port;
+		this->clientServerPort = static_cast<quint16>(port);
 		emit clientServerPortChanged(port);
 	}
 }
@@ -228,7 +231,7 @@ void RemoteSync::setServerPort(const int port)
 {
 	if(port!= serverPort)
 	{
-		serverPort = port;
+		serverPort = static_cast<quint16>(port);
 		emit serverPortChanged(port);
 	}
 }
@@ -384,8 +387,8 @@ void RemoteSync::loadSettings()
 {
 	conf->beginGroup("RemoteSync");
 	setClientServerHost(conf->value("clientServerHost","127.0.0.1").toString());
-	setClientServerPort(conf->value("clientServerPort",20180).toInt());
-	setServerPort(conf->value("serverPort",20180).toInt());
+	setClientServerPort(static_cast<quint16>(conf->value("clientServerPort",20180).toUInt()));
+	setServerPort(static_cast<quint16>(conf->value("serverPort",20180).toUInt()));
 	setClientSyncOptions(SyncClient::SyncOptions(conf->value("clientSyncOptions", SyncClient::ALL).toInt()));
 	setStelPropFilter(unpackStringList(conf->value("stelPropFilter").toString()));
 	setConnectionLostBehavior(static_cast<ClientBehavior>(conf->value("connectionLostBehavior",1).toInt()));

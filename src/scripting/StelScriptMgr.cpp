@@ -55,26 +55,51 @@
 QScriptValue vec3fToScriptValue(QScriptEngine *engine, const Vec3f& c)
 {
 	QScriptValue obj = engine->newObject();
-	obj.setProperty("r", QScriptValue(engine, c[0]));
-	obj.setProperty("g", QScriptValue(engine, c[1]));
-	obj.setProperty("b", QScriptValue(engine, c[2]));
+	obj.setProperty("r", QScriptValue(engine, static_cast<qsreal>(c[0])));
+	obj.setProperty("g", QScriptValue(engine, static_cast<qsreal>(c[1])));
+	obj.setProperty("b", QScriptValue(engine, static_cast<qsreal>(c[2])));
+	return obj;
+}
+
+QScriptValue vec3dToScriptValue(QScriptEngine *engine, const Vec3d& c)
+{
+	QScriptValue obj = engine->newObject();
+	obj.setProperty("r", QScriptValue(engine, static_cast<qsreal>(c[0])));
+	obj.setProperty("g", QScriptValue(engine, static_cast<qsreal>(c[1])));
+	obj.setProperty("b", QScriptValue(engine, static_cast<qsreal>(c[2])));
 	return obj;
 }
 
 void vec3fFromScriptValue(const QScriptValue& obj, Vec3f& c)
 {
-	c[0] = obj.property("r").toNumber();
-	c[1] = obj.property("g").toNumber();
-	c[2] = obj.property("b").toNumber();
+	c[0] = static_cast<float>(obj.property("r").toNumber());
+	c[1] = static_cast<float>(obj.property("g").toNumber());
+	c[2] = static_cast<float>(obj.property("b").toNumber());
+}
+
+void vec3dFromScriptValue(const QScriptValue& obj, Vec3d& c)
+{
+	c[0] = static_cast<double>(obj.property("r").toNumber());
+	c[1] = static_cast<double>(obj.property("g").toNumber());
+	c[2] = static_cast<double>(obj.property("b").toNumber());
 }
 
 QScriptValue createVec3f(QScriptContext* context, QScriptEngine *engine)
 {
 	Vec3f c;
-	c[0] = context->argument(0).toNumber();
-	c[1] = context->argument(1).toNumber();
-	c[2] = context->argument(2).toNumber();
+	c[0] = static_cast<float>(context->argument(0).toNumber());
+	c[1] = static_cast<float>(context->argument(1).toNumber());
+	c[2] = static_cast<float>(context->argument(2).toNumber());
 	return vec3fToScriptValue(engine, c);
+}
+
+QScriptValue createVec3d(QScriptContext* context, QScriptEngine *engine)
+{
+	Vec3d c;
+	c[0] = static_cast<double>(context->argument(0).toNumber());
+	c[1] = static_cast<double>(context->argument(1).toNumber());
+	c[2] = static_cast<double>(context->argument(2).toNumber());
+	return vec3dToScriptValue(engine, c);
 }
 
 class StelScriptEngineAgent : public QScriptEngineAgent
@@ -101,11 +126,14 @@ StelScriptMgr::StelScriptMgr(QObject *parent): QObject(parent)
 	scriptImages->init();
 	StelApp::getInstance().getModuleMgr().registerModule(scriptImages);
 
-	// Allow Vec3f managment in scripts
+	// Allow Vec3f and Vec3d management in scripts
 	qScriptRegisterMetaType(engine, vec3fToScriptValue, vec3fFromScriptValue);
 	// Constructor
 	QScriptValue ctor = engine->newFunction(createVec3f);
 	engine->globalObject().setProperty("Vec3f", ctor);
+	qScriptRegisterMetaType(engine, vec3dToScriptValue, vec3dFromScriptValue);
+	QScriptValue ctorD = engine->newFunction(createVec3d);
+	engine->globalObject().setProperty("Vec3d", ctorD);
 
 	// Add the core object to access methods related to core
 	mainAPI = new StelMainScriptAPI(this);
@@ -119,10 +147,10 @@ StelScriptMgr::StelScriptMgr(QObject *parent): QObject(parent)
 	// For accessing star scale, twinkle etc.
 	objectValue = engine->newQObject(StelApp::getInstance().getCore()->getSkyDrawer());
 	engine->globalObject().setProperty("StelSkyDrawer", objectValue);
-	
+
 	setScriptRate(1.0);
 	
-	engine->setProcessEventsInterval(10);
+	engine->setProcessEventsInterval(1); // was 10, let's allow a smoother script execution
 
 	agent = new StelScriptEngineAgent(engine);
 	engine->setAgent(agent);
@@ -444,7 +472,7 @@ void StelScriptMgr::stopScript()
 	scriptEnded();
 }
 
-void StelScriptMgr::setScriptRate(float r)
+void StelScriptMgr::setScriptRate(double r)
 {
 	//qDebug() << "StelScriptMgr::setScriptRate(" << r << ")";
 	if (!engine->isEvaluating())
@@ -453,21 +481,22 @@ void StelScriptMgr::setScriptRate(float r)
 		return;
 	}
 	
-	float currentScriptRate = engine->globalObject().property("scriptRateReadOnly").toNumber();
+	qsreal currentScriptRate = engine->globalObject().property("scriptRateReadOnly").toNumber();
 	
 	// pre-calculate the new time rate in an effort to prevent there being much latency
 	// between setting the script rate and the time rate.
-	float factor = r / currentScriptRate;
+	qsreal factor = r / currentScriptRate;
 	
 	StelCore* core = StelApp::getInstance().getCore();
 	core->setTimeRate(core->getTimeRate() * factor);
 	
-	GETSTELMODULE(StelMovementMgr)->setMovementSpeedFactor(core->getTimeRate());
+	GETSTELMODULE(StelMovementMgr)->setMovementSpeedFactor(static_cast<float>(core->getTimeRate()));
 	engine->globalObject().setProperty("scriptRateReadOnly", r);
 }
 
 void StelScriptMgr::pauseScript()
 {
+	emit(scriptPaused());
 	agent->setPauseScript(true);
 }
 

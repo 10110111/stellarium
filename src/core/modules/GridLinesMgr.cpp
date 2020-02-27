@@ -28,6 +28,7 @@
 #include "StelLocaleMgr.hpp"
 #include "StelModuleMgr.hpp"
 #include "StelCore.hpp"
+#include "StelObserver.hpp"
 #include "StelPainter.hpp"
 #include "StelSkyDrawer.hpp"
 #include "StelTextureMgr.hpp"
@@ -51,15 +52,18 @@ public:
 	void setFontSize(int newFontSize);
 	void setColor(const Vec3f& c) {color = c;}
 	const Vec3f& getColor() const {return color;}
-	void update(double deltaTime) {fader.update((int)(deltaTime*1000));}
-	void setFadeDuration(float duration) {fader.setDuration((int)(duration*1000.f));}
+	void update(double deltaTime) {fader.update(static_cast<int>(deltaTime*1000));}
+	void setFadeDuration(float duration) {fader.setDuration(static_cast<int>(duration*1000.f));}
 	void setDisplayed(const bool displayed){fader = displayed;}
 	bool isDisplayed(void) const {return fader;}
+	void setLineThickness(const int thickness) {lineThickness = thickness;}
+	int getLineThickness() const {return lineThickness;}
 private:
 	Vec3f color;
 	StelCore::FrameType frameType;
 	QFont font;
 	LinearFader fader;
+	int lineThickness;
 };
 
 //! @class SkyPoint
@@ -80,7 +84,8 @@ public:
 		EQUINOXES_OF_DATE,
 		SOLSTICES_J2000,
 		SOLSTICES_OF_DATE,
-		ANTISOLAR
+		ANTISOLAR,
+		APEX
 	};
 	// Create and precompute positions of a SkyGrid
 	SkyPoint(SKY_POINT_TYPE _point_type = CELESTIALPOLES_J2000);
@@ -88,8 +93,8 @@ public:
 	void draw(StelCore* core) const;
 	void setColor(const Vec3f& c) {color = c;}
 	const Vec3f& getColor() const {return color;}
-	void update(double deltaTime) {fader.update((int)(deltaTime*1000));}
-	void setFadeDuration(float duration) {fader.setDuration((int)(duration*1000.f));}
+	void update(double deltaTime) {fader.update(static_cast<int>(deltaTime*1000));}
+	void setFadeDuration(float duration) {fader.setDuration(static_cast<int>(duration*1000.f));}
 	void setDisplayed(const bool displayed){fader = displayed;}
 	bool isDisplayed(void) const {return fader;}
 	void setFontSize(int newSize);
@@ -137,11 +142,13 @@ public:
 	void draw(StelCore* core) const;
 	void setColor(const Vec3f& c) {color = c;}
 	const Vec3f& getColor() const {return color;}
-	void update(double deltaTime) {fader.update((int)(deltaTime*1000));}
-	void setFadeDuration(float duration) {fader.setDuration((int)(duration*1000.f));}
+	void update(double deltaTime) {fader.update(static_cast<int>(deltaTime*1000));}
+	void setFadeDuration(float duration) {fader.setDuration(static_cast<int>(duration*1000.f));}
 	void setDisplayed(const bool displayed){fader = displayed;}
 	bool isDisplayed(void) const {return fader;}
 	void setFontSize(int newSize);
+	void setLineThickness(const int thickness) {lineThickness = thickness;}
+	int getLineThickness() const {return lineThickness;}
 	//! Re-translates the label.
 	void updateLabel();
 private:
@@ -152,10 +159,11 @@ private:
 	LinearFader fader;
 	QFont font;
 	QString label;
+	int lineThickness;
 };
 
 // rms added color as parameter
-SkyGrid::SkyGrid(StelCore::FrameType frame) : color(0.2,0.2,0.2), frameType(frame)
+SkyGrid::SkyGrid(StelCore::FrameType frame) : color(0.2f,0.2f,0.2f), frameType(frame), lineThickness(1)
 {
 	// Font size is 12
 	font.setPixelSize(StelApp::getInstance().getScreenFontSize()-1);
@@ -178,7 +186,7 @@ static const double STEP_SIZES_HMS[] = {0.05, 0.2, 1.5, 7.5, 15., 15.*5., 15.*10
 static double getClosestResolutionDMS(double pixelPerRad)
 {
 	double minResolution = 80.;
-	double minSizeArcsec = minResolution/pixelPerRad*180./M_PI*3600;
+	double minSizeArcsec = minResolution/pixelPerRad*M_180_PI*3600;
 	for (unsigned int i=0;i<12;++i)
 		if (STEP_SIZES_DMS[i]>minSizeArcsec)
 		{
@@ -191,7 +199,7 @@ static double getClosestResolutionDMS(double pixelPerRad)
 static double getClosestResolutionHMS(double pixelPerRad)
 {
 	double minResolution = 80.;
-	double minSizeArcsec = minResolution/pixelPerRad*180./M_PI*3600;
+	double minSizeArcsec = minResolution/pixelPerRad*M_180_PI*3600;
 	for (unsigned int i=0;i<11;++i)
 		if (STEP_SIZES_HMS[i]>minSizeArcsec)
 		{
@@ -205,7 +213,7 @@ struct ViewportEdgeIntersectCallbackData
 	ViewportEdgeIntersectCallbackData(StelPainter* p)
 		: sPainter(p)
 		, raAngle(0.0)
-		, frameType(StelCore::FrameUninitialized) {;}
+		, frameType(StelCore::FrameUninitialized) {}
 	StelPainter* sPainter;
 	Vec4f textColor;
 	QString text;		// Label to display at the intersection of the lines and screen side
@@ -217,12 +225,10 @@ struct ViewportEdgeIntersectCallbackData
 void viewportEdgeIntersectCallback(const Vec3d& screenPos, const Vec3d& direction, void* userData)
 {
 	ViewportEdgeIntersectCallbackData* d = static_cast<ViewportEdgeIntersectCallbackData*>(userData);
-	Vec3d direc(direction);
-	direc.normalize();
 	const Vec4f tmpColor = d->sPainter->getColor();
 	d->sPainter->setColor(d->textColor[0], d->textColor[1], d->textColor[2], d->textColor[3]);
-	bool withDecimalDegree = StelApp::getInstance().getFlagShowDecimalDegrees();
-	bool useOldAzimuth = StelApp::getInstance().getFlagSouthAzimuthUsage();
+	const bool withDecimalDegree = StelApp::getInstance().getFlagShowDecimalDegrees();
+	const bool useOldAzimuth = StelApp::getInstance().getFlagSouthAzimuthUsage();
 
 	QString text;
 	if (d->text.isEmpty())
@@ -345,15 +351,17 @@ void viewportEdgeIntersectCallback(const Vec3d& screenPos, const Vec3d& directio
 	else
 		text = d->text;
 
-	double angleDeg = std::atan2(-direc[1], -direc[0])*180./M_PI;
+	Vec3f direc=direction.toVec3f();	
+	direc.normalize();	
+	float angleDeg = std::atan2(-direc[1], -direc[0])*M_180_PIf;
 	float xshift=6.f;
-	if (angleDeg>90. || angleDeg<-90.)
+	if (angleDeg>90.f || angleDeg<-90.f)
 	{
-		angleDeg+=180.;
-		xshift=-d->sPainter->getFontMetrics().width(text)-6.f;
+		angleDeg+=180.f;
+		xshift=-d->sPainter->getFontMetrics().boundingRect(text).width()-6.f;
 	}
 
-	d->sPainter->drawText(screenPos[0], screenPos[1], text, angleDeg, xshift, 3);
+	d->sPainter->drawText(static_cast<float>(screenPos[0]), static_cast<float>(screenPos[1]), text, angleDeg, xshift, 3);
 	d->sPainter->setColor(tmpColor[0], tmpColor[1], tmpColor[2], tmpColor[3]);
 	d->sPainter->setBlending(true);
 }
@@ -362,10 +370,10 @@ void viewportEdgeIntersectCallback(const Vec3d& screenPos, const Vec3d& directio
 void SkyGrid::draw(const StelCore* core) const
 {
 	const StelProjectorP prj = core->getProjection(frameType, frameType!=StelCore::FrameAltAz ? StelCore::RefractionAuto : StelCore::RefractionOff);
-	if (!fader.getInterstate())
+	if (fader.getInterstate() <= 0.f)
 		return;
 
-	bool withDecimalDegree = StelApp::getInstance().getFlagShowDecimalDegrees();
+	const bool withDecimalDegree = StelApp::getInstance().getFlagShowDecimalDegrees();
 
 	// Look for all meridians and parallels intersecting with the disk bounding the viewport
 	// Check whether the pole are in the viewport
@@ -382,13 +390,15 @@ void SkyGrid::draw(const StelCore* core) const
 	double lon2, lat2;
 	StelUtils::rectToSphe(&lon2, &lat2, centerV);
 
-	const double gridStepParallelRad = M_PI/180.*getClosestResolutionDMS(prj->getPixelPerRadAtCenter());
+	const double gridStepParallelRad = M_PI_180*getClosestResolutionDMS(static_cast<double>(prj->getPixelPerRadAtCenter()));
 	double gridStepMeridianRad;
 	if (northPoleInViewport || southPoleInViewport)
 		gridStepMeridianRad = (frameType==StelCore::FrameAltAz || frameType==StelCore::FrameGalactic || frameType==StelCore::FrameSupergalactic) ? M_PI/180.* 10. : M_PI/180.* 15.;
 	else
 	{
-		const double closestResLon = (frameType==StelCore::FrameAltAz || frameType==StelCore::FrameGalactic || frameType==StelCore::FrameSupergalactic) ? getClosestResolutionDMS(prj->getPixelPerRadAtCenter()*std::cos(lat2)) : getClosestResolutionHMS(prj->getPixelPerRadAtCenter()*std::cos(lat2));
+		const double closestResLon = (frameType==StelCore::FrameAltAz || frameType==StelCore::FrameGalactic || frameType==StelCore::FrameSupergalactic) ?
+					getClosestResolutionDMS(static_cast<double>(prj->getPixelPerRadAtCenter())*std::cos(lat2)) :
+					getClosestResolutionHMS(static_cast<double>(prj->getPixelPerRadAtCenter())*std::cos(lat2));
 		gridStepMeridianRad = M_PI/180.* closestResLon;
 	}
 
@@ -397,8 +407,8 @@ void SkyGrid::draw(const StelCore* core) const
 
 	// Compute the first grid starting point. This point is close to the center of the screen
 	// and lies at the intersection of a meridian and a parallel
-	lon2 = gridStepMeridianRad*((int)(lon2/gridStepMeridianRad+0.5));
-	lat2 = gridStepParallelRad*((int)(lat2/gridStepParallelRad+0.5));
+	lon2 = gridStepMeridianRad*(static_cast<int>(lon2/gridStepMeridianRad+0.5));
+	lat2 = gridStepParallelRad*(static_cast<int>(lat2/gridStepParallelRad+0.5));
 	Vec3d firstPoint;
 	StelUtils::spheToRect(lon2, lat2, firstPoint);
 	firstPoint.normalize();
@@ -408,6 +418,8 @@ void SkyGrid::draw(const StelCore* core) const
 	// Initialize a painter and set OpenGL state
 	StelPainter sPainter(prj);
 	sPainter.setBlending(true);
+	if (lineThickness>1)
+		sPainter.setLineWidth(lineThickness); // set line thickness
 	sPainter.setLineSmooth(true);
 
 	// make text colors just a bit brighter. (But if >1, QColor::setRgb fails and makes text invisible.)
@@ -425,7 +437,7 @@ void SkyGrid::draw(const StelCore* core) const
 	Mat4d rotLon = Mat4d::zrotation(gridStepMeridianRad);
 	Vec3d fpt = firstPoint;
 	Vec3d p1, p2;
-	int maxNbIter = (int)(M_PI/gridStepMeridianRad);
+	int maxNbIter = static_cast<int>(M_PI/gridStepMeridianRad);
 	int i;
 	for (i=0; i<maxNbIter; ++i)
 	{
@@ -498,7 +510,7 @@ void SkyGrid::draw(const StelCore* core) const
 	SphericalCap parallelSphericalCap(Vec3d(0,0,1), 0);
 	rotLon = Mat4d::rotation(firstPoint^Vec3d(0,0,1), gridStepParallelRad);
 	fpt = firstPoint;
-	maxNbIter = (int)(M_PI/gridStepParallelRad)-1;
+	maxNbIter = static_cast<int>(M_PI/gridStepParallelRad)-1;
 	for (i=0; i<maxNbIter; ++i)
 	{
 		StelUtils::rectToSphe(&lon2, &lat2, fpt);
@@ -606,11 +618,12 @@ void SkyGrid::draw(const StelCore* core) const
 		}
 	}
 
+	if (lineThickness>1)
+		sPainter.setLineWidth(1); // reset tickness of line
 	sPainter.setLineSmooth(false);
 }
 
-
-SkyLine::SkyLine(SKY_LINE_TYPE _line_type) : line_type(_line_type), color(0.f, 0.f, 1.f)
+SkyLine::SkyLine(SKY_LINE_TYPE _line_type) : line_type(_line_type), color(0.f, 0.f, 1.f), lineThickness(1)
 {
 	// Font size is 14
 	font.setPixelSize(StelApp::getInstance().getScreenFontSize()+1);
@@ -700,7 +713,7 @@ void SkyLine::updateLabel()
 
 void SkyLine::draw(StelCore *core) const
 {
-	if (!fader.getInterstate())
+	if (fader.getInterstate() <= 0.f)
 		return;
 
 	StelProjectorP prj = core->getProjection(frameType, frameType!=StelCore::FrameAltAz ? StelCore::RefractionAuto : StelCore::RefractionOff);
@@ -712,6 +725,8 @@ void SkyLine::draw(StelCore *core) const
 	StelPainter sPainter(prj);
 	sPainter.setColor(color[0], color[1], color[2], fader.getInterstate());
 	sPainter.setBlending(true);
+	if (lineThickness>1)
+		sPainter.setLineWidth(lineThickness); // set line thickness
 	sPainter.setLineSmooth(true);
 
 	Vec4f textColor(color[0], color[1], color[2], 0);		
@@ -730,18 +745,18 @@ void SkyLine::draw(StelCore *core) const
 		double lat;
 		if (line_type==PRECESSIONCIRCLE_N || line_type==PRECESSIONCIRCLE_S)
 		{
-			lat=(line_type==PRECESSIONCIRCLE_S ? -1.0 : 1.0) * (M_PI/2.0-getPrecessionAngleVondrakCurrentEpsilonA());
+			lat=(line_type==PRECESSIONCIRCLE_S ? -1.0 : 1.0) * (M_PI_2-getPrecessionAngleVondrakCurrentEpsilonA());
 		}
 		else // circumpolar:
 		{
-			const double obsLatRad=core->getCurrentLocation().latitude * (M_PI/180.);
+			const double obsLatRad=core->getCurrentLocation().latitude * (M_PI_180);
 			if (obsLatRad == 0.)
 				return;
 
 			if (line_type==CIRCUMPOLARCIRCLE_N)
-				lat=(obsLatRad>0 ? -1.0 : +1.0) * obsLatRad + (M_PI/2.0);
+				lat=(obsLatRad>0 ? -1.0 : +1.0) * obsLatRad + (M_PI_2);
 			else // southern circle
-				lat=(obsLatRad>0 ? +1.0 : -1.0) * obsLatRad - (M_PI/2.0);
+				lat=(obsLatRad>0 ? +1.0 : -1.0) * obsLatRad - (M_PI_2);
 		}
 		SphericalCap declinationCap(Vec3d(0,0,1), std::sin(lat));
 		const Vec3d rotCenter(0,0,declinationCap.d);
@@ -757,8 +772,8 @@ void SkyLine::draw(StelCore *core) const
 				Vec3d pt2;
 				Vec3d pt3;
 				const double lon1=0.0;
-				const double lon2=120.0*M_PI/180.0;
-				const double lon3=240.0*M_PI/180.0;
+				const double lon2=120.0*M_PI_180;
+				const double lon3=240.0*M_PI_180;
 				StelUtils::spheToRect(lon1, lat, pt1); pt1.normalize();
 				StelUtils::spheToRect(lon2, lat, pt2); pt2.normalize();
 				StelUtils::spheToRect(lon3, lat, pt3); pt3.normalize();
@@ -768,6 +783,8 @@ void SkyLine::draw(StelCore *core) const
 				sPainter.drawSmallCircleArc(pt3, pt1, rotCenter, viewportEdgeIntersectCallback, &userData);
 			}
 
+			if (lineThickness>1)
+				sPainter.setLineWidth(1); // reset tickness of line
 			sPainter.setLineSmooth(false);
 			sPainter.setBlending(false);
 			return;
@@ -787,6 +804,8 @@ void SkyLine::draw(StelCore *core) const
 		sPainter.drawSmallCircleArc(p1, middlePoint, rotCenter,viewportEdgeIntersectCallback, &userData);
 		sPainter.drawSmallCircleArc(p2, middlePoint, rotCenter, viewportEdgeIntersectCallback, &userData);
 
+		if (lineThickness>1)
+			sPainter.setLineWidth(1); // reset tickness of line
 		sPainter.setLineSmooth(false);
 		sPainter.setBlending(false);
 
@@ -815,7 +834,7 @@ void SkyLine::draw(StelCore *core) const
 		StelUtils::equToEcl(ra_equ, dec_equ, eclJDE, &lambdaJDE, &betaJDE);
 		if (lambdaJDE<0) lambdaJDE+=2.0*M_PI;
 
-		StelUtils::spheToRect(lambdaJDE + M_PI/2., 0., coord);
+		StelUtils::spheToRect(lambdaJDE + M_PI_2, 0., coord);
 		meridianSphericalCap.n.set(coord[0],coord[1],coord[2]);
 		fpt.set(0,0,1);
 	}
@@ -827,7 +846,7 @@ void SkyLine::draw(StelCore *core) const
 			|| (viewPortSphericalCap.d<-meridianSphericalCap.d && viewPortSphericalCap.contains(-meridianSphericalCap.n)))
 		{
 			// The meridian is fully included in the viewport, draw it in 3 sub-arcs to avoid length > 180.
-			const Mat4d& rotLon120 = Mat4d::rotation(meridianSphericalCap.n, 120.*M_PI/180.);
+			const Mat4d& rotLon120 = Mat4d::rotation(meridianSphericalCap.n, 120.*M_PI_180);
 			Vec3d rotFpt=fpt;
 			rotFpt.transfo4d(rotLon120);
 			Vec3d rotFpt2=rotFpt;
@@ -850,6 +869,8 @@ void SkyLine::draw(StelCore *core) const
 	sPainter.drawGreatCircleArc(p1, middlePoint, Q_NULLPTR, viewportEdgeIntersectCallback, &userData);
 	sPainter.drawGreatCircleArc(p2, middlePoint, Q_NULLPTR, viewportEdgeIntersectCallback, &userData);
 
+	if (lineThickness>1)
+		sPainter.setLineWidth(1); // reset tickness of line
 	sPainter.setLineSmooth(false);
 	sPainter.setBlending(false);
 
@@ -982,6 +1003,31 @@ void SkyPoint::updateLabel()
 			northernLabel = q_("ASP");
 			break;
 		}
+		case APEX:
+		{
+			frameType = StelCore::FrameObservercentricEclipticJ2000;
+			// TRANSLATORS: Apex Point, where the observer planet is heading to
+			northernLabel = q_("Apex");
+			// TRANSLATORS: Antapex Point, where the observer planet is receding from
+			southernLabel = q_("Antapex");
+			// add heliocentric speed
+			StelCore *core=StelApp::getInstance().getCore();
+			QSharedPointer<Planet> planet=core->getCurrentObserver()->getHomePlanet();
+			Q_ASSERT(planet);
+			const Vec3d dir=planet->getHeliocentricEclipticVelocity();
+			const double speed=dir.length()*(AU/86400.0);
+			// In some cases we don't have a valid speed vector
+			if (speed>0.)
+			{
+				const QString kms = qc_("km/s", "speed");
+				QString speedStr = QString(" (%1 %2)").arg(QString::number(speed, 'f', 2)).arg(kms);
+				northernLabel += speedStr;
+				speedStr = QString(" (-%1 %2)").arg(QString::number(speed, 'f', 2)).arg(kms);
+				southernLabel += speedStr;
+			}
+
+			break;
+		}
 		default:
 			Q_ASSERT(0);
 	}
@@ -1005,8 +1051,8 @@ void SkyPoint::draw(StelCore *core) const
 	// Draw the point
 
 	texCross->bind();
-	float size = 0.00001*M_PI/180.*sPainter.getProjector()->getPixelPerRadAtCenter();
-	float shift = 4.f + size/1.8f;
+	const float size = 0.00001f*M_PI_180f*sPainter.getProjector()->getPixelPerRadAtCenter();
+	const float shift = 4.f + size/1.8f;
 
 	sPainter.setBlending(true, GL_ONE, GL_ONE);
 
@@ -1070,6 +1116,23 @@ void SkyPoint::draw(StelCore *core) const
 			sPainter.drawText(coord, northernLabel, 0, shift, shift, false);
 			break;
 		}
+		case APEX:
+		{
+			// Observer planet apex (heading point)
+			QSharedPointer<Planet> planet=core->getCurrentObserver()->getHomePlanet();
+			Q_ASSERT(planet);
+			const Vec3d dir=planet->getHeliocentricEclipticVelocity();
+			// In some cases we don't have a valid speed vector
+			if (dir.lengthSquared()>0.)
+			{
+				sPainter.drawSprite2dMode(dir, 5.f);
+				sPainter.drawText(dir, northernLabel, 0, shift, shift, false);
+				sPainter.drawSprite2dMode(-dir, 5.f);
+				sPainter.drawText(-dir, southernLabel, 0, shift, shift, false);
+			}
+
+			break;
+		}
 		default:
 			Q_ASSERT(0);
 	}
@@ -1116,6 +1179,7 @@ GridLinesMgr::GridLinesMgr()
 	solsticeJ2000Points = new SkyPoint(SkyPoint::SOLSTICES_J2000);
 	solsticePoints = new SkyPoint(SkyPoint::SOLSTICES_OF_DATE);
 	antisolarPoint = new SkyPoint(SkyPoint::ANTISOLAR);
+	apexPoints = new SkyPoint(SkyPoint::APEX);
 
 	earth = GETSTELMODULE(SolarSystem)->getEarth();
 	connect(GETSTELMODULE(SolarSystem), SIGNAL(solarSystemDataReloaded()), this, SLOT(connectEarthFromSolarSystem()));
@@ -1158,6 +1222,7 @@ GridLinesMgr::~GridLinesMgr()
 	delete solsticeJ2000Points;
 	delete solsticePoints;
 	delete antisolarPoint;
+	delete apexPoints;
 }
 
 /*************************************************************************
@@ -1215,9 +1280,13 @@ void GridLinesMgr::init()
 	setFlagSolsticeJ2000Points(conf->value("viewing/flag_solstice_J2000_points").toBool());
 	setFlagSolsticePoints(conf->value("viewing/flag_solstice_points").toBool());
 	setFlagAntisolarPoint(conf->value("viewing/flag_antisolar_point").toBool());
+	setFlagApexPoints(conf->value("viewing/flag_apex_points").toBool());
+
+	// Set the line thickness for grids and lines
+	setLineThickness(conf->value("viewing/line_thickness", 1).toInt());
 
 	// Load colors from config file
-	QString defaultColor = conf->value("color/default_color").toString();
+	QString defaultColor = conf->value("color/default_color", "0.5,0.5,0.7").toString();
 	setColorEquatorGrid(StelUtils::strToVec3f(conf->value("color/equatorial_color", defaultColor).toString()));
 	setColorEquatorJ2000Grid(StelUtils::strToVec3f(conf->value("color/equatorial_J2000_color", defaultColor).toString()));
 	setColorEclipticJ2000Grid(StelUtils::strToVec3f(conf->value("color/ecliptical_J2000_color", defaultColor).toString()));
@@ -1250,9 +1319,10 @@ void GridLinesMgr::init()
 	setColorSolsticeJ2000Points(StelUtils::strToVec3f(conf->value("color/solstice_J2000_points_color", defaultColor).toString()));
 	setColorSolsticePoints(StelUtils::strToVec3f(conf->value("color/solstice_points_color", defaultColor).toString()));
 	setColorAntisolarPoint(StelUtils::strToVec3f(conf->value("color/antisolar_point_color", defaultColor).toString()));
+	setColorApexPoints(StelUtils::strToVec3f(conf->value("color/apex_points_color", defaultColor).toString()));
 
 	StelApp& app = StelApp::getInstance();
-	connect(&app, SIGNAL(languageChanged()), this, SLOT(updateLineLabels()));
+	connect(&app, SIGNAL(languageChanged()), this, SLOT(updateLabels()));
 	connect(&app, SIGNAL(screenFontSizeChanged(int)), this, SLOT(setFontSizeFromApp(int)));
 	
 	QString displayGroup = N_("Display Options");
@@ -1289,6 +1359,7 @@ void GridLinesMgr::init()
 	addAction("actionShow_Solstice_J2000_Points", displayGroup, N_("Solstice J2000 points"), "solsticeJ2000PointsDisplayed");
 	addAction("actionShow_Solstice_Points", displayGroup, N_("Solstice points"), "solsticePointsDisplayed");
 	addAction("actionShow_Antisolar_Point", displayGroup, N_("Antisolar point"), "antisolarPointDisplayed");
+	addAction("actionShow_Apex_Points", displayGroup, N_("Apex points"), "apexPointsDisplayed");
 }
 
 void GridLinesMgr::connectEarthFromSolarSystem()
@@ -1334,6 +1405,8 @@ void GridLinesMgr::update(double deltaTime)
 	solsticeJ2000Points->update(deltaTime);
 	solsticePoints->update(deltaTime);
 	antisolarPoint->update(deltaTime);
+	apexPoints->update(deltaTime);
+	apexPoints->updateLabel();
 }
 
 void GridLinesMgr::draw(StelCore* core)
@@ -1343,6 +1416,9 @@ void GridLinesMgr::draw(StelCore* core)
 
 	galacticGrid->draw(core);
 	supergalacticGrid->draw(core);
+	equJ2000Grid->draw(core);
+	equGrid->draw(core);
+	aziGrid->draw(core);
 	eclJ2000Grid->draw(core);
 	// While ecliptic of J2000 may be helpful to get a feeling of the Z=0 plane of VSOP87,
 	// ecliptic of date is related to Earth and does not make much sense for the other planets.
@@ -1359,12 +1435,10 @@ void GridLinesMgr::draw(StelCore* core)
 		equinoxPoints->draw(core);
 		solsticePoints->draw(core);
 		longitudeLine->draw(core);
+		// Antisolar point are calculated in Ecliptic (on date) frame (Earth only)
 		antisolarPoint->draw(core);
 	}
 
-	equJ2000Grid->draw(core);
-	equGrid->draw(core);
-	aziGrid->draw(core);
 	// Lines after grids, to be able to e.g. draw equators in different color!
 	galacticEquatorLine->draw(core);
 	supergalacticEquatorLine->draw(core);
@@ -1384,9 +1458,10 @@ void GridLinesMgr::draw(StelCore* core)
 	supergalacticPoles->draw(core);
 	equinoxJ2000Points->draw(core);
 	solsticeJ2000Points->draw(core);	
+	apexPoints->draw(core);
 }
 
-void GridLinesMgr::updateLineLabels()
+void GridLinesMgr::updateLabels()
 {
 	equatorJ2000Line->updateLabel();
 	equatorLine->updateLabel();
@@ -1416,6 +1491,7 @@ void GridLinesMgr::updateLineLabels()
 	solsticeJ2000Points->updateLabel();
 	solsticePoints->updateLabel();
 	antisolarPoint->updateLabel();
+	apexPoints->updateLabel();
 }
 
 //! Setter ("master switch") for displaying any grid/line.
@@ -1477,6 +1553,7 @@ void GridLinesMgr::setFlagAllPoints(const bool displayed)
 	setFlagSupergalacticPoles(displayed);
 	setFlagCelestialJ2000Poles(displayed);
 	setFlagSolsticeJ2000Points(displayed);
+	setFlagApexPoints(displayed);
 }
 
 //! Set flag for displaying Azimuthal Grid
@@ -2000,12 +2077,10 @@ bool GridLinesMgr::getFlagCelestialJ2000Poles(void) const
 {
 	return celestialJ2000Poles->isDisplayed();
 }
-
 Vec3f GridLinesMgr::getColorCelestialJ2000Poles(void) const
 {
 	return celestialJ2000Poles->getColor();
 }
-
 void GridLinesMgr::setColorCelestialJ2000Poles(const Vec3f& newColor)
 {
 	if(newColor != celestialJ2000Poles->getColor()) {
@@ -2027,12 +2102,10 @@ bool GridLinesMgr::getFlagCelestialPoles(void) const
 {
 	return celestialPoles->isDisplayed();
 }
-
 Vec3f GridLinesMgr::getColorCelestialPoles(void) const
 {
 	return celestialPoles->getColor();
 }
-
 void GridLinesMgr::setColorCelestialPoles(const Vec3f& newColor)
 {
 	if(newColor != celestialPoles->getColor()) {
@@ -2054,12 +2127,10 @@ bool GridLinesMgr::getFlagZenithNadir(void) const
 {
 	return zenithNadir->isDisplayed();
 }
-
 Vec3f GridLinesMgr::getColorZenithNadir(void) const
 {
 	return zenithNadir->getColor();
 }
-
 void GridLinesMgr::setColorZenithNadir(const Vec3f& newColor)
 {
 	if(newColor != zenithNadir->getColor()) {
@@ -2081,12 +2152,10 @@ bool GridLinesMgr::getFlagEclipticJ2000Poles(void) const
 {
 	return eclipticJ2000Poles->isDisplayed();
 }
-
 Vec3f GridLinesMgr::getColorEclipticJ2000Poles(void) const
 {
 	return eclipticJ2000Poles->getColor();
 }
-
 void GridLinesMgr::setColorEclipticJ2000Poles(const Vec3f& newColor)
 {
 	if(newColor != eclipticJ2000Poles->getColor()) {
@@ -2108,12 +2177,10 @@ bool GridLinesMgr::getFlagEclipticPoles(void) const
 {
 	return eclipticPoles->isDisplayed();
 }
-
 Vec3f GridLinesMgr::getColorEclipticPoles(void) const
 {
 	return eclipticPoles->getColor();
 }
-
 void GridLinesMgr::setColorEclipticPoles(const Vec3f& newColor)
 {
 	if(newColor != eclipticPoles->getColor()) {
@@ -2135,12 +2202,10 @@ bool GridLinesMgr::getFlagGalacticPoles(void) const
 {
 	return galacticPoles->isDisplayed();
 }
-
 Vec3f GridLinesMgr::getColorGalacticPoles(void) const
 {
 	return galacticPoles->getColor();
 }
-
 void GridLinesMgr::setColorGalacticPoles(const Vec3f& newColor)
 {
 	if(newColor != galacticPoles->getColor()) {
@@ -2162,12 +2227,10 @@ bool GridLinesMgr::getFlagSupergalacticPoles(void) const
 {
 	return supergalacticPoles->isDisplayed();
 }
-
 Vec3f GridLinesMgr::getColorSupergalacticPoles(void) const
 {
 	return supergalacticPoles->getColor();
 }
-
 void GridLinesMgr::setColorSupergalacticPoles(const Vec3f& newColor)
 {
 	if(newColor != supergalacticPoles->getColor()) {
@@ -2189,12 +2252,10 @@ bool GridLinesMgr::getFlagEquinoxJ2000Points(void) const
 {
 	return equinoxJ2000Points->isDisplayed();
 }
-
 Vec3f GridLinesMgr::getColorEquinoxJ2000Points(void) const
 {
 	return equinoxJ2000Points->getColor();
 }
-
 void GridLinesMgr::setColorEquinoxJ2000Points(const Vec3f& newColor)
 {
 	if(newColor != equinoxJ2000Points->getColor()) {
@@ -2216,12 +2277,10 @@ bool GridLinesMgr::getFlagEquinoxPoints(void) const
 {
 	return equinoxPoints->isDisplayed();
 }
-
 Vec3f GridLinesMgr::getColorEquinoxPoints(void) const
 {
 	return equinoxPoints->getColor();
 }
-
 void GridLinesMgr::setColorEquinoxPoints(const Vec3f& newColor)
 {
 	if(newColor != equinoxPoints->getColor()) {
@@ -2243,12 +2302,10 @@ bool GridLinesMgr::getFlagSolsticeJ2000Points(void) const
 {
 	return solsticeJ2000Points->isDisplayed();
 }
-
 Vec3f GridLinesMgr::getColorSolsticeJ2000Points(void) const
 {
 	return solsticeJ2000Points->getColor();
 }
-
 void GridLinesMgr::setColorSolsticeJ2000Points(const Vec3f& newColor)
 {
 	if(newColor != solsticeJ2000Points->getColor()) {
@@ -2270,12 +2327,10 @@ bool GridLinesMgr::getFlagSolsticePoints(void) const
 {
 	return solsticePoints->isDisplayed();
 }
-
 Vec3f GridLinesMgr::getColorSolsticePoints(void) const
 {
 	return solsticePoints->getColor();
 }
-
 void GridLinesMgr::setColorSolsticePoints(const Vec3f& newColor)
 {
 	if(newColor != solsticePoints->getColor()) {
@@ -2297,18 +2352,82 @@ bool GridLinesMgr::getFlagAntisolarPoint(void) const
 {
 	return antisolarPoint->isDisplayed();
 }
-
 Vec3f GridLinesMgr::getColorAntisolarPoint(void) const
 {
 	return antisolarPoint->getColor();
 }
-
 void GridLinesMgr::setColorAntisolarPoint(const Vec3f& newColor)
 {
 	if(newColor != antisolarPoint->getColor()) {
 		antisolarPoint->setColor(newColor);
 		emit antisolarPointColorChanged(newColor);
 	}
+}
+
+//! Set flag for displaying vector point
+void GridLinesMgr::setFlagApexPoints(const bool displayed)
+{
+	if(displayed != apexPoints->isDisplayed()) {
+		apexPoints->setDisplayed(displayed);
+		emit apexPointsDisplayedChanged(displayed);
+	}
+}
+//! Get flag for displaying vector point
+bool GridLinesMgr::getFlagApexPoints(void) const
+{
+	return apexPoints->isDisplayed();
+}
+Vec3f GridLinesMgr::getColorApexPoints(void) const
+{
+	return apexPoints->getColor();
+}
+void GridLinesMgr::setColorApexPoints(const Vec3f& newColor)
+{
+	if(newColor != apexPoints->getColor()) {
+		apexPoints->setColor(newColor);
+		emit apexPointsColorChanged(newColor);
+	}
+}
+
+void GridLinesMgr::setLineThickness(const int thickness)
+{
+	int lineThickness = equGrid->getLineThickness();
+	if (lineThickness!=thickness)
+	{
+		lineThickness=qBound(1, thickness, 5);
+		// Grids
+		equGrid->setLineThickness(lineThickness);
+		equJ2000Grid->setLineThickness(lineThickness);
+		galacticGrid->setLineThickness(lineThickness);
+		supergalacticGrid->setLineThickness(lineThickness);
+		eclGrid->setLineThickness(lineThickness);
+		eclJ2000Grid->setLineThickness(lineThickness);
+		aziGrid->setLineThickness(lineThickness);
+		// Lines
+		equatorLine->setLineThickness(lineThickness);
+		equatorJ2000Line->setLineThickness(lineThickness);
+		eclipticLine->setLineThickness(lineThickness);
+		eclipticJ2000Line->setLineThickness(lineThickness);
+		precessionCircleN->setLineThickness(lineThickness);
+		precessionCircleS->setLineThickness(lineThickness);
+		meridianLine->setLineThickness(lineThickness);
+		longitudeLine->setLineThickness(lineThickness);
+		horizonLine->setLineThickness(lineThickness);
+		galacticEquatorLine->setLineThickness(lineThickness);
+		supergalacticEquatorLine->setLineThickness(lineThickness);
+		primeVerticalLine->setLineThickness(lineThickness);
+		colureLine_1->setLineThickness(lineThickness);
+		colureLine_2->setLineThickness(lineThickness);
+		circumpolarCircleN->setLineThickness(lineThickness);
+		circumpolarCircleS->setLineThickness(lineThickness);
+
+		emit lineThicknessChanged(lineThickness);
+	}
+}
+
+ int GridLinesMgr::getLineThickness() const
+{
+	return equGrid->getLineThickness();
 }
 
 void GridLinesMgr::setFontSizeFromApp(int size)
@@ -2351,4 +2470,5 @@ void GridLinesMgr::setFontSizeFromApp(int size)
 	equinoxPoints->setFontSize(pointFontSize);
 	solsticeJ2000Points->setFontSize(pointFontSize);
 	solsticePoints->setFontSize(pointFontSize);
+	apexPoints->setFontSize(pointFontSize);
 }

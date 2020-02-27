@@ -64,9 +64,9 @@ typedef struct
 
 typedef struct
 {
-	unsigned int sao;
-	unsigned int hd;
-	unsigned int hr;
+	int sao;
+	int hd;
+	int hr;
 } crossid;
 
 typedef QMap<StelObjectP, float> StelACStarData;
@@ -135,7 +135,7 @@ public:
 
 	//! Update any time-dependent features.
 	//! Includes fading in and out stars and labels when they are turned on and off.
-	virtual void update(double deltaTime) {labelsFader.update((int)(deltaTime*1000)); starsFader.update((int)(deltaTime*1000));}
+	virtual void update(double deltaTime) {labelsFader.update(static_cast<int>(deltaTime*1000)); starsFader.update(static_cast<int>(deltaTime*1000));}
 
 	//! Used to determine the order in which the various StelModules are drawn.
 	virtual double getCallOrder(StelModuleActionName actionName) const;
@@ -333,13 +333,18 @@ public:
 	//! Hipparcos catalogue number.
 	//! @param hip The Hipparcos number of star
 	//! @return position angle in degrees
-	static int getWdsLastPositionAngle(int hip);
+	static float getWdsLastPositionAngle(int hip);
 
 	//! Get separation angle at date of last satisfactory observation of double star with a
 	//! Hipparcos catalogue number.
 	//! @param hip The Hipparcos number of star
 	//! @return separation in arcseconds
 	static float getWdsLastSeparation(int hip);
+
+	//! Get the parallax error for star with a Hipparcos catalogue number.
+	//! @param hip The Hipparcos number of star
+	//! @return the parallax error (mas)
+	static float getPlxError(int hip);
 
 	static QString convertToSpectralType(int index);
 	static QString convertToComponentIds(int index);
@@ -366,7 +371,9 @@ private slots:
 	//! @param skyCultureDir the name of the directory containing the sky culture to use.
 	void updateSkyCulture(const QString& skyCultureDir);
 
+	//! increase artificial cutoff magnitude slightly (can be linked to an action/hotkey)
 	void increaseStarsMagnitudeLimit();
+	//! decrease artificial cutoff magnitude slightly (can be linked to an action/hotkey)
 	void reduceStarsMagnitudeLimit();
 
 signals:
@@ -402,6 +409,10 @@ private:
 	//! Loads cross-identification data from a file.
 	//! @param the path to a file containing the cross-identification data.
 	void loadCrossIdentificationData(const QString& crossIdFile);
+
+	//! Loads parallax error data from a file.
+	//! @param the path to a file containing the parallax error data.
+	void loadPlxErr(const QString& plxErrFile);
 
 	//! Gets the maximum search level.
 	// TODO: add a non-lame description - what is the purpose of the max search level?
@@ -474,6 +485,8 @@ private:
 	static QMap<int, int> saoStarsIndex;
 	static QMap<int, int> hdStarsIndex;
 	static QMap<int, int> hrStarsIndex;
+
+	static QHash<int, float> hipParallaxErrors;
 
 	static QHash<int, QString> referenceMap;
 

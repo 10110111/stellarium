@@ -77,17 +77,17 @@ void TestDates::dateRoundTrip()
 	map[-1930711.0] ="-9998-01-01T12:00:00";
 	map[-1930712.0] ="-9999-12-31T12:00:00";
 
-	bool ok;
-	Q_UNUSED(ok);
+	bool ok;	
 	for (QMap<double, QString>::ConstIterator i=map.constBegin();i!=map.constEnd();++i)
 	{
 		QCOMPARE(StelUtils::julianDayToISO8601String(i.key()), i.value());
 		double tmp = StelUtils::getJulianDayFromISO8601String(i.value(), &ok);
 		QVERIFY(ok);
 		if (i.key()!=0.0)
-			qFuzzyCompare(i.key(), tmp);
+			ok = qFuzzyCompare(i.key(), tmp);
 		else
-			qFuzzyCompare(i.key()+1.0, tmp+1.0);
+			ok = qFuzzyCompare(i.key()+1.0, tmp+1.0);
+		QVERIFY(ok);
 	}
 }
 
@@ -218,7 +218,7 @@ static void oldGetDateFromJulianDay(double jd, int *year, int *month, int *day)
 	{
 		// Julian calendar until October 4, 1582
 		// Algorithm from Frequently Asked Questions about Calendars by Claus Toendering
-		int julianDay = (int)floor(jd);
+		int julianDay = static_cast<int>(floor(jd));
 		julianDay += 32082;
 		int dd = (4 * julianDay + 3) / 1461;
 		int ee = julianDay - (1461 * dd) / 4;
@@ -468,6 +468,32 @@ void TestDates::testFixedFromGregorian()
 						    .arg(day)
 						    .arg(days)
 						    .arg(expected)));
+	}
+}
+
+void TestDates::testWeekdays()
+{
+	QVariantList data;
+	data << 2019 <<  9 << 25 << 3; // Wednesday
+	data << 1582 << 10 << 15 << 5; // Friday (1st day in Greg. Calendar)
+	data << 1582 << 10 <<  4 << 4; // Thursday (Day before that, given in Jul. Calendar)
+	data << 1961 <<  4 << 12 << 3; // Wednesday (Wostok-1)
+	data << 1981 <<  4 << 12 << 0; // Sunday (STS-1)
+	data << 1972 <<  5 << 14 << 0; // Sunday
+	while (data.count() >=4)
+	{
+		int year     = data.takeFirst().toInt();
+		int month    = data.takeFirst().toInt();
+		int day	     = data.takeFirst().toInt();
+		int expected = data.takeFirst().toInt();
+		int wd=StelUtils::getDayOfWeek(year, month, day);
+
+		QVERIFY2(wd==expected, qPrintable(QString("Date %1-%2-%3 wrongly has weekday index %4 (expected %5)")
+						  .arg(year)
+						  .arg(month)
+						  .arg(day)
+						  .arg(day)
+						  .arg(expected)));
 	}
 }
 

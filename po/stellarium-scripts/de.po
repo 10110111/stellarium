@@ -6,18 +6,19 @@
 # Translators:
 # Alexander Wolf <alex.v.wolf@gmail.com>, 2019
 # Christian Lischer <christian.lischer@gmail.com>, 2019
-# Latein Lebt, 2019
-# Georg Zotti <Georg.Zotti@univie.ac.at>, 2019
 # xilentura <vdevelopment@posteo.de>, 2019
+# Latein Lebt, 2019
+# T Exnicer <transifex@texnicer.de>, 2019
+# Georg Zotti <Georg.Zotti@univie.ac.at>, 2020
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: stellarium@googlegroups.com\n"
-"POT-Creation-Date: 2019-07-13 14:54+0700\n"
+"POT-Creation-Date: 2020-02-19 13:55+0700\n"
 "PO-Revision-Date: 2019-01-19 14:25+0000\n"
-"Last-Translator: xilentura <vdevelopment@posteo.de>, 2019\n"
+"Last-Translator: Georg Zotti <Georg.Zotti@univie.ac.at>, 2020\n"
 "Language-Team: German (https://www.transifex.com/stellarium/teams/80998/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -25,24 +26,24 @@ msgstr ""
 "Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: scripts/analemma.ssc:15
+#: scripts/analemma.ssc:16
 msgid "Analemma"
 msgstr "Analemma"
 
-#: scripts/analemma.ssc:40
+#: scripts/analemma.ssc:41
 msgid "Week"
 msgstr "Woche"
 
-#: scripts/analemma.ssc:46
+#: scripts/analemma.ssc:47
 msgid "Near winter solstice"
 msgstr "Nahe der Wintersonnenwende"
 
-#: scripts/analemma.ssc:50
+#: scripts/analemma.ssc:51
 msgid "Near summer solstice"
 msgstr "Nahe der Sommersonnenwende"
 
-#: scripts/analemma.ssc:54 scripts/martian_analemma.ssc:47
-#: scripts/saturnian_analemma.ssc:47 scripts/uranian_analemma.ssc:47
+#: scripts/analemma.ssc:55 scripts/martian_analemma.ssc:48
+#: scripts/saturnian_analemma.ssc:48 scripts/uranian_analemma.ssc:48
 msgid "Yearly path of the Sun"
 msgstr "Jährliche Spur der Sonne"
 
@@ -96,7 +97,7 @@ msgstr "M34: Ein echter Fernglas-Haufen"
 
 #: scripts/binocular_highlights.ssc:17
 msgid "Watching the Demon Star"
-msgstr "Beobachten den Dämonstern"
+msgstr "Beobachte den Dämonenstern"
 
 #: scripts/binocular_highlights.ssc:18
 msgid "The Pleiades"
@@ -104,7 +105,7 @@ msgstr "Plejaden"
 
 #: scripts/binocular_highlights.ssc:19
 msgid "Corralling the Hyades"
-msgstr ""
+msgstr "Die Hyaden"
 
 #: scripts/binocular_highlights.ssc:20
 msgid "NGC 1647: The Crab Cluster"
@@ -152,7 +153,7 @@ msgstr "Der übersehene offene Sternhaufen: M41"
 
 #: scripts/binocular_highlights.ssc:28
 msgid "M50 in a Stream of Starlight"
-msgstr ""
+msgstr "M50 in einem Strom von Sternenlicht"
 
 #: scripts/binocular_highlights.ssc:29
 msgid "M46 and M47: A Celestial Odd Couple"
@@ -188,7 +189,7 @@ msgstr "Verlobungsring"
 
 #: scripts/binocular_highlights.ssc:34
 msgid "The Power of Power"
-msgstr "Die Macht der Macht"
+msgstr "Die Macht der Vergrößerung"
 
 #: scripts/binocular_highlights.ssc:34
 msgid "M81 and M82"
@@ -196,7 +197,7 @@ msgstr "M81 und M82"
 
 #: scripts/binocular_highlights.ssc:35
 msgid "M101 in the Mind's Eye"
-msgstr ""
+msgstr "M101 vor dem geistigen Auge"
 
 #: scripts/binocular_highlights.ssc:36
 msgid "A Star-Hop to M51"
@@ -208,7 +209,7 @@ msgstr "Galaxie-Saison"
 
 #: scripts/binocular_highlights.ssc:38
 msgid "Steady on Galaxy M94"
-msgstr ""
+msgstr "Ziele auf die Galaxie M94"
 
 #: scripts/binocular_highlights.ssc:39
 msgid "Globular Cluster M3"
@@ -224,7 +225,7 @@ msgstr "Ein Trio von Doppelsternen im Bärenhüter"
 
 #: scripts/binocular_highlights.ssc:42
 msgid "R Cor Bor's Vanishing Act"
-msgstr ""
+msgstr "R Coronae Borealis' Versteckspiel"
 
 #: scripts/binocular_highlights.ssc:43
 msgid "Two Doubles in Cancer"
@@ -274,10 +275,12 @@ msgstr "V Hydra"
 msgid ""
 "It has been ranging from magnitude 6 to 10 with a period of about 550 days."
 msgstr ""
+"Er wechselt zwischen 6. und 10. Größenklasse mit einer Periode von etwa 550 "
+"Tagen."
 
 #: scripts/binocular_highlights.ssc:51
 msgid "M104 and the Great Beyond"
-msgstr ""
+msgstr "M104 und das Große Dahinter"
 
 #: scripts/binocular_highlights.ssc:52
 msgid "Ancient Globular M5"
@@ -371,7 +374,7 @@ msgstr ""
 
 #: scripts/binocular_highlights.ssc:66
 msgid "Splendid Sagitta"
-msgstr ""
+msgstr "Sagenhafte Sagitta"
 
 #: scripts/binocular_highlights.ssc:66
 msgid "M71 between Gamma and Delta Sagittae"
@@ -451,7 +454,7 @@ msgstr "Die Komponenten von &nu; Scorpii sind 41\" voneinander entfernt"
 
 #: scripts/binocular_highlights.ssc:78
 msgid "Globular Cluster Season"
-msgstr ""
+msgstr "Kugelsternhaufen-Saison"
 
 #: scripts/binocular_highlights.ssc:78
 msgid "M4 and M80"
@@ -527,7 +530,7 @@ msgstr "Prachtvoller Mu Cephei"
 
 #: scripts/binocular_highlights.ssc:89
 msgid "A semiregular variable star"
-msgstr ""
+msgstr "Ein semiregulär Veränderlicher Stern"
 
 #: scripts/binocular_highlights.ssc:90
 msgid "Watching Delta Cephei"
@@ -624,8 +627,8 @@ msgid ""
 "Extremely difficult because of their faintness, separation, and nearby "
 "bright stars"
 msgstr ""
-"Außerordentlich schwierig wegen ihrer Blässe, Separation und heller Sterne "
-"in der Nähe"
+"Außerordentlich schwierig wegen ihrer Lichtschwäche, geringem Abstand und "
+"hellen Sternen in der Nähe"
 
 #: scripts/double_stars.ssc:29
 msgid "Atlas and Pleione (27 Tauri and 28 Tauri)"
@@ -834,7 +837,7 @@ msgstr "Winkeldistanz:"
 msgid "Martian analemma"
 msgstr "Mars-Analemma"
 
-#: scripts/martian_analemma.ssc:41
+#: scripts/martian_analemma.ssc:42
 msgid "Sol"
 msgstr "Sonne"
 
@@ -887,7 +890,7 @@ msgstr "Jupiter ohne Galileische Monde"
 
 #: scripts/morsels_2.ssc:100
 msgid "Limits of the disappearance:"
-msgstr ""
+msgstr "Alle Gal. Monde unsichtbar:"
 
 #: scripts/morsels_3.ssc:50
 msgid "Occultations of bright stars by planets"
@@ -966,13 +969,15 @@ msgid ""
 " and Clusters"
 msgstr ""
 "Der Herschel 400 ist eine Teilmenge des John Herschel's General Catalogue of"
-" Nebulae and Clusters"
+" Nebulae and Clusters,"
 
 #: scripts/h400_tour.ssc:18
 msgid ""
 "published in 1864 of 5,000 objects, and hence also of the New General "
 "Catalogue."
 msgstr ""
+"der 1864 mit 5000 Objekten erschienen ist, und daher auch des New General "
+"Catalogue."
 
 #: scripts/h400_tour.ssc:19
 msgid "Vital statistics:"
@@ -1004,6 +1009,9 @@ msgid ""
 "The quoted size is the average size parameter, the true\n"
 "value is from 1,340-1,940."
 msgstr ""
+"PZ Cas liegt in einer Region mit starker Staubextinktion.\n"
+"Die angegebene Größe ist ein durchschnittlicher Wert, \n"
+"der zwischen 1340 und 1940 liegen dürfte."
 
 #: scripts/largest_known_stars.ssc:14
 msgid "VX Sagittarii"
@@ -1014,6 +1022,8 @@ msgid ""
 "VX Sgr is a pulsating variable with a large visual range\n"
 "and varies significantly in size."
 msgstr ""
+"VX Sgr ist ein Pulsierender Veränderlicher mit starkem Lichtwechsel, der "
+"auch seine Größe stark ändert."
 
 #: scripts/largest_known_stars.ssc:16
 msgid "VV Cephei A"
@@ -1025,6 +1035,9 @@ msgid ""
 "losing mass to its B-type companion VV Cephei B for at least\n"
 "part of its orbit."
 msgstr ""
+"VV Cep A ist ein stark gestörter Stern in einem Doppelsternsystem, \n"
+"der zumindest in Teilen seines Umlaufs Masse an seinen B-Typ-Begleiter \n"
+"VV Cephei B verliert."
 
 #: scripts/largest_known_stars.ssc:18
 msgid "RW Cephei"
@@ -1036,6 +1049,9 @@ msgid ""
 "of 3) and spectral type (observed from G8 to M), thus\n"
 "probably also in diameter."
 msgstr ""
+"RW Cep verändert sowohl seine Helligkeit (um mindestens das dreifache)\n"
+"als auch die Spektralklasse (beobachtet von G8 bis M), daher\n"
+"vermutlich auch seinen Durchmesser."
 
 #: scripts/largest_known_stars.ssc:20
 msgid "VY Canis Majoris"
@@ -1047,6 +1063,9 @@ msgid ""
 "contradicted stellar evolutionary theory, improved measurements\n"
 "and estimates have brought it down to size."
 msgstr ""
+"Wurde er früher für einen Roten Überriesen gehalten, dessen Größe \n"
+"den Modellen der Sternevolution widersprach, konnten verbesserte \n"
+"Messungen und Schätzungen seine Größe zurechtrücken."
 
 #: scripts/largest_known_stars.ssc:22
 msgid "AH Scorpii"
@@ -1058,6 +1077,10 @@ msgid ""
 "and an estimated 20% in total luminosity. The variation in diameter\n"
 "is not clear because the temperature also varies."
 msgstr ""
+"AH Sco verändert seine Helligkeit um fast 3 Größenklassen, \n"
+"und um geschätzte 20% in absoluter Leuchtkraft. \n"
+"Die Veränderung des Durchmessers ist unklar, \n"
+"da sich auch die Temperatur ändert."
 
 #: scripts/largest_known_stars.ssc:24
 msgid "V766 Centauri A"
@@ -1068,6 +1091,8 @@ msgid ""
 "V766 Centauri A is a highly distorted star in a close binary system,\n"
 "losing mass to the secondary."
 msgstr ""
+"V766 Centauri A ist ein hochgradig gestörter Stern in einem engen \n"
+"Doppelsternsystem, der Masse an seinen Begleiter verliert."
 
 #: scripts/largest_known_stars.ssc:26
 msgid "KW Sagittarii"
@@ -1159,7 +1184,7 @@ msgstr ""
 
 #: scripts/largest_known_stars.ssc:48
 msgid "R Leporis (\"Hind's Crimson Star\")"
-msgstr ""
+msgstr "R Leporis (\"Hinds Purpurstern\")"
 
 #: scripts/largest_known_stars.ssc:49
 msgid "One of the largest carbon stars existent in the Milky Way Galaxy."
@@ -1298,10 +1323,407 @@ msgstr "Sonnenuntergang #3"
 msgid "Saturnian analemma"
 msgstr "Analemma des Saturn"
 
-#: scripts/saturnian_analemma.ssc:41 scripts/uranian_analemma.ssc:41
+#: scripts/saturnian_analemma.ssc:42 scripts/uranian_analemma.ssc:42
 msgid "Solar day"
 msgstr "Sonnentag"
 
 #: scripts/uranian_analemma.ssc:16
 msgid "Uranian analemma"
 msgstr "Analemma des Uranus"
+
+#: scripts/messier_marathon.ssc:17
+msgid "Messier Marathon"
+msgstr "Messier-Marathon"
+
+#: scripts/messier_marathon.ssc:84
+msgid "Difficulty is 0"
+msgstr "Schwierigkeit ist 0"
+
+#: scripts/messier_marathon.ssc:85
+msgid "Very diffuse, very dark, very difficult"
+msgstr "Sehr diffus, sehr dunkel, sehr schwierig"
+
+#: scripts/messier_marathon.ssc:86
+msgid "Easier than M74, small"
+msgstr "Einfacher als M74, klein"
+
+#: scripts/messier_marathon.ssc:87
+msgid "Visible to the naked eye, no difficulty"
+msgstr "Sichtbar mit dem bloßen Auge, keine Schwierigkeit"
+
+#: scripts/messier_marathon.ssc:88
+msgid "More difficult than M110 to verify, small"
+msgstr "Schwieriger als M110 zu bestätigen, klein"
+
+#: scripts/messier_marathon.ssc:89
+msgid "In the west of M31, it is easy to detect"
+msgstr "Westlich von M31, einfach zu erkennen"
+
+#: scripts/messier_marathon.ssc:90
+msgid "Diffuse, great, brighter"
+msgstr "Diffus, riesig, heller"
+
+#: scripts/messier_marathon.ssc:91
+msgid "Small, easy to locate, not as horror as imagined"
+msgstr "Klein, einfach aufzuspüren, nicht so grauenvoll wie gedacht"
+
+#: scripts/messier_marathon.ssc:92
+msgid "Difficult to locate, easy to detect and verify"
+msgstr "Schwierig aufzuspüren, einfach zu erkennen und zu bestätigen"
+
+#: scripts/messier_marathon.ssc:93
+msgid "Small, easy to locate, don't confuse with NGC663"
+msgstr "Klein, einfach aufzuspüren, verwechsle es nicht mit NGC663"
+
+#: scripts/messier_marathon.ssc:94
+msgid "Large, scattered, easy"
+msgstr "Groß, verstreut, einfach"
+
+#: scripts/messier_marathon.ssc:95
+msgid "Fuzzy, easy to find, accompanied by a small star"
+msgstr "Unscharf, einfach zu finden, begleitet von einem kleinen Stern"
+
+#: scripts/messier_marathon.ssc:96
+msgid "Visible to the naked eye, better than M31"
+msgstr "Sichtbar mit dem bloßen Auge, besser als M31"
+
+#: scripts/messier_marathon.ssc:97
+msgid "Very close to M42, not easy to see the fuzzy"
+msgstr ""
+"Sehr nah bei M42, es ist nicht einfach das unscharfe Fleckchen auszumachen"
+
+#: scripts/messier_marathon.ssc:98
+msgid "Small, dark, few stars around"
+msgstr "Klein, dunkel, von wenig Sternen umgeben"
+
+#: scripts/messier_marathon.ssc:99
+msgid "Easy to locate, easy to detect in a good transparency."
+msgstr "Einfach zu finden, einfach zu erkennen bei guter Transparenz."
+
+#: scripts/messier_marathon.ssc:100
+msgid "Visible to the naked eye, easier"
+msgstr "Sichtbar mit dem bloßen Auge, einfacher"
+
+#: scripts/messier_marathon.ssc:101 scripts/messier_marathon.ssc:153
+#: scripts/messier_marathon.ssc:174
+msgid "Easy to locate and verify"
+msgstr "Einfach anzupeilen und zu bestätigen"
+
+#: scripts/messier_marathon.ssc:102 scripts/messier_marathon.ssc:103
+msgid "Large, scattered"
+msgstr "Groß, verstreut"
+
+#: scripts/messier_marathon.ssc:104
+msgid "Bright, easy to verify, difficult to locate"
+msgstr "Hell, einfach zu bestätigen, schwierig anzupeilen"
+
+#: scripts/messier_marathon.ssc:105
+msgid "Large, difficult to locate, easy to confuse with NGC2506"
+msgstr "Groß, schwierig anzupeilen, leicht mit NGC2506 zu verwechseln"
+
+#: scripts/messier_marathon.ssc:106
+msgid "Easy, more scattered"
+msgstr "Einfach, stärker verstreut"
+
+#: scripts/messier_marathon.ssc:107
+msgid "Easy, fuzzy"
+msgstr "Einfach, unscharf"
+
+#: scripts/messier_marathon.ssc:108
+msgid "Easy, scattered"
+msgstr "Einfach, verstreut"
+
+#: scripts/messier_marathon.ssc:109
+msgid "Easy, large, scattered"
+msgstr "Einfach, groß, verstreut"
+
+#: scripts/messier_marathon.ssc:110
+msgid "Very close to M96 and M105"
+msgstr "Sehr nah bei M96 und M105"
+
+#: scripts/messier_marathon.ssc:111
+msgid "Easy to locate and verify, assist to verify M95 and M105"
+msgstr ""
+"Einfach anzupeilen und zu bestätigen, hilft M95 und M105 zu bestätigen"
+
+#: scripts/messier_marathon.ssc:112
+msgid "Dark"
+msgstr "Dunkel"
+
+#: scripts/messier_marathon.ssc:113
+msgid "Very close, it’s like M81 and M82"
+msgstr "Sehr nah, es ist wie M81 und M82"
+
+#: scripts/messier_marathon.ssc:114
+msgid "There is NGC3628 nearby, don't think you have found a new comet"
+msgstr ""
+"Daneben ist NGC3628, denke nicht, dass du einen neuen Kometen gefunden hast"
+
+#: scripts/messier_marathon.ssc:115
+msgid "Like the darkened M33, require a high sky conditions"
+msgstr ""
+"Vergleichbar mit dunklerer M33, setzt gute Beobachtungsbedingungen am Himmel"
+" voraus."
+
+#: scripts/messier_marathon.ssc:116
+msgid "Difficult to locate, 4 stars of the inverted 7 shape beside"
+msgstr ""
+"Schwer zu finden, 4 Sterne der gespiegelten 7 in der Nähe (oder "
+"ausgenommen?)"
+
+#: scripts/messier_marathon.ssc:117
+msgid "Easy, you can see the companion galaxy"
+msgstr "Einfach, du kannst die Begleitgalaxie sehen"
+
+#: scripts/messier_marathon.ssc:118
+msgid "Easy to verify"
+msgstr "Einfach zu bestätigen"
+
+#: scripts/messier_marathon.ssc:119
+msgid "Not easy to locate, small, slightly dark"
+msgstr "Nicht einfach anzupeilen, klein, etwas dunkel"
+
+#: scripts/messier_marathon.ssc:120
+msgid "Not easy to locate, bright"
+msgstr "Nicht einfach anzupeilen, hell"
+
+#: scripts/messier_marathon.ssc:121
+msgid "Not easy to locate, no bright stars nearby"
+msgstr "Nicht einfach anzupeilen, keine hellen Sterne in der Nähe"
+
+#: scripts/messier_marathon.ssc:122
+msgid "Easy to locate"
+msgstr "Einfach anzupeilen"
+
+#: scripts/messier_marathon.ssc:123
+msgid "Beside M60, it is easy to verify"
+msgstr "Neben M60, ist einfach zu bestätigen"
+
+#: scripts/messier_marathon.ssc:124
+msgid "It’s an easier one"
+msgstr "Es ist ein einfacheres Objekt"
+
+#: scripts/messier_marathon.ssc:125
+msgid "As bright as M85, easy to verify"
+msgstr "So hell wie M85, einfach zu bestätigen"
+
+#: scripts/messier_marathon.ssc:126
+msgid "Dark, hard to look"
+msgstr "Dunkel, schwierig zu sehen"
+
+#: scripts/messier_marathon.ssc:127
+msgid "Easy to detect than M89, easy to locate"
+msgstr "Einfacher aufzuspüren als M89, einfach anzupeilen"
+
+#: scripts/messier_marathon.ssc:128
+msgid "Easy to locate, detect once"
+msgstr "Einfach anzupeilen, spüre es ein Mal auf"
+
+#: scripts/messier_marathon.ssc:129
+msgid "There is an NGC4438 near M84 and M86, don't make a mistake"
+msgstr "Dort ist NGC4438 in der Nähe von M84 und M86, mach' keinen Fehler"
+
+#: scripts/messier_marathon.ssc:130
+msgid "M84 are together, closer to NGC4438"
+msgstr "M84 sind zusammen, näher an NGC4438"
+
+#: scripts/messier_marathon.ssc:131
+msgid "Just above M90, almost like M90"
+msgstr "Gerade über M90, fast wie M90"
+
+#: scripts/messier_marathon.ssc:132
+msgid "Look hard"
+msgstr "Suche gründlich"
+
+#: scripts/messier_marathon.ssc:133
+msgid "This bunch of things in the Virgo Cluster is not easy"
+msgstr "All diese Dinge im Virgo Haufen sind nicht einfach"
+
+#: scripts/messier_marathon.ssc:134
+msgid "M99 is easier to verify than M98"
+msgstr "M99 ist einfacher zu bestätigen als M98"
+
+#: scripts/messier_marathon.ssc:135
+msgid "First find M100 and then find M98 and M99"
+msgstr "Finde erst M100 und dann finde M98 und M99"
+
+#: scripts/messier_marathon.ssc:136
+msgid "Far away, but very bright, easy to find"
+msgstr "Weit weg, aber sehr hell, einfach zu finden"
+
+#: scripts/messier_marathon.ssc:137
+msgid "Small, not easy to locate, a little difficult"
+msgstr "Klein, nicht einfach anzupeilen, ein bisschen schwierig"
+
+#: scripts/messier_marathon.ssc:138
+msgid "Not easy to locate, easy to verify"
+msgstr "Nicht einfach aufzuspüren, einfach zu bestätigen"
+
+#: scripts/messier_marathon.ssc:139
+msgid "Easy to locate and verify, small"
+msgstr "Einfach aufzuspüren und zu bestätigen, klein"
+
+#: scripts/messier_marathon.ssc:140
+msgid "Easy to verify, a star 5 magnitude nearby"
+msgstr "Einfach zu bestätigen, ein Stern 5. Größe liegt in der Nähe"
+
+#: scripts/messier_marathon.ssc:141
+msgid "Visible to the naked eye, big, bright"
+msgstr "Sichtbar mit bloßem Auge, groß, hell"
+
+#: scripts/messier_marathon.ssc:142
+msgid "Bright and big in the galaxies, not hard to find"
+msgstr "Hell und groß in den Galaxien, nicht schwierig zu finden"
+
+#: scripts/messier_marathon.ssc:143
+msgid "Bright, easy to verify"
+msgstr "Hell, einfach zu überprüfen"
+
+#: scripts/messier_marathon.ssc:144
+msgid "Easy to verify in a right location"
+msgstr "Einfach zu bestätigen am richtigen Ort"
+
+#: scripts/messier_marathon.ssc:145
+msgid "Famous, like the shoulder pole star"
+msgstr "Berühmt, wie der Schulter Pol-Stern"
+
+#: scripts/messier_marathon.ssc:146
+msgid "It may be easier to locate from the Dragon"
+msgstr "Es kann einfacher sein, es vom Drachen anzupeilen"
+
+#: scripts/messier_marathon.ssc:147
+msgid "Small, 20 times or more is still easy to detect"
+msgstr "Klein, 20 mal oder mehr, ist dennoch einfach zu erkennen"
+
+#: scripts/messier_marathon.ssc:148
+msgid "More difficult than M57, not easy to locate, very small"
+msgstr "Schwieriger als M57, nicht einfach aufzuspüren, sehr klein"
+
+#: scripts/messier_marathon.ssc:149
+msgid "Easy, small, looks like a cluster of stars 7-8 magnitude"
+msgstr "Einfach, klein, sieht aus wie ein Sternhaufen 7.–8. Größe"
+
+#: scripts/messier_marathon.ssc:150
+msgid "Larger than imagined, very scattered, not easy to locate"
+msgstr "Größer als vorgestellt, stark verstreut, nicht einfach aufzuspüren"
+
+#: scripts/messier_marathon.ssc:151
+msgid "Find M71 first, then find M27, and will be easier to locate"
+msgstr ""
+"Finde zuerst M71, dann finde M27 und das Aufspüren wird einfacher sein"
+
+#: scripts/messier_marathon.ssc:152
+msgid "Easy to locate, easy to verify in 50 binos"
+msgstr "Einfach aufzuspüren, einfach in einem 50er Fernglas zu bestätigen"
+
+#: scripts/messier_marathon.ssc:154
+msgid "Bright, like M13, easy to find"
+msgstr "Hell, wie M13, einfach zu finden"
+
+#: scripts/messier_marathon.ssc:155
+msgid "Detect it with M12, brighter than M12"
+msgstr "Spüre es mit M12 auf, heller als M12"
+
+#: scripts/messier_marathon.ssc:156
+msgid "Difficult to locate, easy to verify"
+msgstr "Schwierig zu finden, leicht zu überprüfen"
+
+#: scripts/messier_marathon.ssc:157
+msgid "Small, not easy to verify"
+msgstr "Klein, nicht leicht zu überprüfen"
+
+#: scripts/messier_marathon.ssc:158
+msgid "Bright, big, don't forget to detect NGC6144 nearby"
+msgstr "Hell, groß, vergiss nicht NGC6144 in der Nähe aufzuspüren"
+
+#: scripts/messier_marathon.ssc:159
+msgid "Not easy to verify at low power, easy at high power"
+msgstr ""
+"Nicht einfach zu bestätigen bei schwacher Erscheinung, leicht bei starker "
+"Erscheinung."
+
+#: scripts/messier_marathon.ssc:160
+msgid "Follow the line of M4 and Antares, easy to verify"
+msgstr "Folge der Linie zwischen M4 und Antares, einfach zu bestätigen"
+
+#: scripts/messier_marathon.ssc:161
+msgid "Looking down from M19, darker than M19, but easy to verify"
+msgstr ""
+"Ausgehend von M19 nach unten, dunkler als dieser, aber leicht zu bestätigen"
+
+#: scripts/messier_marathon.ssc:162
+msgid "Easy to locate, bright, and almost like M13"
+msgstr "Einfach anzupeilen, hell und fast wie M13"
+
+#: scripts/messier_marathon.ssc:163
+msgid "Easy to locate M26 by M11"
+msgstr "Einfach zu finden M26 mit Hilfe von M11"
+
+#: scripts/messier_marathon.ssc:164
+msgid "Easy"
+msgstr "Einfach"
+
+#: scripts/messier_marathon.ssc:165 scripts/messier_marathon.ssc:178
+msgid "Difficult to locate, bright, easy to verify"
+msgstr "Schwierig aufzuspüren, hell, einfach zu bestätigen"
+
+#: scripts/messier_marathon.ssc:166
+msgid "Beside M81, vertical to each other"
+msgstr "Neben M81, untereinander"
+
+#: scripts/messier_marathon.ssc:167
+msgid "Large, a little fuzzy"
+msgstr "Groß, ein wenig unscharf"
+
+#: scripts/messier_marathon.ssc:167
+msgid "Beside M20"
+msgstr "Neben M20"
+
+#: scripts/messier_marathon.ssc:168
+msgid "It’s not hard to see the diffuse nebula"
+msgstr "Es ist nicht schwierig den diffusen Nebel zu sehen"
+
+#: scripts/messier_marathon.ssc:169
+msgid "Visible to the naked eye, extremely easy"
+msgstr "Sichtbar mit dem bloßen Auge, äußerst einfach"
+
+#: scripts/messier_marathon.ssc:170
+msgid "Big, easy"
+msgstr "Groß, einfach"
+
+#: scripts/messier_marathon.ssc:170
+msgid "Easy to locate and verify, bright"
+msgstr "Einfach anzupeilen und zu bestätigen, hell"
+
+#: scripts/messier_marathon.ssc:171
+msgid "M13 second"
+msgstr "M13 zweiter/-es/-e"
+
+#: scripts/messier_marathon.ssc:172
+msgid "Too big, scattered, not easy to verify"
+msgstr "Zu groß, verstreut, nicht einfach zu bestätigen"
+
+#: scripts/messier_marathon.ssc:173
+msgid "Bigger than M6"
+msgstr "Größer als M6"
+
+#: scripts/messier_marathon.ssc:175
+msgid "Brighter than imagined, can be detected with 60 binos"
+msgstr "Heller als gedacht, kann mit einem 60er Fernglas aufgespürt werden"
+
+#: scripts/messier_marathon.ssc:176
+msgid "Darker than M97, long strips, look hard"
+msgstr "Dunkler als M97, lange Streifen, suche gründlich"
+
+#: scripts/messier_marathon.ssc:177
+msgid "Easy to verify with more than 20 times binos"
+msgstr ""
+"Mit Hilfe von Ferngläsern mit 20-facher Vergrößerung leicht zu bestätigen"
+
+#: scripts/messier_marathon.ssc:179
+msgid "In the morning light, it looks too hard, dark"
+msgstr "In der Morgendämmerung scheint es zu schwer, dunkel"
+
+#: scripts/messier_marathon.ssc:288
+msgid "cannot be seen now"
+msgstr "kann jetzt noch nicht gesehen werden"

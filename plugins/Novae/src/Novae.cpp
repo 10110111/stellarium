@@ -141,7 +141,7 @@ void Novae::init()
 			return;
 
 		texPointer = StelApp::getInstance().getTextureManager().createTexture(StelFileMgr::getInstallationDir()+"/textures/pointeur2.png");
-		addAction("actionShow_Novae_ConfigDialog", N_("Bright Novae"), N_("Bright Novae configuration window"), configDialog, "visible");
+		addAction("actionShow_Novae_ConfigDialog", N_("Bright Novae"), N_("Bright Novae configuration window"), configDialog, "visible", ""); // Allow assign shortkey
 	}
 	catch (std::runtime_error &e)
 	{
@@ -177,6 +177,7 @@ void Novae::init()
 	updateTimer->start();
 
 	connect(this, SIGNAL(jsonUpdateComplete(void)), this, SLOT(reloadCatalog()));
+	connect(StelApp::getInstance().getCore(), SIGNAL(configurationDataSaved()), this, SLOT(saveSettings()));
 
 	GETSTELMODULE(StelObjectMgr)->registerStelObjectMgr(this);
 }
@@ -231,7 +232,7 @@ QList<StelObjectP> Novae::searchAround(const Vec3d& av, double limitFov, const S
 
 	Vec3d v(av);
 	v.normalize();
-	double cosLimFov = cos(limitFov * M_PI/180.);
+	const double cosLimFov = cos(limitFov * M_PI/180.);
 	Vec3d equPos;
 
 	for (const auto& n : nova)
@@ -240,7 +241,7 @@ QList<StelObjectP> Novae::searchAround(const Vec3d& av, double limitFov, const S
 		{
 			equPos = n->XYZ;
 			equPos.normalize();
-			if (equPos[0]*v[0] + equPos[1]*v[1] + equPos[2]*v[2]>=cosLimFov)
+			if (equPos.dot(v) >= cosLimFov)
 			{
 				result.append(qSharedPointerCast<StelObject>(n));
 			}
@@ -576,7 +577,7 @@ void Novae::saveSettingsToConfig(void)
 int Novae::getSecondsToUpdate(void)
 {
 	QDateTime nextUpdate = lastUpdate.addSecs(updateFrequencyDays * 3600 * 24);
-	return QDateTime::currentDateTime().secsTo(nextUpdate);
+	return static_cast<int>(QDateTime::currentDateTime().secsTo(nextUpdate));
 }
 
 void Novae::checkForUpdate(void)
@@ -649,11 +650,11 @@ void Novae::updateDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 		//Round to the greatest possible derived unit
 		while (bytesTotal > 1024)
 		{
-			bytesReceived = std::floor(bytesReceived / 1024.);
-			bytesTotal    = std::floor(bytesTotal / 1024.);
+			bytesReceived = static_cast<qint64>(std::floor(bytesReceived / 1024.));
+			bytesTotal    = static_cast<qint64>(std::floor(bytesTotal / 1024.));
 		}
-		currentValue = bytesReceived;
-		endValue = bytesTotal;
+		currentValue = static_cast<int>(bytesReceived);
+		endValue = static_cast<int>(bytesTotal);
 	}
 
 	progressBar->setValue(currentValue);

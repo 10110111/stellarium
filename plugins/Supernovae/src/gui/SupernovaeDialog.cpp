@@ -25,6 +25,7 @@
 #include <QFileDialog>
 
 #include "StelApp.hpp"
+#include "StelCore.hpp"
 #include "ui_supernovaeDialog.h"
 #include "SupernovaeDialog.hpp"
 #include "Supernovae.hpp"

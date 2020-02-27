@@ -253,6 +253,8 @@ public:
 	inline Vector4(const Vector3<T>&);
 	//! Creates an Vector4 with xyz set to the given values, and w set to 1.0
 	inline Vector4(T, T, T);
+	//! Creates an Vector4 with xyz set to the given Vector3, and given last value as w
+	inline Vector4(const Vector3<T>&, T);
 	inline Vector4(T, T, T, T);
 
 	inline Vector4& operator=(const Vector3<T>&);
@@ -605,7 +607,7 @@ template<class T> T Vector2<T>::dot(const Vector2<T>& b) const
 
 template<class T> T Vector2<T>::length() const
 {
-	return (T) std::sqrt(v[0] * v[0] + v[1] * v[1]);
+	return static_cast<T>(std::sqrt(v[0] * v[0] + v[1] * v[1]));
 }
 
 template<class T> T Vector2<T>::lengthSquared() const
@@ -615,7 +617,7 @@ template<class T> T Vector2<T>::lengthSquared() const
 
 template<class T> void Vector2<T>::normalize()
 {
-	T s = (T) 1 / std::sqrt(v[0] * v[0] + v[1] * v[1]);
+	T s = static_cast<T>( 1 / std::sqrt(v[0] * v[0] + v[1] * v[1]));
 	v[0] *= s;
 	v[1] *= s;
 }
@@ -794,7 +796,7 @@ template<class T> T Vector3<T>::angleNormalized(const Vector3<T>& b) const
 
 template<class T> T Vector3<T>::length() const
 {
-	return (T) std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+	return static_cast<T>(std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]));
 }
 
 template<class T> T Vector3<T>::lengthSquared() const
@@ -804,7 +806,7 @@ template<class T> T Vector3<T>::lengthSquared() const
 
 template<class T> void Vector3<T>::normalize()
 {
-	T s = (T) (1. / std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]));
+	T s = static_cast<T>(1. / std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]));
 	v[0] *= s;
 	v[1] *= s;
 	v[2] *= s;
@@ -868,6 +870,11 @@ template<class T> Vector4<T>::Vector4(const T* x)
 template<class T> Vector4<T>::Vector4(const Vector3<T>& a)
 {
 	v[0]=a.v[0]; v[1]=a.v[1]; v[2]=a.v[2]; v[3]=1;
+}
+
+template<class T> Vector4<T>::Vector4(const Vector3<T>& a, const T w)
+{
+	v[0]=a.v[0]; v[1]=a.v[1]; v[2]=a.v[2]; v[3]=w;
 }
 
 template<class T> Vector4<T>::Vector4(T x, T y, T z)
@@ -984,7 +991,7 @@ template<class T> T Vector4<T>::dot(const Vector4<T>& b) const
 
 template<class T> T Vector4<T>::length() const
 {
-	return (T) std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3]);
+	return static_cast<T>(std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3]));
 }
 
 template<class T> T Vector4<T>::lengthSquared() const
@@ -994,7 +1001,7 @@ template<class T> T Vector4<T>::lengthSquared() const
 
 template<class T> void Vector4<T>::normalize()
 {
-	T s = (T) (1. / std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3]));
+	T s = static_cast<T>(1. / std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3]));
 	v[0] *= s;
 	v[1] *= s;
 	v[2] *= s;
@@ -1307,8 +1314,8 @@ template<class T> Matrix4<T> Matrix4<T>::rotation(const Vector3<T>& axis, T angl
 {
 	Vector3<T> a(axis);
 	a.normalize();
-	const T c = (T) cos(angle);
-	const T s = (T) sin(angle);
+	const T c = static_cast<T>(cos(angle));
+	const T s = static_cast<T>(sin(angle));
 	const T d = 1-c;
 	return Matrix4<T>(a[0]*a[0]*d+c     , a[1]*a[0]*d+a[2]*s, a[0]*a[2]*d-a[1]*s, 0,
 			  a[0]*a[1]*d-a[2]*s, a[1]*a[1]*d+c     , a[1]*a[2]*d+a[0]*s, 0,
@@ -1318,8 +1325,8 @@ template<class T> Matrix4<T> Matrix4<T>::rotation(const Vector3<T>& axis, T angl
 
 template<class T> Matrix4<T> Matrix4<T>::xrotation(T angle)
 {
-	T c = (T) cos(angle);
-	T s = (T) sin(angle);
+	T c = static_cast<T>(cos(angle));
+	T s = static_cast<T>(sin(angle));
 
 	return Matrix4<T>(1, 0, 0, 0,
 			  0, c, s, 0,
@@ -1330,8 +1337,8 @@ template<class T> Matrix4<T> Matrix4<T>::xrotation(T angle)
 
 template<class T> Matrix4<T> Matrix4<T>::yrotation(T angle)
 {
-	T c = (T) cos(angle);
-	T s = (T) sin(angle);
+	T c = static_cast<T>(cos(angle));
+	T s = static_cast<T>(sin(angle));
 
 	return Matrix4<T>(c, 0,-s, 0,
 			  0, 1, 0, 0,
@@ -1342,8 +1349,8 @@ template<class T> Matrix4<T> Matrix4<T>::yrotation(T angle)
 
 template<class T> Matrix4<T> Matrix4<T>::zrotation(T angle)
 {
-	T c = (T) cos(angle);
-	T s = (T) sin(angle);
+	T c = static_cast<T>(cos(angle));
+	T s = static_cast<T>(sin(angle));
 
 	return Matrix4<T>(c , s, 0, 0,
 			  -s, c, 0, 0,

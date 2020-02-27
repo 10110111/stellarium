@@ -31,6 +31,7 @@
 #include "StelUtils.hpp"
 #include "StelTranslator.hpp"
 #include "StelModuleMgr.hpp"
+#include "StelLocaleMgr.hpp"
 
 #include <QTextStream>
 #include <QRegExp>
@@ -86,11 +87,14 @@ Satellite::Satellite(const QString& identifier, const QVariantMap& map)
 	, height(0.)
 	, range(0.)
 	, rangeRate(0.)
-	, hintColor(0.0,0.0,0.0)
-	, lastUpdated()
+	, hintColor(0.f,0.f,0.f)
+	, lastUpdated()	
+	, isISS(false)	
 	, pSatWrapper(Q_NULLPTR)
 	, visibility(gSatWrapper::UNKNOWN)
 	, phaseAngle(0.)
+	, infoColor(0.f,0.f,0.f)
+	, orbitColor(0.f,0.f,0.f)
 	, lastEpochCompForOrbit(0.)
 	, epochTime(0.)
 {
@@ -133,6 +137,19 @@ Satellite::Satellite(const QString& identifier, const QVariantMap& map)
 	else
 	{
 		orbitColor = hintColor;
+	}
+
+	// Satellite info color
+	list = map.value("infoColor", QVariantList()).toList();
+	if (list.count() == 3)
+	{
+		infoColor[0] = list.at(0).toFloat();
+		infoColor[1] = list.at(1).toFloat();
+		infoColor[2] = list.at(2).toFloat();
+	}
+	else
+	{
+		infoColor = hintColor;
 	}
 
 	if (map.contains("comms"))
@@ -213,11 +230,13 @@ QVariantMap Satellite::getMap(void)
 	map["orbitVisible"] = orbitDisplayed;
 	if (userDefined)
 		map.insert("userDefined", userDefined);
-	QVariantList col, orbitCol;
+	QVariantList col, orbitCol, infoCol;
 	col << roundToDp(hintColor[0],3) << roundToDp(hintColor[1], 3) << roundToDp(hintColor[2], 3);
 	orbitCol << roundToDp(orbitColor[0], 3) << roundToDp(orbitColor[1], 3) << roundToDp(orbitColor[2],3);
+	infoCol << roundToDp(infoColor[0], 3) << roundToDp(infoColor[1], 3) << roundToDp(infoColor[2],3);
 	map["hintColor"] = col;
 	map["orbitColor"] = orbitCol;
+	map["infoColor"] = infoCol;
 	QVariantList commList;
 	for (const auto& c : comms)
 	{
@@ -253,6 +272,7 @@ QString Satellite::getInfoString(const StelCore *core, const InfoStringGroup& fl
 {
 	QString str;
 	QTextStream oss(&str);
+	QString degree = QChar(0x00B0);
 	
 	if (flags & Name)
 	{
@@ -302,12 +322,18 @@ QString Satellite::getInfoString(const StelCore *core, const InfoStringGroup& fl
 
 	if (flags & Extra)
 	{
+		QString km = qc_("km", "distance");
 		// TRANSLATORS: Slant range: distance between the satellite and the observer
-		oss << QString("%1: %2 %3").arg(q_("Range")).arg(range, 5, 'f', 2).arg(qc_("km", "distance")) << "<br/>";
+		oss << QString("%1: %2 %3").arg(q_("Range")).arg(qRound(range)).arg(km) << "<br/>";
 		// TRANSLATORS: Rate at which the distance changes
 		oss << QString("%1: %2 %3").arg(q_("Range rate")).arg(rangeRate, 5, 'f', 3).arg(qc_("km/s", "speed")) << "<br/>";
 		// TRANSLATORS: Satellite altitude
-		oss << QString("%1: %2 %3").arg(q_("Altitude")).arg(height, 5, 'f', 2).arg(qc_("km", "distance")) << "<br/>";
+		oss << QString("%1: %2 %3").arg(q_("Altitude")).arg(qRound(height)).arg(km) << "<br/>";
+		Vec2d pa = calculatePerigeeApogeeFromLine2(tleElements.second.data());
+		oss << QString("%1: %2 %3 / %4 %5").arg(q_("Perigee/apogee altitudes"))
+		       .arg(qRound(pa[0])).arg(km)
+		       .arg(qRound(pa[1])).arg(km)
+		<< "<br/>";		
 		double orbitalPeriod = pSatWrapper->getOrbitalPeriod();
 		if (orbitalPeriod>0.0)
 		{
@@ -320,6 +346,11 @@ QString Satellite::getInfoString(const StelCore *core, const InfoStringGroup& fl
 			       .arg(mins).arg(StelUtils::hoursToHmsStr(orbitalPeriod/60.0, true))
 			       .arg(1440.0/orbitalPeriod, 9, 'f', 5).arg(rpd) << "<br/>";
 		}
+		double inclination = pSatWrapper->getOrbitalInclination();
+		oss << QString("%1: %2 (%3%4)")
+		       .arg(q_("Inclination")).arg(StelUtils::decDegToDmsStr(inclination))
+		       .arg(QString::number(inclination, 'f', 4)).arg(degree)
+		<< "<br/>";
 		oss << QString("%1: %2%3/%4%5")
 		       .arg(q_("SubPoint (Lat./Long.)"))
 		       .arg(latLongSubPointPosition[0], 5, 'f', 2)
@@ -331,9 +362,9 @@ QString Satellite::getInfoString(const StelCore *core, const InfoStringGroup& fl
 		//TODO: This one can be done better
 		const char* xyz = "<b>X:</b> %1, <b>Y:</b> %2, <b>Z:</b> %3";
 		QString temeCoords = QString(xyz)
-		        .arg(position[0], 5, 'f', 2)
-		        .arg(position[1], 5, 'f', 2)
-		        .arg(position[2], 5, 'f', 2);
+			.arg(qRound(position[0]))
+			.arg(qRound(position[1]))
+			.arg(qRound(position[2]));
 		// TRANSLATORS: TEME (True Equator, Mean Equinox) is an Earth-centered inertial coordinate system
 		oss << QString("%1: %2 %3").arg(q_("TEME coordinates")).arg(temeCoords).arg(qc_("km", "distance")) << "<br/>";
 		
@@ -360,9 +391,21 @@ QString Satellite::getInfoString(const StelCore *core, const InfoStringGroup& fl
 		{  // Iridium
 			oss << QString("%1: %2%3").arg(q_("Sun reflection angle"))
 			       .arg(sunReflAngle,0,'f',1)
-			       .arg(QChar(0x00B0)); // Degree sign
+			       .arg(degree);
 			oss << "<br />";
 		}
+
+		QString updDate;
+		if (!lastUpdated.isValid())
+			updDate = qc_("unknown", "unknown date");
+		else
+		{
+			QDate sd = lastUpdated.date();
+			updDate = QString("%1 %2 %3 %4 %5").arg(sd.day())
+					.arg(StelLocaleMgr::longGenitiveMonthName(sd.month())).arg(sd.year())
+					.arg(qc_("at","at time")).arg(lastUpdated.time().toString("hh:mm:ss"));
+		}
+		oss << QString("%1: %2").arg(q_("Last updated TLE"), updDate) << "<br />";
 
 		// Groups of the artificial satellites
 		QStringList groupList;
@@ -435,6 +478,18 @@ QString Satellite::getInfoString(const StelCore *core, const InfoStringGroup& fl
 	return str;
 }
 
+// Calculate perigee and apogee altitudes for mean Earth radius
+Vec2d Satellite::calculatePerigeeApogeeFromLine2(QString tle) const
+{
+	// Details: http://www.satobs.org/seesat/Dec-2002/0197.html
+	const double meanEarthRadius = 6371.0088;
+	const double k = 8681663.653;
+	const double meanMotion = tle.left(63).right(11).toDouble();
+	const double semiMajorAxis = std::cbrt((k/meanMotion)*(k/meanMotion));
+	const double eccentricity = QString("0.%1").arg(tle.left(33).right(7)).toDouble();
+	return Vec2d(semiMajorAxis*(1.0 - eccentricity) - meanEarthRadius, semiMajorAxis*(1.0 + eccentricity) - meanEarthRadius);
+}
+
 QVariantMap Satellite::getInfoMap(const StelCore *core) const
 {
 	QVariantMap map = StelObject::getInfoMap(core);
@@ -447,7 +502,7 @@ QVariantMap Satellite::getInfoMap(const StelCore *core) const
 	if (!internationalDesignator.isEmpty())
 		map.insert("international-designator", internationalDesignator);
 
-	if (stdMag==99.f) // replace whatever has been computed
+	if (stdMag==99.) // replace whatever has been computed
 	{
 		map.insert("vmag", "?");
 		map.insert("vmage", "?");
@@ -464,7 +519,12 @@ QVariantMap Satellite::getInfoMap(const StelCore *core) const
 	map.insert("TEME-speed-X", velocity[0]);
 	map.insert("TEME-speed-Y", velocity[1]);
 	map.insert("TEME-speed-Z", velocity[2]);
-	if (sunReflAngle>0)
+	map.insert("inclination", pSatWrapper->getOrbitalInclination());
+	map.insert("period", pSatWrapper->getOrbitalPeriod());
+	Vec2d pa = calculatePerigeeApogeeFromLine2(tleElements.second.data());
+	map.insert("perigee-altitude", pa[0]);
+	map.insert("apogee-altitude", pa[0]);
+	if (sunReflAngle>0.)
 	{  // Iridium
 		map.insert("sun-reflection-angle", sunReflAngle);
 	}
@@ -533,7 +593,7 @@ Vec3d Satellite::getJ2000EquatorialPos(const StelCore* core) const
 
 Vec3f Satellite::getInfoColor(void) const
 {
-	return hintColor;
+	return infoColor;
 }
 
 float Satellite::getVMagnitude(const StelCore* core) const
@@ -916,7 +976,7 @@ void Satellite::draw(StelCore* core, StelPainter& painter)
 
 	XYZ = getJ2000EquatorialPos(core);
 	// NOTE: Should we use the real angular size of ISS here (we do not have linear size of ISS within catalog for calculation the angular size)?
-	int screenSizeISS = (int)((0.0167*M_PI/180.)*painter.getProjector()->getPixelPerRadAtCenter()); // Set screen size of ISS (1 arcmin)
+	int screenSizeISS = static_cast<int>((0.0167*M_PI/180.)*painter.getProjector()->getPixelPerRadAtCenter()); // Set screen size of ISS (1 arcmin)
 
 	Vec3d win;
 	if (painter.getProjector()->projectCheck(XYZ, win))
@@ -955,7 +1015,7 @@ void Satellite::draw(StelCore* core, StelPainter& painter)
 				painter.drawText(XYZ, name, 0, 10, 10, false);
 
 			// Special case: crossing of the ISS of the Moon or the Sun
-			if (isISS && screenSizeISS>0 && (XYZ.angle(moon->getJ2000EquatorialPos(core))*180./M_PI <= moon->getSpheroidAngularSize(core) || XYZ.angle(sun->getJ2000EquatorialPos(core))*180./M_PI <= sun->getSpheroidAngularSize(core)))
+			if (isISS && screenSizeISS>0 && (XYZ.angle(moon->getJ2000EquatorialPos(core))*M_180_PI <= moon->getSpheroidAngularSize(core) || XYZ.angle(sun->getJ2000EquatorialPos(core))*M_180_PI <= sun->getSpheroidAngularSize(core)))
 			{
 				Vec3f issColor = Vec3f(0.f,0.f,0.f);
 				painter.setColor(issColor[0], issColor[1], issColor[2], 1.f);
@@ -1063,7 +1123,7 @@ void Satellite::computeOrbitPoints()
 	{
 		// compute next orbit point when clock runs forward
 		gTimeSpan diffTime = epoch - lastEpochComp;
-		diffSlots          = (int)(diffTime.getDblSeconds()/orbitLineSegmentDuration);
+		diffSlots          = static_cast<int>(diffTime.getDblSeconds()/orbitLineSegmentDuration);
 
 		if (diffSlots > 0)
 		{
@@ -1096,7 +1156,7 @@ void Satellite::computeOrbitPoints()
 	{
 		// compute next orbit point when clock runs backward
 		gTimeSpan diffTime = lastEpochComp - epoch;
-		diffSlots          = (int)(diffTime.getDblSeconds()/orbitLineSegmentDuration);
+		diffSlots          = static_cast<int>(diffTime.getDblSeconds()/orbitLineSegmentDuration);
 
 		if (diffSlots > 0)
 		{

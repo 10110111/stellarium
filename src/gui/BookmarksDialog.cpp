@@ -103,17 +103,21 @@ void BookmarksDialog::createDialogContent()
 	ui->bookmarksTreeView->header()->setStretchLastSection(true);
 	ui->bookmarksTreeView->hideColumn(ColumnUUID);
 
+	QString style = "QCheckBox { color: rgb(238, 238, 238); }";
+	ui->dateTimeCheckBox->setStyleSheet(style);
+	ui->locationCheckBox->setStyleSheet(style);
+
 	loadBookmarks();
 }
 
 void BookmarksDialog::setBookmarksHeaderNames()
 {
-	QStringList headerStrings;
-	headerStrings << "UUID"; // Hide the column
-	headerStrings << q_("Object");
-	headerStrings << q_("Localized name");	
-	headerStrings << q_("Date and Time");	
-	headerStrings << q_("Location of observer");
+	const QStringList headerStrings = {
+		"UUID", // Hide the column
+		q_("Object"),
+		q_("Localized name"),
+		q_("Date and Time"),
+		q_("Location of observer")};
 
 	bookmarksListModel->setHorizontalHeaderLabels(headerStrings);
 }
@@ -257,7 +261,7 @@ void BookmarksDialog::highlightBookrmarksButtonPressed()
 {
 	QList<Vec3d> highlights;
 	highlights.clear();
-	highlightLabelIDs.clear();
+	clearHighlightsButtonPressed(); // Enable fool protection
 	int fontSize = StelApp::getInstance().getScreenFontSize();
 	HighlightMgr* hlMgr = GETSTELMODULE(HighlightMgr);
 	QString color = StelUtils::vec3fToHtmlColor(hlMgr->getColor());

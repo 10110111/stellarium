@@ -118,7 +118,9 @@ private slots:
 	void searchSatellitesClear();
 
 	// change selection's color
-	void askSatColor();
+	void askSatMarkerColor();
+	void askSatOrbitColor();
+	void askSatInfoColor();
 
 	// change description text
 	void descriptionTextChanged();
@@ -163,11 +165,11 @@ private:
 	//! Makes sure that newly added source lines are as checkable as the rest.
 	Qt::ItemDataRole checkStateRole;
 
-	QString delimiter, acEndl;
+	QString delimiter;
 	QStringList iridiumFlaresHeader;
 
 	// colorpickerbutton's color
-	QColor buttonColor;
+	QColor buttonMarkerColor, buttonOrbitColor, buttonInfoColor;
 };
 
 // Reimplements the QTreeWidgetItem class to fix the sorting bug

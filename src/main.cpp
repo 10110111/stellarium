@@ -56,7 +56,7 @@
 #include <clocale>
 
 #ifdef Q_OS_WIN
-	#include <windows.h>
+	#include <Windows.h>
 	//we use WIN32_LEAN_AND_MEAN so this needs to be included
 	//to use timeBeginPeriod/timeEndPeriod
 	#include <mmsystem.h>
@@ -94,7 +94,7 @@ public:
 	//! @param context Qt context string - IGNORED.
 	//! @param sourceText the source message.
 	//! @param comment optional parameter
-	virtual QString translate(const char *context, const char *sourceText, const char *disambiguation = 0, int n = -1) const
+	virtual QString translate(const char *context, const char *sourceText, const char *disambiguation = Q_NULLPTR, int n = -1) const
 	{
 		Q_UNUSED(context);
 		Q_UNUSED(n);
@@ -154,6 +154,12 @@ int main(int argc, char **argv)
 	QCoreApplication::setApplicationVersion(StelUtils::getApplicationVersion());
 	QCoreApplication::setOrganizationDomain("stellarium.org");
 	QCoreApplication::setOrganizationName("stellarium");
+
+	// Support high DPI pixmaps and fonts
+	QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+	#if (QT_VERSION>=QT_VERSION_CHECK(5, 6, 0))
+	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+	#endif
 
 	#if defined(Q_OS_MAC)
 	QFileInfo appInfo(QString::fromUtf8(argv[0]));
@@ -337,12 +343,8 @@ int main(int argc, char **argv)
 	StelScriptOutput::init(outputFile);
 	#endif
 
-
 	// Override config file values from CLI.
 	CLIProcessor::parseCLIArgsPostConfig(argList, confSettings);
-
-	// Support hi-dpi pixmaps
-	app.setAttribute(Qt::AA_UseHighDpiPixmaps, true);	
 
 	// Add the DejaVu font that we use everywhere in the program
 	const QString& fName = StelFileMgr::findFile("data/DejaVuSans.ttf");

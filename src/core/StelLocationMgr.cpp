@@ -131,7 +131,11 @@ void LibGPSLookupHelper::query()
 //				emit queryError("GPSD query: No Fix.");
 //				return;
 //			}
-			if (newdata->online==0) // no device?
+#if GPSD_API_MAJOR_VERSION < 9
+			if (newdata->online==0.0) // no device?
+#else
+			if (newdata->online.tv_sec == 0 && newdata->online.tv_nsec == 0) // no device?
+#endif
 			{
 				// This can happen when unplugging the GPS while running Stellarium,
 				// or running gpsd with no GPS receiver.
@@ -158,15 +162,27 @@ void LibGPSLookupHelper::query()
 				//qDebug() << "newdata->online=" << newdata->online;
 				qDebug() << "Solution from " << newdata->satellites_used << "out of " << newdata->satellites_visible << " visible Satellites.";
 				dop_t dop=newdata->dop;
+#if GPSD_API_MAJOR_VERSION < 9
 				qDebug() << "GPSD data: Long" << newdata->fix.longitude << "Lat" << newdata->fix.latitude << "Alt" << newdata->fix.altitude;
+#else
+				qDebug() << "GPSD data: Long" << newdata->fix.longitude << "Lat" << newdata->fix.latitude << "Alt" << newdata->fix.altHAE;
+#endif
 				qDebug() << "Dilution of Precision:";
 				qDebug() << " - xdop:" << dop.xdop << "ydop:" << dop.ydop;
 				qDebug() << " - pdop:" << dop.pdop << "hdop:" << dop.hdop;
 				qDebug() << " - vdop:" << dop.vdop << "tdop:" << dop.tdop << "gdop:" << dop.gdop;
-				qDebug() << "Spherical Position Error (epe):" << newdata->epe;
+				// GPSD API 8.0:
+				// * Remove epe from gps_data_t, it duplicates gps_fix_t eph
+				// * Added sep (estimated spherical error, 3D)
+				// Details: https://github.com/Stellarium/stellarium/issues/733
+				// #if GPSD_API_MAJOR_VERSION >= 8
+				// qDebug() << "Spherical Position Error (sep):" << newdata->fix.sep;
+				// #else
+				// qDebug() << "Spherical Position Error (epe):" << newdata->epe;
+				// #endif
 			}
-			loc.longitude=newdata->fix.longitude;
-			loc.latitude=newdata->fix.latitude;
+			loc.longitude = static_cast<float> (newdata->fix.longitude);
+			loc.latitude  = static_cast<float> (newdata->fix.latitude);
 			// Frequently hdop, vdop and satellite counts are NaN. Sometimes they show OK. This is minor issue.
 			if ((verbose) && (fixmode<3))
 			{
@@ -175,7 +191,11 @@ void LibGPSLookupHelper::query()
 			}
 			else
 			{
-				loc.altitude=newdata->fix.altitude;
+#if GPSD_API_MAJOR_VERSION < 9
+				loc.altitude=static_cast<int>(newdata->fix.altitude);
+#else
+				loc.altitude=static_cast<int>(newdata->fix.altHAE);
+#endif
 				if (verbose)
 				{
 					qDebug() << "GPSDfix " << fixmode << ": Location" << QString("lat %1, long %2, alt %3").arg(loc.latitude).arg(loc.longitude).arg(loc.altitude);
@@ -253,7 +273,6 @@ NMEALookupHelper::NMEALookupHelper(QObject *parent)
 			qDebug() << "  ProductID:"      << pi.productIdentifier();
 			qDebug() << "  SerialNumber:"   << pi.serialNumber();
 			qDebug() << "  Busy:"           << pi.isBusy();
-			qDebug() << "  Valid:"          << pi.isValid();
 			qDebug() << "  Null:"           << pi.isNull();
 			if (pi.portName()==portName)
 			{
@@ -355,10 +374,10 @@ void NMEALookupHelper::nmeaUpdated(const QGeoPositionInfo &update)
 	{
 		StelCore *core=StelApp::getInstance().getCore();
 		StelLocation loc;
-		loc.longitude=coord.longitude();
-		loc.latitude=coord.latitude();
+		loc.longitude=static_cast<float>(coord.longitude());
+		loc.latitude=static_cast<float>(coord.latitude());
 		// 2D fix may have only long/lat, invalid altitude.
-		loc.altitude=( qIsNaN(coord.altitude()) ? 0 : (int) floor(coord.altitude()));
+		loc.altitude=( qIsNaN(coord.altitude()) ? 0 : static_cast<int>(floor(coord.altitude())));
 		if (verbose)
 			qDebug() << "Location in progress: Long=" << loc.longitude << " Lat=" << loc.latitude << " Alt" << loc.altitude;
 		loc.bortleScaleIndex=StelLocation::DEFAULT_BORTLE_SCALE_INDEX;
@@ -692,9 +711,9 @@ const StelLocation StelLocationMgr::locationFromCLI() const
 	QSettings* conf = StelApp::getInstance().getSettings();
 	bool ok;
 	conf->beginGroup("location_run_once");
-	ret.latitude = parseAngle(StelUtils::radToDmsStr(conf->value("latitude").toFloat(), true), &ok);
+	ret.latitude = parseAngle(StelUtils::radToDmsStr(conf->value("latitude").toDouble(), true), &ok);
 	if (!ok) ret.role = '!';
-	ret.longitude = parseAngle(StelUtils::radToDmsStr(conf->value("longitude").toFloat(), true), &ok);
+	ret.longitude = parseAngle(StelUtils::radToDmsStr(conf->value("longitude").toDouble(), true), &ok);
 	if (!ok) ret.role = '!';
 	ret.altitude = conf->value("altitude", 0).toInt(&ok);
 	ret.planetName = conf->value("home_planet", "Earth").toString();
@@ -919,7 +938,7 @@ void StelLocationMgr::changeLocationFromGPSQuery(const StelLocation &loc)
 {
 	bool verbose=qApp->property("verbose").toBool();
 
-	StelApp::getInstance().getCore()->moveObserverTo(loc, 0.0f, 0.0f);
+	StelApp::getInstance().getCore()->moveObserverTo(loc, 0.0, 0.0);
 	if (nmeaHelper)
 	{
 		if (verbose)
@@ -993,7 +1012,7 @@ void StelLocationMgr::changeLocationFromNetworkLookup()
 			// Ensure that ipTimeZone is a valid IANA timezone name!
 			QTimeZone ipTZ(ipTimeZone.toUtf8());
 			core->setCurrentTimeZone( !ipTZ.isValid() || ipTimeZone.isEmpty() ? "LMST" : ipTimeZone);
-			core->moveObserverTo(loc, 0.0f, 0.0f);
+			core->moveObserverTo(loc, 0.0, 0.0);
 			QSettings* conf = StelApp::getInstance().getSettings();
 			conf->setValue("init_location/last_location", QString("%1, %2").arg(latitude).arg(longitude));
 		}
@@ -1001,7 +1020,7 @@ void StelLocationMgr::changeLocationFromNetworkLookup()
 		{
 			qDebug() << "Failure getting IP-based location: answer is in not acceptable format! Error: " << e.what()
 					<< "\nLet's use Paris, France as default location...";
-			core->moveObserverTo(getLastResortLocation(), 0.0f, 0.0f); // Answer is not in JSON format! A possible block by DNS server or firewall
+			core->moveObserverTo(getLastResortLocation(), 0.0, 0.0); // Answer is not in JSON format! A possible block by DNS server or firewall
 		}
 	}
 	else

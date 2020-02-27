@@ -26,6 +26,7 @@
 #include <QColorDialog>
 
 #include "StelApp.hpp"
+#include "StelCore.hpp"
 #include "ui_pulsarsDialog.h"
 #include "PulsarsDialog.hpp"
 #include "Pulsars.hpp"

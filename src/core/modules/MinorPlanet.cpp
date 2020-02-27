@@ -20,6 +20,7 @@
  */
  
 #include "MinorPlanet.hpp"
+#include "Orbit.hpp"
 
 #include "StelApp.hpp"
 #include "StelCore.hpp"
@@ -30,6 +31,7 @@
 #include "StelUtils.hpp"
 #include "StelFileMgr.hpp"
 #include "RefractionExtinction.hpp"
+#include "Orbit.hpp"
 
 #include <QRegExp>
 #include <QDebug>
@@ -46,7 +48,7 @@ MinorPlanet::MinorPlanet(const QString& englishName,
 			 const QString& anormalMapName,
 			 const QString& aobjModelName,
 			 posFuncType coordFunc,
-			 void* auserDataPtr,
+			 KeplerOrbit* orbitPtr,
 			 OsculatingFunctType *osculatingFunc,
 			 bool acloseOrbit,
 			 bool hidden,
@@ -63,7 +65,7 @@ MinorPlanet::MinorPlanet(const QString& englishName,
 		  anormalMapName,
 		  aobjModelName,
 		  coordFunc,
-		  auserDataPtr,
+		  orbitPtr,
 		  osculatingFunc,
 		  acloseOrbit,
 		  hidden,
@@ -71,15 +73,14 @@ MinorPlanet::MinorPlanet(const QString& englishName,
 		  true,  //Halo
 		  pTypeStr),
 	minorPlanetNumber(0),
-	slopeParameter(-1.0f), //== mark as uninitialized: used in getVMagnitude()
-	semiMajorAxis(0.),
+	slopeParameter(-10.0f), // -10 == mark as uninitialized: used in getVMagnitude()
 	nameIsProvisionalDesignation(false),
 	properName(englishName),
 	b_v(99.f),
 	specT(""),
 	specB("")
 {
-	//Try to detect a naming conflict
+	//Try to handle an occasional naming conflict between a moon and asteroid. Conflicting names are also shown with appended *.
 	if (englishName.endsWith('*'))
 		properName = englishName.left(englishName.count() - 1);
 
@@ -95,13 +96,6 @@ MinorPlanet::MinorPlanet(const QString& englishName,
 MinorPlanet::~MinorPlanet()
 {
 	//Do nothing for the moment
-}
-
-void MinorPlanet::setSemiMajorAxis(double value)
-{
-	semiMajorAxis = value;
-	// GZ: in case we have very many asteroids, this helps improving speed usually without sacrificing accuracy:
-	deltaJDE = 2.0*qMax(semiMajorAxis, 0.1)*StelCore::JD_SECOND;
 }
 
 void MinorPlanet::setSpectralType(QString sT, QString sB)
@@ -125,15 +119,12 @@ void MinorPlanet::setMinorPlanetNumber(int number)
 
 void MinorPlanet::setAbsoluteMagnitudeAndSlope(const float magnitude, const float slope)
 {
-	if (slope < 0 || slope > 1.0)
+	if (slope < -1.0f || slope > 2.0f)
 	{
-		qDebug() << "MinorPlanet::setAbsoluteMagnitudeAndSlope(): Invalid slope parameter value (must be between 0 and 1)";
+		// G "should" be between 0 and 1, but may be somewhat outside.
+		qDebug() << "MinorPlanet::setAbsoluteMagnitudeAndSlope(): Invalid slope parameter value (must be between -1 and 2, mostly [0..1])";
 		return;
 	}
-
-	//TODO: More checks?
-	//TODO: Make it set-once like the number?
-
 	absoluteMagnitude = magnitude;
 	slopeParameter = slope;
 }
@@ -141,25 +132,21 @@ void MinorPlanet::setAbsoluteMagnitudeAndSlope(const float magnitude, const floa
 void MinorPlanet::setProvisionalDesignation(QString designation)
 {
 	//TODO: This feature has to be implemented better, anyway.
-	provisionalDesignationHtml = renderProvisionalDesignationinHtml(designation);
+	if (!designation.isEmpty())
+	{
+		provisionalDesignationHtml = renderProvisionalDesignationinHtml(designation);
+		nameIsProvisionalDesignation = false;
+	}
 }
 
 QString MinorPlanet::getEnglishName() const
 {
-	QString r = englishName;
-	if (minorPlanetNumber)
-		r = QString("(%1) %2").arg(minorPlanetNumber).arg(englishName);
-
-	return r;
+	return (minorPlanetNumber ? QString("(%1) %2").arg(minorPlanetNumber).arg(englishName) : englishName);
 }
 
 QString MinorPlanet::getNameI18n() const
 {
-	QString r = nameI18;
-	if (minorPlanetNumber)
-		r = QString("(%1) %2").arg(minorPlanetNumber).arg(nameI18);
-
-	return r;
+	return (minorPlanetNumber ?  QString("(%1) %2").arg(minorPlanetNumber).arg(nameI18) : nameI18);
 }
 
 QString MinorPlanet::getInfoString(const StelCore *core, const InfoStringGroup &flags) const
@@ -171,7 +158,6 @@ QString MinorPlanet::getInfoString(const StelCore *core, const InfoStringGroup &
 	double az_app, alt_app;
 	StelUtils::rectToSphe(&az_app,&alt_app,getAltAzPosApparent(core));	
 	bool withDecimalDegree = StelApp::getInstance().getFlagShowDecimalDegrees();
-	double distanceAu = getJ2000EquatorialPos(core).length();
 	Q_UNUSED(az_app);
 
 	if (flags&Name)
@@ -187,7 +173,7 @@ QString MinorPlanet::getInfoString(const StelCore *core, const InfoStringGroup &
 			oss << getNameI18n();  // UI translation can differ from sky translation
 		oss.setRealNumberNotation(QTextStream::FixedNotation);
 		oss.setRealNumberPrecision(1);
-		if (sphereScale != 1.f)
+		if (sphereScale != 1.)
 			oss << QString::fromUtf8(" (\xC3\x97") << sphereScale << ")";
 		oss << "</h2>";
 		if (!nameIsProvisionalDesignation && !provisionalDesignationHtml.isEmpty())
@@ -206,16 +192,21 @@ QString MinorPlanet::getInfoString(const StelCore *core, const InfoStringGroup &
 
 	if (flags&AbsoluteMagnitude)
 	{
-		//TODO: Make sure absolute magnitude is a sane value
-		//If the H-G system is not used, use the default radius/albedo mechanism
-		if (slopeParameter < 0)
-		{
-			oss << QString("%1: %2").arg(q_("Absolute Magnitude")).arg(getVMagnitude(core) - 5. * (std::log10(distanceAu*AU/PARSEC)-1.), 0, 'f', 2) << "<br>";
-		}
-		else
-		{
+		// GZ Huh? "Absolute Magnitude" for solar system objects has nothing to do with 10pc standard distance!
+		//    I have deactivated this for now.
+		// TODO: Apparently, the first solution makes "Absolute" magnitudes for 10pc distance. This is not the definition for Abs.Mag. for Minor Bodies!
+		// Absolute magnitude H for Minor Planets is its magnitude when in solar radius 1AU, at distance 1AU, with phase angle 0.
+		// Hint from Wikipedia:https://en.wikipedia.org/wiki/Absolute_magnitude#Solar_System_bodies_.28H.29: subtract 31.57 from the value...
+		// If the H-G system is not used, use the default radius/albedo mechanism
+		//if (slopeParameter < -1.0f)
+		//{
+		//     double distanceAu = getJ2000EquatorialPos(core).length();
+		//	oss << QString("%1: %2").arg(q_("Absolute Magnitude")).arg(getVMagnitude(core) - 5. * (std::log10(distanceAu*AU/PARSEC)-1.), 0, 'f', 2) << "<br>";
+		//}
+		//else
+		//{
 			oss << QString("%1: %2").arg(q_("Absolute Magnitude")).arg(absoluteMagnitude, 0, 'f', 2) << "<br>";
-		}
+		//}
 	}
 
 	if (flags&Extra && b_v<99.f)
@@ -259,7 +250,7 @@ QString MinorPlanet::getInfoString(const StelCore *core, const InfoStringGroup &
 		{
 			distAU = QString::number(distanceAu, 'f', 3);
 			distKM = QString::number(distanceKm / 1.0e6, 'f', 3);
-			// TRANSLATORS: Unit of measure for distance - milliones kilometers
+			// TRANSLATORS: Unit of measure for distance - millions kilometers
 			km = qc_("M km", "distance");
 		}
 		oss << QString("%1: %2 %3 (%4 %5)").arg(q_("Distance"), distAU, au, distKM, km) << "<br />";
@@ -277,21 +268,42 @@ QString MinorPlanet::getInfoString(const StelCore *core, const InfoStringGroup &
 			double orbVelKms=orbVel* AU/86400.;
 			oss << QString("%1: %2 %3").arg(q_("Orbital velocity")).arg(orbVelKms, 0, 'f', 3).arg(kms) << "<br />";
 			double helioVel=getHeliocentricEclipticVelocity().length(); // just in case we have asteroid moons!
-			if (helioVel!=orbVel)
+			if (!fuzzyEquals(helioVel, orbVel))
 				oss << QString("%1: %2 %3").arg(q_("Heliocentric velocity")).arg(helioVel* AU/86400., 0, 'f', 3).arg(kms) << "<br />";
 		}
-		if (qAbs(re.period)>0.f)
+		if (qAbs(re.period)>0.)
 		{
 			double eqRotVel = 2.0*M_PI*(AU*getEquatorialRadius())/(getSiderealDay()*86400.0);
 			oss << QString("%1: %2 %3").arg(q_("Equatorial rotation velocity")).arg(qAbs(eqRotVel), 0, 'f', 3).arg(kms) << "<br />";
 		}
 	}
 
+	if (flags&ProperMotion)
+	{
+		Vec3d equPos=getEquinoxEquatorialPos(core);
+		double dec_equ, ra_equ;
+		StelUtils::rectToSphe(&ra_equ,&dec_equ,equPos);
+		StelCore* core1 = StelApp::getInstance().getCore(); // we need non-const reference here.
+		const double currentJD=core1->getJD();
+		core1->setJD(currentJD-StelCore::JD_HOUR);
+		core1->update(0);
+		Vec3d equPosPrev=getEquinoxEquatorialPos(core1);
+		double dec_equPrev, ra_equPrev;
+		StelUtils::rectToSphe(&ra_equPrev,&dec_equPrev,equPosPrev);
+		core1->setJD(currentJD);
+		core1->update(0);
+		const double deltaEq=equPos.angle(equPosPrev);
+		double pa=atan2(ra_equ-ra_equPrev, dec_equ-dec_equPrev); // position angle: From North counterclockwise!
+		if (pa<0) pa += 2.*M_PI;
+		oss << QString("%1: %2 %3 %4%5").arg(q_("Hourly motion"), StelUtils::radToDmsStr(deltaEq), qc_("towards", "into the direction of"), QString::number(pa*M_180_PI, 'f', 1), QChar(0x00B0)) << "<br/>";
+		oss << QString("%1: d&alpha;=%2 d&delta;=%3").arg(q_("Hourly motion"), StelUtils::radToDmsStr(ra_equ-ra_equPrev), StelUtils::radToDmsStr(dec_equ-dec_equPrev)) << "<br/>";
+	}
+
 	double angularSize = 2.*getAngularSize(core)*M_PI/180.;
 	if (flags&Size && angularSize>=4.8e-8)
 	{
 		QString sizeStr = "";
-		if (sphereScale!=1.f) // We must give correct diameters even if upscaling (e.g. Moon)
+		if (sphereScale!=1.) // We must give correct diameters even if upscaling (e.g. Moon)
 		{
 			QString sizeOrig, sizeScaled;
 			if (withDecimalDegree)
@@ -381,19 +393,13 @@ QString MinorPlanet::getInfoString(const StelCore *core, const InfoStringGroup &
 
 double MinorPlanet::getSiderealPeriod() const
 {
-	double period;
-	if (semiMajorAxis>0)
-		period = StelUtils::calculateSiderealPeriod(semiMajorAxis);
-	else
-		period = 0;
-
-	return period;
+	return static_cast<KeplerOrbit*>(orbitPtr)->calculateSiderealPeriod();
 }
 
 float MinorPlanet::getVMagnitude(const StelCore* core) const
 {
 	//If the H-G system is not used, use the default radius/albedo mechanism
-	if (slopeParameter < 0)
+	if (slopeParameter < -9.99f) // G can be somewhat <0! Set to -10 to mark invalid.
 	{
 		return Planet::getVMagnitude(core);
 	}
@@ -402,15 +408,16 @@ float MinorPlanet::getVMagnitude(const StelCore* core) const
 	//(Code copied from Planet::getVMagnitude())
 	//(this is actually vector subtraction + the cosine theorem :))
 	const Vec3d& observerHelioPos = core->getObserverHeliocentricEclipticPos();
-	const float observerRq = observerHelioPos.lengthSquared();
+	const float observerRq = static_cast<float>(observerHelioPos.lengthSquared());
 	const Vec3d& planetHelioPos = getHeliocentricEclipticPos();
-	const float planetRq = planetHelioPos.lengthSquared();
-	const float observerPlanetRq = (observerHelioPos - planetHelioPos).lengthSquared();
-	const float cos_chi = (observerPlanetRq + planetRq - observerRq)/(2.0*std::sqrt(observerPlanetRq*planetRq));
+	const float planetRq = static_cast<float>(planetHelioPos.lengthSquared());
+	const float observerPlanetRq = static_cast<float>((observerHelioPos - planetHelioPos).lengthSquared());
+	const float cos_chi = (observerPlanetRq + planetRq - observerRq)/(2.0f*std::sqrt(observerPlanetRq*planetRq));
 	const float phaseAngle = std::acos(cos_chi);
 
 	//Calculate reduced magnitude (magnitude without the influence of distance)
 	//Source of the formulae: http://www.britastro.org/asteroids/dymock4.pdf
+	// Same model as in Explanatory Supplement 2013, p.423
 	const float tanPhaseAngleHalf=std::tan(phaseAngle*0.5f);
 	const float phi1 = std::exp(-3.33f * std::pow(tanPhaseAngleHalf, 0.63f));
 	const float phi2 = std::exp(-1.87f * std::pow(tanPhaseAngleHalf, 1.22f));
