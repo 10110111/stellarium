@@ -63,7 +63,7 @@ void main()
 	{
 		// special case for s = 0 (x=0.25, y=0.25)
 		Y *= 0.5121445;
-		Y = pow(abs(Y*pi*0.0001), alphaWaOverAlphaDa*oneOverGamma)* term2TimesOneOverMaxdLpOneOverGamma;
+		Y = pow(abs(Y*pi*0.0001), alphaWaOverAlphaDa)* term2TimesOneOverMaxdLpOneOverGamma;
 		resultColor = vec3(0.787077, 0.9898434, 1.9256125)*Y*brightnessScale;
 	}
 	else
@@ -84,7 +84,7 @@ void main()
 
 		// 2. Adapt the luminance value and scale it to fit in the RGB range [2]
 		// Y = std::pow(adaptLuminanceScaled(Y), oneOverGamma);
-		Y = pow(abs(Y*pi*0.0001), alphaWaOverAlphaDa*oneOverGamma)* term2TimesOneOverMaxdLpOneOverGamma;
+		Y = pow(abs(Y*pi*0.0001), alphaWaOverAlphaDa)* term2TimesOneOverMaxdLpOneOverGamma;
 
 		// Convert from xyY to XZY
 		// Use a XYZ to sRGB matrix which uses a D65 reference white
@@ -92,5 +92,6 @@ void main()
 		resultColor = vec3(3.2404542*tmp.x-1.5371385*tmp.y-0.4985314*tmp.z, -0.9692660*tmp.x+1.8760108*tmp.y+0.0415560*tmp.z, 0.0556434*tmp.x-0.2040259*tmp.y+1.0572252*tmp.z);
 		resultColor*=brightnessScale;
 	}
+    resultColor=pow(resultColor,vec3(oneOverGamma));
     resultColor=dither(resultColor);
 }
