@@ -23,7 +23,8 @@
 #include "StelActionMgr.hpp"
 #include "LandscapeMgr.hpp"
 #include "Landscape.hpp"
-#include "Atmosphere.hpp"
+#include "AtmospherePreetham.hpp"
+#include "AtmosphereBruneton.hpp"
 #include "StelApp.hpp"
 #include "SolarSystem.hpp"
 #include "StelCore.hpp"
@@ -283,6 +284,7 @@ void LandscapeMgr::update(double deltaTime)
 	Vec3d moonPos = ssystem->getMoon()->getAltAzPosAuto(core);
 	float lunarPhaseAngle=static_cast<float>(ssystem->getMoon()->getPhaseAngle(ssystem->getEarth()->getHeliocentricEclipticPos()));
 	float lunarMagnitude=ssystem->getMoon()->getVMagnitudeWithExtinction(core);
+	float lunarNonExtinctedMagnitude=ssystem->getMoon()->getVMagnitude(core);
 	// LP:1673283 no lunar brightening if not on Earth!
 	if (core->getCurrentLocation().planetName != "Earth")
 	{
@@ -290,7 +292,7 @@ void LandscapeMgr::update(double deltaTime)
 		lunarPhaseAngle=0.0f;
 	}
 	// GZ: First parameter in next call is used for particularly earth-bound computations in Schaefer's sky brightness model. Difference DeltaT makes no difference here.
-	atmosphere->computeColor(core->getJDE(), sunPos, moonPos, lunarPhaseAngle, lunarMagnitude,
+	atmosphere->computeColor(core->getJDE(), sunPos, moonPos, lunarPhaseAngle, lunarMagnitude, lunarNonExtinctedMagnitude,
 		core, core->getCurrentLocation().latitude, core->getCurrentLocation().altitude,
 		15.f, 40.f);	// Temperature = 15c, relative humidity = 40%
 
@@ -468,7 +470,29 @@ void LandscapeMgr::init()
 	setFlagLandscapeUseMinimalBrightness(conf->value("landscape/flag_minimal_brightness", false).toBool());
 	setFlagLandscapeSetsMinimalBrightness(conf->value("landscape/flag_landscape_sets_minimal_brightness",false).toBool());
 
-	atmosphere = new Atmosphere();
+	const auto atmosphereModelConfig=conf->value("landscape/atmosphere_model", "preetham").toString();
+	if(atmosphereModelConfig=="preetham")
+	{
+		atmosphere = new AtmospherePreetham();
+	}
+	else if(atmosphereModelConfig=="bruneton")
+	{
+		try
+		{
+			atmosphere = new AtmosphereBruneton();
+		}
+		catch(AtmosphereBruneton::InitFailure const& error)
+		{
+			qWarning() << "ERROR: Failed to initialize Bruneton's atmosphere model:" << error.what();
+			qWarning() << "WARNING: Falling back to Preetham's model";
+			atmosphere = new AtmospherePreetham();
+		}
+	}
+	else
+	{
+		qWarning() << "Unsupported atmosphere model" << atmosphereModelConfig;
+		atmosphere = new AtmospherePreetham();
+	}
 	setFlagAtmosphere(conf->value("landscape/flag_atmosphere", true).toBool());
 	setAtmosphereFadeDuration(conf->value("landscape/atmosphere_fade_duration",0.5).toFloat());
 	setAtmosphereLightPollutionLuminance(conf->value("viewing/light_pollution_luminance",0.0).toFloat());

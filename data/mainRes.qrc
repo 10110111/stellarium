@@ -5,4 +5,16 @@
     <qresource prefix="/">
         <file>shaders/xyYToRGB.glsl</file>
     </qresource>
+    <qresource prefix="/">
+        <file>shaders/AtmospherePostProcess.frag</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>shaders/AtmosphereFunctions.frag</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>shaders/AtmosphereMain.vert</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>shaders/AtmosphereMain.frag</file>
+    </qresource>
 </RCC>
