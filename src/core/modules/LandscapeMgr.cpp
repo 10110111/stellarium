@@ -23,7 +23,8 @@
 #include "StelActionMgr.hpp"
 #include "LandscapeMgr.hpp"
 #include "Landscape.hpp"
-#include "Atmosphere.hpp"
+#include "AtmospherePreetham.hpp"
+#include "AtmosphereShowMySky.hpp"
 #include "StelApp.hpp"
 #include "SolarSystem.hpp"
 #include "StelCore.hpp"
@@ -49,6 +50,14 @@
 #include <QOpenGLPaintDevice>
 
 #include <stdexcept>
+
+namespace
+{
+constexpr char ATMOSPHERE_MODEL_CONFIG_KEY[]="landscape/atmosphere_model";
+constexpr char ATMOSPHERE_MODEL_PATH_CONFIG_KEY[]="landscape/atmosphere_model_path";
+constexpr char ATMOSPHERE_MODEL_CONF_VAL_PREETHAM[]="preetham";
+constexpr char ATMOSPHERE_MODEL_CONF_VAL_SHOWMYSKY[]="showmysky";
+}
 
 // Class which manages the cardinal points displaying
 class Cardinals
@@ -224,7 +233,6 @@ LandscapeMgr::LandscapeMgr()
 
 LandscapeMgr::~LandscapeMgr()
 {
-	delete atmosphere;
 	delete cardinalsPoints;
 	if (oldLandscape)
 	{
@@ -287,6 +295,7 @@ void LandscapeMgr::update(double deltaTime)
 	Vec3d moonPos = ssystem->getMoon()->getAltAzPosAuto(core);
 	float lunarPhaseAngle=static_cast<float>(ssystem->getMoon()->getPhaseAngle(ssystem->getEarth()->getHeliocentricEclipticPos()));
 	float lunarMagnitude=ssystem->getMoon()->getVMagnitudeWithExtinction(core);
+	float lunarNonExtinctedMagnitude=ssystem->getMoon()->getVMagnitude(core);
 	// LP:1673283 no lunar brightening if not on Earth!
 	if (core->getCurrentLocation().planetName != "Earth")
 	{
@@ -294,7 +303,7 @@ void LandscapeMgr::update(double deltaTime)
 		lunarPhaseAngle=0.0f;
 	}
 	// GZ: First parameter in next call is used for particularly earth-bound computations in Schaefer's sky brightness model. Difference DeltaT makes no difference here.
-	atmosphere->computeColor(core->getJDE(), sunPos, moonPos, lunarPhaseAngle, lunarMagnitude,
+	atmosphere->computeColor(core->getJDE(), sunPos, moonPos, lunarPhaseAngle, lunarMagnitude, lunarNonExtinctedMagnitude,
 		core, core->getCurrentLocation().latitude, core->getCurrentLocation().altitude,
 		15.f, 40.f);	// Temperature = 15c, relative humidity = 40%
 
@@ -418,6 +427,20 @@ void LandscapeMgr::update(double deltaTime)
 
 void LandscapeMgr::draw(StelCore* core)
 {
+    if(needToRecreateAtmosphere)
+    {
+		if(getFlagAtmosphere())
+		{
+			// Fade out current atmosphere before recreating the new one
+			setFlagAtmosphere(false);
+		}
+		else if(getAtmosphereFadeIntensity() == 0)
+		{
+			createAtmosphere();
+			emit atmosphereModelChanged(getAtmosphereModel());
+		}
+    }
+
 	// Draw the atmosphere
 	atmosphere->draw(core);
 
@@ -452,6 +475,49 @@ void LandscapeMgr::drawPolylineOnly(StelCore* core)
 	cardinalsPoints->draw(core, static_cast<double>(StelApp::getInstance().getCore()->getCurrentLocation().latitude));
 }
 
+void LandscapeMgr::createAtmosphere()
+{
+    needToRecreateAtmosphere=false;
+
+    const auto modelName=getAtmosphereModel();
+	const auto modelConfig=modelName.toLower();
+    bool needResetConfig=false;
+	if(modelConfig==ATMOSPHERE_MODEL_CONF_VAL_PREETHAM)
+	{
+		atmosphere.reset(new AtmospherePreetham());
+	}
+	else if(modelConfig==ATMOSPHERE_MODEL_CONF_VAL_SHOWMYSKY)
+	{
+		try
+		{
+			atmosphere.reset(new AtmosphereShowMySky());
+		}
+		catch(AtmosphereShowMySky::InitFailure const& error)
+		{
+			qWarning() << "ERROR: Failed to initialize ShowMySky atmosphere model:" << error.what();
+			qWarning() << "WARNING: Falling back to the Preetham's model";
+			atmosphere.reset(new AtmospherePreetham());
+            needResetConfig=true;
+		}
+	}
+	else
+	{
+		qWarning() << "Unsupported atmosphere model" << modelName;
+		atmosphere.reset(new AtmospherePreetham());
+        needResetConfig=true;
+	}
+
+    const auto conf=StelApp::getInstance().getSettings();
+    if(needResetConfig)
+    {
+        // We've failed to apply the setting, so reset to the fallback value
+        conf->setValue(ATMOSPHERE_MODEL_CONFIG_KEY, ATMOSPHERE_MODEL_CONF_VAL_PREETHAM);
+    }
+
+	setFlagAtmosphere(conf->value("landscape/flag_atmosphere", true).toBool());
+	setAtmosphereFadeDuration(conf->value("landscape/atmosphere_fade_duration",0.5).toFloat());
+	setAtmosphereLightPollutionLuminance(conf->value("viewing/light_pollution_luminance",0.0).toFloat());
+}
 
 void LandscapeMgr::init()
 {
@@ -472,10 +538,7 @@ void LandscapeMgr::init()
 	setFlagLandscapeUseMinimalBrightness(conf->value("landscape/flag_minimal_brightness", false).toBool());
 	setFlagLandscapeSetsMinimalBrightness(conf->value("landscape/flag_landscape_sets_minimal_brightness",false).toBool());
 
-	atmosphere = new Atmosphere();
-	setFlagAtmosphere(conf->value("landscape/flag_atmosphere", true).toBool());
-	setAtmosphereFadeDuration(conf->value("landscape/atmosphere_fade_duration",0.5).toFloat());
-	setAtmosphereLightPollutionLuminance(conf->value("viewing/light_pollution_luminance",0.0).toFloat());
+    createAtmosphere();
 
 	defaultLandscapeID = conf->value("init_location/landscape_name").toString();
 
@@ -1025,10 +1088,81 @@ void LandscapeMgr::setFlagAtmosphere(const bool displayed)
 	}
 }
 
+void LandscapeMgr::setAtmosphereModel(const QString& model)
+{
+    if(getAtmosphereModel()==model)
+        return;
+
+    StelApp::getInstance().getSettings()->setValue(ATMOSPHERE_MODEL_CONFIG_KEY, model);
+
+    // Can't call createAtmosphere() right now, because we likely have wrong OpenGL context (or even none).
+    // So just schedule it for the next draw.
+    needToRecreateAtmosphere=true;
+}
+
+void LandscapeMgr::setAtmosphereModelPath(const QString& path)
+{
+    qDebug().nospace() << "LandscapeMgr::setAtmosphereModelPath(" << path << ")";
+    if(getAtmosphereModelPath()==path)
+        return;
+    qDebug() << "continuing to set path";
+
+    StelApp::getInstance().getSettings()->setValue(ATMOSPHERE_MODEL_PATH_CONFIG_KEY, path);
+    setAtmosphereModel(ATMOSPHERE_MODEL_CONF_VAL_SHOWMYSKY); // This is the only relevant model for this property
+    needToRecreateAtmosphere=true;
+
+    emit atmosphereModelPathChanged(path);
+}
+
+void LandscapeMgr::setFlagAtmosphereZeroOrderScattering(const bool enable)
+{
+    atmosphereZeroOrderScatteringEnabled=enable;
+    emit flagAtmosphereZeroOrderScatteringChanged(enable);
+}
+
+void LandscapeMgr::setFlagAtmosphereSingleScattering(const bool enable)
+{
+    atmosphereSingleScatteringEnabled=enable;
+    emit flagAtmosphereSingleScatteringChanged(enable);
+}
+
+void LandscapeMgr::setFlagAtmosphereMultipleScattering(const bool enable)
+{
+    atmosphereMultipleScatteringEnabled=enable;
+    emit flagAtmosphereMultipleScatteringChanged(enable);
+}
+
 //! Get flag for displaying Atmosphere
 bool LandscapeMgr::getFlagAtmosphere() const
 {
 	return atmosphere->getFlagShow();
+}
+
+QString LandscapeMgr::getAtmosphereModel() const
+{
+    const auto conf=StelApp::getInstance().getSettings();
+    return conf->value(ATMOSPHERE_MODEL_CONFIG_KEY, ATMOSPHERE_MODEL_CONF_VAL_PREETHAM).toString();
+}
+
+QString LandscapeMgr::getAtmosphereModelPath() const
+{
+    const auto conf=StelApp::getInstance().getSettings();
+    return conf->value(ATMOSPHERE_MODEL_PATH_CONFIG_KEY, "").toString();
+}
+
+bool LandscapeMgr::getFlagAtmosphereZeroOrderScattering() const
+{
+    return atmosphereZeroOrderScatteringEnabled;
+}
+
+bool LandscapeMgr::getFlagAtmosphereSingleScattering() const
+{
+    return atmosphereSingleScatteringEnabled;
+}
+
+bool LandscapeMgr::getFlagAtmosphereMultipleScattering() const
+{
+    return atmosphereMultipleScatteringEnabled;
 }
 
 float LandscapeMgr::getAtmosphereFadeIntensity() const

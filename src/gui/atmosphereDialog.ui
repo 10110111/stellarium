@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>330</width>
-    <height>190</height>
+    <width>509</width>
+    <height>362</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -116,9 +116,146 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="visualModelConfigGroup">
+     <property name="title">
+      <string>Visual Model</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Choose model:</string>
+          </property>
+          <property name="buddy">
+           <cstring>atmosphereModel</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="atmosphereModel">
+          <item>
+           <property name="text">
+            <string>Preetham</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>ShowMySky</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QFrame" name="showMySky_optionsGroup">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="showMySky_pathToDataLayout">
+           <item>
+            <widget class="QLabel" name="showMySky_pathToModelLabel">
+             <property name="text">
+              <string>Path to data:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="showMySky_pathToModelEdit"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="showMySky_pathToModelBrowseBtn">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="../../data/gui/guiRes.qrc">
+               <normaloff>:/graphicGui/uibtFolder.png</normaloff>
+               <disabledoff>:/graphicGui/uibtFolder-disabled.png</disabledoff>:/graphicGui/uibtFolder.png</iconset>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="showMySky_debugOptionsEnabled">
+           <property name="text">
+            <string>Show debugging options</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="showMySky_debugOptionsGroup">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QCheckBox" name="showMySky_zeroOrderEnabled">
+              <property name="text">
+               <string>Render zero-order scattering</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showMySky_singleScatteringEnabled">
+              <property name="text">
+               <string>Render single scattering</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showMySky_multipleScatteringEnabled">
+              <property name="text">
+               <string>Render multiple scattering</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="atmosphereGroupBox">
      <property name="title">
-      <string>Refraction Settings</string>
+      <string>Refraction</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <property name="margin">
@@ -217,24 +354,21 @@
         </item>
        </layout>
       </item>
-      <item>
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Expanding</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
@@ -251,6 +385,8 @@
    <tabstop>temperatureDoubleSpinBox</tabstop>
    <tabstop>extinctionDoubleSpinBox</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../data/gui/guiRes.qrc"/>
+ </resources>
  <connections/>
 </ui>

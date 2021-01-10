@@ -163,7 +163,10 @@ SET(stellarium_lib_SRCS
      core/planetsephems/de430.hpp
      core/planetsephems/de431.cpp
      core/planetsephems/de431.hpp
-     core/modules/Atmosphere.cpp
+     core/modules/AtmospherePreetham.cpp
+     core/modules/AtmospherePreetham.hpp
+     core/modules/AtmosphereShowMySky.cpp
+     core/modules/AtmosphereShowMySky.hpp
      core/modules/Atmosphere.hpp
      core/modules/Asterism.cpp
      core/modules/Asterism.hpp

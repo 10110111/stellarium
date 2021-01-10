@@ -46,6 +46,12 @@ protected:
         Ui_atmosphereDialogForm *ui;
 
 private:
+	bool hasValidModelPath() const;
+	void onModelChoiceChanged(const QString& model);
+	void onPathToModelChanged();
+	void browsePathToModel();
+	void setCurrentValues();
+
         Refraction *refraction;
         Extinction *extinction;
 };

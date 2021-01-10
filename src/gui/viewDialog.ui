@@ -467,7 +467,7 @@
                   <string>pressure, temperature, extinction coefficient</string>
                  </property>
                  <property name="text">
-                  <string>Refraction/Extinction settings...</string>
+                  <string>Configure...</string>
                  </property>
                 </widget>
                </item>
