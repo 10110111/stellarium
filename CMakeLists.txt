@@ -197,7 +197,7 @@ MESSAGE(STATUS "Building ${PROJECT_NAME} ${STELLARIUM_PUBLIC_VERSION} (v${PACKAG
 # Write version and series of Stellarium to Stellarium User Guide
 CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/cmake/version.tex.cmake ${PROJECT_SOURCE_DIR}/guide/version.tex @ONLY NEWLINE_STYLE LF)
 
-SET(OPENGL_DEBUG_LOGGING 0 CACHE BOOL "Enable to log OpenGL information using the GL_KHR_debug extension/QOpenGLLogger")
+SET(OPENGL_DEBUG_LOGGING 1 CACHE BOOL "Enable to log OpenGL information using the GL_KHR_debug extension/QOpenGLLogger")
 IF(OPENGL_DEBUG_LOGGING)
      ADD_DEFINITIONS(-DOPENGL_DEBUG_LOGGING)
      # This enables logging of QOpenGLFunctions through forced glGetError after each call
