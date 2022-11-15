@@ -201,6 +201,14 @@ void Planet::PlanetOBJModel::performScaling(double scale)
 	needsRescale = false;
 }
 
+// FIXME: move to a better place
+static const uint16_t* moonHeightMapBits;
+static int moonHeightMapWidth, moonHeightMapHeight, moonHeightMapRowStride;
+static const double moonHeightMapKmPerUnit = 0.5e-3;
+static const double moonHeightMapBaseRadiusKm = 1727.4;
+
+template<typename T> auto sqr(T const& x) { return x*x; }
+
 Planet::Planet(const QString& englishName,
 	       double radius,
 	       double oblateness,
@@ -328,6 +336,31 @@ Planet::Planet(const QString& englishName,
 	propMgr = StelApp::getInstance().getStelPropertyManager();
 
 	Q_ASSERT_X(oneMinusOblateness<=1., "Planet.cpp", QString("1-oblateness too large: %1").arg(QString::number(oneMinusOblateness, 'f', 10)).toLatin1() );
+
+	if(englishName == "Moon")
+	{
+		static QImage in("/home/ruslan/Downloads/Moon/CGI Moon Kit displacement map - ldem_16_uint.tif");
+		if(in.isNull())
+		{
+			qFatal("Failed to open input file");
+		}
+		if(!in.isGrayscale())
+		{
+			qFatal("Input image is not grayscale. Can't interpret it as a height map.");
+		}
+		in = in.convertToFormat(QImage::Format_Grayscale16);
+
+		moonHeightMapBits = reinterpret_cast<uint16_t*>(in.bits());
+		moonHeightMapWidth  = in.width();
+		moonHeightMapHeight = in.height();
+		const auto strideInBytes = in.bytesPerLine();
+		if(strideInBytes % sizeof moonHeightMapBits[0])
+		{
+			qFatal("Row stride of %" PRIdQSIZETYPE " bytes is not a multiple of "
+				   "a pixel, this is not supported", strideInBytes);
+		}
+		moonHeightMapRowStride = strideInBytes / sizeof moonHeightMapBits[0];
+	}
 }
 
 // called in SolarSystem::init() before first planet is created. May initialize static variables.
@@ -3677,19 +3710,423 @@ struct Planet3DModel
 {
 	QVector<float> vertexArr;
 	QVector<float> texCoordArr;
-	QVector<unsigned short> indiceArr;
+	QVector<unsigned> indiceArr;
 };
 
-
-void sSphere(Planet3DModel* model, const float radius, const float oneMinusOblateness, const unsigned short int slices, const unsigned short int stacks)
+template<typename T>
+double fetch(T const* data, const ssize_t width, const ssize_t height, const size_t rowStride,
+             const ssize_t requestedX, const ssize_t requestedY)
 {
+    const auto x = (requestedX+width) % width;
+    const auto y = std::clamp(requestedY, ssize_t(0), height-1);
+
+    return data[x + y*rowStride];
+}
+
+template<typename T>
+double sample(T const* data, const size_t width, const size_t height, const size_t rowStride,
+              const double longitude, const double latitude)
+{
+    assert(-M_PI <= longitude && longitude <= M_PI);
+    assert(-M_PI/2 <= latitude && latitude <= M_PI);
+
+    const auto deltaLon = 2.*M_PI/width;
+    const auto firstLon = (1.-width)/2. * deltaLon;
+
+    const auto x = (longitude - firstLon) / deltaLon;
+    const auto floorX = std::floor(x);
+
+    const auto deltaLat = -M_PI/height;
+    const auto firstLat = (1.-height)/2. * deltaLat;
+
+    const auto y = (latitude - firstLat) / deltaLat;
+    const auto floorY = std::floor(y);
+
+    const auto pTopLeft     = fetch(data, width, height, rowStride, floorX  , floorY);
+    const auto pTopRight    = fetch(data, width, height, rowStride, floorX+1, floorY);
+    const auto pBottomLeft  = fetch(data, width, height, rowStride, floorX  , floorY+1);
+    const auto pBottomRight = fetch(data, width, height, rowStride, floorX+1, floorY+1);
+
+    const auto fracX = x - floorX;
+    const auto fracY = y - floorY;
+
+    const auto sampleLeft  = pTopLeft  + (pBottomLeft -pTopLeft) *fracY;
+    const auto sampleRight = pTopRight + (pBottomRight-pTopRight)*fracY;
+
+    return sampleLeft + (sampleRight-sampleLeft)*fracX;
+}
+
+void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
+{
+	model->indiceArr.resize(0);
+	model->vertexArr.resize(0);
+	model->texCoordArr.resize(0);
+
+	constexpr bool useHeightMap = true;
+
+	// We are generating vertices of a cube, and modify their lengths so that the cube is inflated to the final shape
+	constexpr int cubeSideLength = 1000;
+
+	// Top and bottom of the cube
+	for(const float z0 : {1.f, -1.f})
+	{
+		const int firstIndexInCurrentSide = model->vertexArr.size() / 3;
+		// Create a grid of vertices
+		for(int i = 0; i < cubeSideLength; ++i)
+		{
+			const float x0 = float(2*i+1)/cubeSideLength - 1;
+			for(int j = 0; j < cubeSideLength; ++j)
+			{
+				const float y0 = float(2*j+1)/cubeSideLength - 1;
+				const float cubePointDistToOrigin = std::sqrt(x0*x0+y0*y0+z0*z0);
+
+				const float longitude = std::atan2(x0, -y0); // basically the same as atan(y,x)+90°, but in [-PI,PI]
+				const float latitude = std::acos(-z0/cubePointDistToOrigin) - float(0.5*M_PI);
+				const float s = longitude / float(2*M_PI) + 0.5f;
+				const float t = latitude / float(M_PI) + 0.5f;
+				model->texCoordArr << s << t;
+
+				const auto altitudeKm = moonHeightMapKmPerUnit*sample(moonHeightMapBits, moonHeightMapWidth, moonHeightMapHeight,
+																	  moonHeightMapRowStride, longitude, latitude);
+				const float radius = useHeightMap ? (moonHeightMapBaseRadiusKm+altitudeKm)/AU : sphericalApproximationRadius;
+
+				const float scale = radius / cubePointDistToOrigin;
+				const float x = scale*x0, y = scale*y0, z = scale*z0;
+				model->vertexArr << x << y << z;
+			}
+		}
+		// Now create a grid of indices referring to the grid of vertices
+		for(int j = 0, rowStartIndex = firstIndexInCurrentSide; j < cubeSideLength-1; ++j, rowStartIndex += cubeSideLength)
+		{
+			for(int i = 0; i < cubeSideLength-1; ++i)
+			{
+				const int posInRow0 = rowStartIndex + i;
+				const int posInRow1 = rowStartIndex + i + cubeSideLength;
+				if(z0 > 0)
+				{
+					model->indiceArr << posInRow0+0 << posInRow1+0 << posInRow0+1;
+					model->indiceArr << posInRow0+1 << posInRow1+0 << posInRow1+1;
+				}
+				else
+				{
+					model->indiceArr << posInRow0+0 << posInRow0+1 << posInRow1+0;
+					model->indiceArr << posInRow0+1 << posInRow1+1 << posInRow1+0;
+				}
+			}
+		}
+	}
+
+	// ±x faces
+	for(const float x0 : {1.f, -1.f})
+	{
+		const int firstIndexInCurrentSide = model->vertexArr.size() / 3;
+		// Create a grid of vertices
+		for(int i = 0; i < cubeSideLength; ++i)
+		{
+			const float z0 = float(2*i+1)/cubeSideLength - 1;
+			for(int j = 0; j < cubeSideLength; ++j)
+			{
+				const float y0 = float(2*j+1)/cubeSideLength - 1;
+				const float cubePointDistToOrigin = std::sqrt(x0*x0+y0*y0+z0*z0);
+
+				const float longitude = std::atan2(x0, -y0); // basically the same as atan(y,x)+90°, but in [-PI,PI]
+				const float latitude = std::acos(-z0/cubePointDistToOrigin) - float(0.5*M_PI);
+				const float s = longitude / float(2*M_PI) + 0.5f;
+				const float t = latitude / float(M_PI) + 0.5f;
+				model->texCoordArr << s << t;
+
+				const auto altitudeKm = moonHeightMapKmPerUnit*sample(moonHeightMapBits, moonHeightMapWidth, moonHeightMapHeight,
+																	  moonHeightMapRowStride, longitude, latitude);
+				const float radius = useHeightMap ? (moonHeightMapBaseRadiusKm+altitudeKm)/AU : sphericalApproximationRadius;
+
+				const float scale = radius / cubePointDistToOrigin;
+				const float x = scale*x0, y = scale*y0, z = scale*z0;
+				model->vertexArr << x << y << z;
+			}
+		}
+		// Now create a grid of indices referring to the grid of vertices
+		for(int j = 0, rowStartIndex = firstIndexInCurrentSide; j < cubeSideLength-1; ++j, rowStartIndex += cubeSideLength)
+		{
+			for(int i = 0; i < cubeSideLength-1; ++i)
+			{
+				const int posInRow0 = rowStartIndex + i;
+				const int posInRow1 = rowStartIndex + i + cubeSideLength;
+				if(x0 < 0)
+				{
+					model->indiceArr << posInRow0+0 << posInRow1+0 << posInRow0+1;
+					model->indiceArr << posInRow0+1 << posInRow1+0 << posInRow1+1;
+				}
+				else
+				{
+					model->indiceArr << posInRow0+0 << posInRow0+1 << posInRow1+0;
+					model->indiceArr << posInRow0+1 << posInRow1+1 << posInRow1+0;
+				}
+			}
+		}
+	}
+
+	// ±y faces
+	for(const float y0 : {1.f, -1.f})
+	{
+		const int firstIndexInCurrentSide = model->vertexArr.size() / 3;
+		// Create a grid of vertices
+		for(int i = 0; i < cubeSideLength; ++i)
+		{
+			const float z0 = float(2*i+1)/cubeSideLength - 1;
+			for(int j = 0; j < cubeSideLength; ++j)
+			{
+				const float x0 = float(2*j+1)/cubeSideLength - 1;
+				const float cubePointDistToOrigin = std::sqrt(x0*x0+y0*y0+z0*z0);
+
+				const float longitude = std::atan2(x0, -y0); // basically the same as atan(y,x)+90°, but in [-PI,PI]
+				const float latitude = std::acos(-z0/cubePointDistToOrigin) - float(0.5*M_PI);
+				const float s = longitude / float(2*M_PI) + 0.5f;
+				const float t = latitude / float(M_PI) + 0.5f;
+				model->texCoordArr << s << t;
+
+				const auto altitudeKm = moonHeightMapKmPerUnit*sample(moonHeightMapBits, moonHeightMapWidth, moonHeightMapHeight,
+																	  moonHeightMapRowStride, longitude, latitude);
+				const float radius = useHeightMap ? (moonHeightMapBaseRadiusKm+altitudeKm)/AU : sphericalApproximationRadius;
+
+				const float scale = radius / cubePointDistToOrigin;
+				const float x = scale*x0, y = scale*y0, z = scale*z0;
+				model->vertexArr << x << y << z;
+			}
+		}
+		// Now create a grid of indices referring to the grid of vertices
+		for(int j = 0, rowStartIndex = firstIndexInCurrentSide; j < cubeSideLength-1; ++j, rowStartIndex += cubeSideLength)
+		{
+			for(int i = 0; i < cubeSideLength-1; ++i)
+			{
+				const int posInRow0 = rowStartIndex + i;
+				const int posInRow1 = rowStartIndex + i + cubeSideLength;
+				if(y0 > 0)
+				{
+					model->indiceArr << posInRow0+0 << posInRow1+0 << posInRow0+1;
+					model->indiceArr << posInRow0+1 << posInRow1+0 << posInRow1+1;
+				}
+				else
+				{
+					model->indiceArr << posInRow0+0 << posInRow0+1 << posInRow1+0;
+					model->indiceArr << posInRow0+1 << posInRow1+1 << posInRow1+0;
+				}
+			}
+		}
+	}
+
+	// Connect the cube faces at 12 edges
+
+	const int verticesPerFace = cubeSideLength*cubeSideLength;
+	const int offsetToPlusZFace  = verticesPerFace*0;
+	const int offsetToMinusZFace = verticesPerFace*1;
+	const int offsetToPlusXFace  = verticesPerFace*2;
+	const int offsetToMinusXFace = verticesPerFace*3;
+	const int offsetToPlusYFace  = verticesPerFace*4;
+	const int offsetToMinusYFace = verticesPerFace*5;
+
+	//   +z
+	//  ----
+	//   -y
+	for(int i = 0; i < cubeSideLength-1; ++i)
+	{
+		const int topLeftIndex = offsetToPlusZFace + i*cubeSideLength;
+		const int topRightIndex = topLeftIndex+cubeSideLength;
+		const int bottomLeftIndex = offsetToMinusYFace + (verticesPerFace-cubeSideLength) + i;
+		const int bottomRightIndex = bottomLeftIndex+1;
+
+		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+	}
+	//   +z
+	//  ----
+	//   +y
+	for(int i = 0; i < cubeSideLength-1; ++i)
+	{
+		const int topLeftIndex = offsetToPlusZFace + verticesPerFace-1 - i*cubeSideLength;
+		const int topRightIndex = topLeftIndex-cubeSideLength;
+		const int bottomLeftIndex = offsetToPlusYFace + (verticesPerFace-1) - i;
+		const int bottomRightIndex = bottomLeftIndex-1;
+
+		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+	}
+	//   +z
+	//  ----
+	//   -x
+	for(int i = 0; i < cubeSideLength-1; ++i)
+	{
+		const int topLeftIndex = offsetToPlusZFace + i;
+		const int topRightIndex = topLeftIndex+1;
+		const int bottomLeftIndex = offsetToMinusXFace + (verticesPerFace-cubeSideLength) + i;
+		const int bottomRightIndex = bottomLeftIndex+1;
+
+		model->indiceArr << topLeftIndex    << topRightIndex << bottomLeftIndex ;
+		model->indiceArr << bottomLeftIndex << topRightIndex << bottomRightIndex;
+	}
+	//   +z
+	//  ----
+	//   +x
+	for(int i = 0; i < cubeSideLength-1; ++i)
+	{
+		const int topLeftIndex = offsetToPlusZFace + (verticesPerFace-cubeSideLength) + i;
+		const int topRightIndex = topLeftIndex+1;
+		const int bottomLeftIndex = offsetToPlusXFace + (verticesPerFace-cubeSideLength) + i;
+		const int bottomRightIndex = bottomLeftIndex+1;
+
+		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+	}
+	//   -z
+	//  ----
+	//   -y
+	for(int i = 0; i < cubeSideLength-1; ++i)
+	{
+		const int topLeftIndex = offsetToMinusYFace + i;
+		const int topRightIndex = topLeftIndex+1;
+		const int bottomLeftIndex = offsetToMinusZFace + i*cubeSideLength;
+		const int bottomRightIndex = bottomLeftIndex+cubeSideLength;
+
+		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+	}
+	//   -z
+	//  ----
+	//   +y
+	for(int i = 0; i < cubeSideLength-1; ++i)
+	{
+		const int topLeftIndex = offsetToPlusYFace + (cubeSideLength-1) - i;
+		const int topRightIndex = topLeftIndex-1;
+		const int bottomLeftIndex = offsetToMinusZFace + verticesPerFace-1 - i*cubeSideLength;
+		const int bottomRightIndex = bottomLeftIndex-cubeSideLength;
+
+		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+	}
+	//   -z
+	//  ----
+	//   -x
+	for(int i = 0; i < cubeSideLength-1; ++i)
+	{
+		const int topLeftIndex = offsetToMinusXFace + i;
+		const int topRightIndex = topLeftIndex+1;
+		const int bottomLeftIndex = offsetToMinusZFace + i;
+		const int bottomRightIndex = bottomLeftIndex+1;
+
+		model->indiceArr << topLeftIndex    << topRightIndex << bottomLeftIndex ;
+		model->indiceArr << bottomLeftIndex << topRightIndex << bottomRightIndex;
+	}
+	//   -z
+	//  ----
+	//   +x
+	for(int i = 0; i < cubeSideLength-1; ++i)
+	{
+		const int topLeftIndex = offsetToPlusXFace + i;
+		const int topRightIndex = topLeftIndex+1;
+		const int bottomLeftIndex = offsetToMinusZFace + (verticesPerFace-cubeSideLength) + i;
+		const int bottomRightIndex = bottomLeftIndex+1;
+
+		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+	}
+	// -x | -y
+	for(int i = 0; i < cubeSideLength-1; ++i)
+	{
+		const int bottomLeftIndex  = offsetToMinusXFace + cubeSideLength*i;
+		const int bottomRightIndex = offsetToMinusYFace + cubeSideLength*i;
+		const int topLeftIndex  = bottomLeftIndex  + cubeSideLength;
+		const int topRightIndex = bottomRightIndex + cubeSideLength;
+
+		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+	}
+	//  -y | +x
+	for(int i = 0; i < cubeSideLength-1; ++i)
+	{
+		const int bottomLeftIndex = offsetToMinusYFace + cubeSideLength*(i+1) - 1;
+		const int bottomRightIndex = offsetToPlusXFace + cubeSideLength*i;
+		const int topLeftIndex  = bottomLeftIndex  + cubeSideLength;
+		const int topRightIndex = bottomRightIndex + cubeSideLength;
+
+		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+	}
+	//  +x | +y
+	for(int i = 0; i < cubeSideLength-1; ++i)
+	{
+		const int bottomLeftIndex  = offsetToPlusXFace + cubeSideLength*(i+1) - 1;
+		const int bottomRightIndex = offsetToPlusYFace + cubeSideLength*(i+1) - 1;
+		const int topLeftIndex  = bottomLeftIndex  + cubeSideLength;
+		const int topRightIndex = bottomRightIndex + cubeSideLength;
+
+		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+	}
+	//  +y | -x
+	for(int i = 0; i < cubeSideLength-1; ++i)
+	{
+		const int bottomLeftIndex  = offsetToPlusYFace  + cubeSideLength*i;
+		const int bottomRightIndex = offsetToMinusXFace + cubeSideLength*(i+1) - 1;
+		const int topLeftIndex  = bottomLeftIndex  + cubeSideLength;
+		const int topRightIndex = bottomRightIndex + cubeSideLength;
+
+		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+	}
+
+	// Fill in the 8 corners
+	// Top (+z)
+	// -x, -y, +z
+	model->indiceArr << offsetToMinusXFace+(cubeSideLength-1)*cubeSideLength
+					 << offsetToMinusYFace+(cubeSideLength-1)*cubeSideLength
+					 << offsetToPlusZFace;
+	// -y, +x, +z
+	model->indiceArr << offsetToMinusYFace+ cubeSideLength*cubeSideLength-1
+					 << offsetToPlusXFace +(cubeSideLength-1)*cubeSideLength
+					 << offsetToPlusZFace +(cubeSideLength-1)*cubeSideLength;
+	// +x, +y, +z
+	model->indiceArr << offsetToPlusXFace+cubeSideLength*cubeSideLength-1
+					 << offsetToPlusYFace+cubeSideLength*cubeSideLength-1
+					 << offsetToPlusZFace+cubeSideLength*cubeSideLength-1;
+	// +y, -x, +z
+	model->indiceArr << offsetToPlusYFace+(cubeSideLength-1)*cubeSideLength
+					 << offsetToMinusXFace+cubeSideLength*cubeSideLength-1
+					 << offsetToPlusZFace+ cubeSideLength-1;
+	// Bottom (-z)
+	// -x, -y, -z
+	model->indiceArr << offsetToMinusXFace << offsetToMinusZFace << offsetToMinusYFace;
+	// -y, +x, -z
+	model->indiceArr << offsetToMinusYFace+ cubeSideLength-1
+					 << offsetToMinusZFace+(cubeSideLength-1)*cubeSideLength
+					 << offsetToPlusXFace;
+	// +x, +y, -z
+	model->indiceArr << offsetToPlusXFace + cubeSideLength-1
+					 << offsetToMinusZFace+ cubeSideLength*cubeSideLength-1
+					 << offsetToPlusYFace + cubeSideLength-1;
+	// +y, -x, -z
+	model->indiceArr << offsetToPlusYFace
+					 << offsetToMinusZFace+cubeSideLength-1
+					 << offsetToMinusXFace+cubeSideLength-1;
+}
+
+void sSphere(Planet3DModel* model, const float radius, const float oneMinusOblateness, const unsigned short int slices, const unsigned short int stacks, const bool isTheMoon = false)
+{
+	if(isTheMoon)
+	{
+		static Planet3DModel moon; // FIXME: this should be a data member of Planet, not a global static object
+		if(moon.indiceArr.isEmpty())
+			sMoon(&moon, radius);
+		model->indiceArr = moon.indiceArr;
+		model->vertexArr = moon.vertexArr;
+		model->texCoordArr = moon.texCoordArr;
+		return;
+	}
 	model->indiceArr.resize(0);
 	model->vertexArr.resize(0);
 	model->texCoordArr.resize(0);
 	
 	GLfloat x, y, z;
 	GLfloat s=0.f, t=1.f;
-	GLushort i, j;
+	GLuint i, j;
 
 	const float* cos_sin_rho = StelUtils::ComputeCosSinRho(stacks);
 	const float* cos_sin_theta =  StelUtils::ComputeCosSinTheta(slices);
@@ -3722,8 +4159,8 @@ void sSphere(Planet3DModel* model, const float radius, const float oneMinusOblat
 			model->vertexArr << x * radius << y * radius << z * oneMinusOblateness * radius;
 			s += ds;
 		}
-		unsigned short int offset = i*(slices+1)*2;
-		unsigned short int limit = slices*2u+2u;
+		unsigned int offset = i*(slices+1)*2;
+		unsigned int limit = slices*2u+2u;
 		for (j = 2u;j<limit;j+=2u)
 		{
 			model->indiceArr << offset+j-2u << offset+j-1u << offset+j;
@@ -3931,7 +4368,7 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 
 	// Generates the vertices
 	Planet3DModel model;
-	sSphere(&model, static_cast<float>(equatorialRadius), static_cast<float>(oneMinusOblateness), nb_facet, nb_facet);
+	sSphere(&model, static_cast<float>(equatorialRadius), static_cast<float>(oneMinusOblateness), nb_facet, nb_facet, englishName=="Moon");
 
 	QVector<float> projectedVertexArr(model.vertexArr.size());
 	for (int i=0;i<model.vertexArr.size()/3;++i)
@@ -3948,7 +4385,7 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 		texMap->bind();
 		//painter->setColor(2, 2, 0.2); // This is now in draw3dModel() to apply extinction
 		painter->setArrays(reinterpret_cast<const Vec3f*>(projectedVertexArr.constData()), reinterpret_cast<const Vec2f*>(model.texCoordArr.constData()));
-		painter->drawFromArray(StelPainter::Triangles, model.indiceArr.size(), 0, false, model.indiceArr.constData());
+// FIXME: fix this		painter->drawFromArray(StelPainter::Triangles, model.indiceArr.size(), 0, false, model.indiceArr.constData());
 		return;
 	}
 
@@ -4102,7 +4539,7 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 	GL(shader->setAttributeBuffer(shaderVars->texCoord, GL_FLOAT, texCoordsOffset, 2));
 	GL(shader->enableAttributeArray(shaderVars->texCoord));
 
-	if (rings && !drawOnlyRing)
+//	if (rings && !drawOnlyRing)
 	{
 		painter->setDepthMask(true);
 		painter->setDepthTest(true);
@@ -4110,7 +4547,7 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 	}
 	
 	if (!drawOnlyRing)
-		GL(gl->glDrawElements(GL_TRIANGLES, model.indiceArr.size(), GL_UNSIGNED_SHORT, reinterpret_cast<void*>(indicesOffset)));
+		GL(gl->glDrawElements(GL_TRIANGLES, model.indiceArr.size(), GL_UNSIGNED_INT, reinterpret_cast<void*>(indicesOffset)));
 
 	if (rings)
 	{
