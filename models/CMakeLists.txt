@@ -7,6 +7,7 @@ INSTALL(DIRECTORY ./ DESTINATION ${SDATALOC}/models
 	PATTERN "*.mtl"
 	PATTERN "*.png"
 	PATTERN "*.obj"
+	PATTERN "*.bin"
 	PATTERN "*.gz"
 	PATTERN "CMakeFiles" EXCLUDE )
 

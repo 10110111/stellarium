@@ -3857,6 +3857,56 @@ void sSphere(Planet3DModel* model, const float radius, const float oneMinusOblat
 	}
 }
 
+struct Moon3DModel
+{
+	QVector<float> vertexArr;
+	QVector<uint32_t> indexArr;
+};
+
+void sMoon(Moon3DModel* model, const double equatorialRadius, const double oneMinusOblateness)
+{
+	try
+	{
+		const auto path = StelFileMgr::findFile("models/moon-vertices-indices-striped.bin", StelFileMgr::File);
+		if(path.isEmpty())
+			throw std::runtime_error("cannot find the model file");
+
+		QFile file(path);
+		if(!file.open(QFile::ReadOnly))
+			throw std::runtime_error("cannot open file: "+file.errorString().toStdString());
+
+		uint32_t vertexCount, indexCount;
+		if(file.read(reinterpret_cast<char*>(&vertexCount), sizeof vertexCount) != qint64(sizeof vertexCount))
+			throw std::runtime_error("cannot read vertex count");
+		if(file.read(reinterpret_cast<char*>(&indexCount), sizeof indexCount) != qint64(sizeof indexCount))
+			throw std::runtime_error("cannot read index count");
+
+		model->vertexArr.resize(3 * vertexCount);
+		const qint64 vertSize = model->vertexArr.size()*sizeof model->vertexArr[0];
+		if(file.read(reinterpret_cast<char*>(model->vertexArr.data()), vertSize) != vertSize)
+			throw std::runtime_error("cannot read vertices");
+
+		model->indexArr.resize(indexCount);
+		const qint64 indSize = model->indexArr.size()*sizeof model->indexArr[0];
+		if(file.read(reinterpret_cast<char*>(model->indexArr.data()), indSize) != indSize)
+			throw std::runtime_error("cannot read indices");
+
+		qDebug() << "The Moon: read" << model->vertexArr.size()/3
+				 << "vertices and" << model->indexArr.size() << "indices";
+	}
+	catch(std::exception const& ex)
+	{
+		qCritical().noquote() << "Failed to load model of the Moon:" << ex.what();
+		qWarning() << "Falling back to an ellipsoid";
+		Planet3DModel p;
+		sSphere(&p, equatorialRadius, oneMinusOblateness, 100, 100);
+		model->vertexArr = std::move(p.vertexArr);
+		model->indexArr.resize(p.indiceArr.size());
+		std::transform(p.indiceArr.begin(), p.indiceArr.end(), model->indexArr.begin(),
+					   [](const unsigned x){ return uint32_t(x); });
+	}
+}
+
 struct Ring3DModel
 {
 	QVector<float> vertexArr;
@@ -4028,6 +4078,124 @@ Planet::RenderData Planet::setCommonShaderUniforms(const StelPainter& painter, Q
 	return data;
 }
 
+void Planet::drawMoon(StelPainter*const painter)
+{
+	if(shaderError)
+		return;
+
+	static Moon3DModel model; // FIXME: this should be a data member of Planet, not a global static object
+	if(model.indexArr.isEmpty())
+		sMoon(&model, equatorialRadius, oneMinusOblateness);
+
+	QVector<float> projectedVertexArr(model.vertexArr.size());
+	const auto sphereScaleF=static_cast<float>(sphereScale);
+	for (int i=0;i<model.vertexArr.size()/3;++i)
+	{
+		Vec3f p = *(reinterpret_cast<const Vec3f*>(model.vertexArr.constData()+i*3));
+		p *= sphereScaleF;
+		painter->getProjector()->project(p, *(reinterpret_cast<Vec3f*>(projectedVertexArr.data()+i*3)));
+	}
+
+	const SolarSystem* ssm = GETSTELMODULE(SolarSystem);
+
+	const PlanetShaderVars* shaderVars = &moonShaderVars;
+	//check if shaders are loaded
+	if(!moonShaderProgram)
+	{
+		Planet::initShader();
+
+		if(shaderError)
+		{
+			qCritical()<<"Can't use planet drawing, shaders invalid!";
+			return;
+		}
+	}
+
+	GL(moonShaderProgram->bind());
+
+	RenderData rData = setCommonShaderUniforms(*painter,moonShaderProgram,*shaderVars);
+
+	GL(normalMap->bind(2));
+	GL(moonShaderProgram->setUniformValue(moonShaderVars.normalMap, 2));
+	if (!rData.shadowCandidates.isEmpty())
+	{
+		GL(texEarthShadow->bind(3));
+		GL(moonShaderProgram->setUniformValue(moonShaderVars.earthShadow, 3));
+		// Ad-hoc visibility improvement during lunar eclipses:
+		// During partial umbra phase, make moon brighter so that the bright limb and umbra border has more visibility.
+		// When the moon is half in umbra, we start to raise its brightness. Near edge of totality we try to simulate the apparent super-bright edge.
+		static const double tweak=1.015; // 1.00 to have maximum push only in full umbra. 1.01 or even 1.02 looks better to show a brilliant last/first edge
+		GLfloat push=1.0f;
+
+		// Like in getVMagnitude() we must compute an elongation from the aberrated sun.
+		PlanetP sun=ssm->getSun();
+		const Vec3d obsPos=parent->eclipticPos-sun->getAberrationPush();
+		const double observerRq = obsPos.normSquared();
+		const Vec3d& planetHelioPos = getHeliocentricEclipticPos() - sun->getAberrationPush();
+		const double planetRq = planetHelioPos.normSquared();
+		const double observerPlanetRq = (obsPos - planetHelioPos).normSquared();
+		double aberratedElongation = std::acos((observerPlanetRq  + observerRq - planetRq)/(2.0*std::sqrt(observerPlanetRq*observerRq)));
+		const double od = 180. - aberratedElongation * (180.0/M_PI); // opposition distance [degrees]
+
+		// Compute umbra radius at lunar distance.
+		const double Lambda=getEclipticPos().norm();                             // Lunar distance [AU]
+		const double sigma=ssm->getEarthShadowRadiiAtLunarDistance().first[0]/3600.;
+		const double tau=atan(getEquatorialRadius()/Lambda) * M_180_PI; // geocentric angle of Lunar radius [degrees]
+
+		if (od<tweak*sigma-tau)     // if the Moon is fully immersed in the shadow
+			push=4.0f;
+		else if (od<tweak*sigma)    // If the Moon is half immersed, start pushing with a strong power function that make it apparent only in the last few percents.
+			push+=3.f*(1.f-pow(static_cast<float>((od-tweak*sigma+tau)/tau), 1.f/6.f));
+
+		GL(moonShaderProgram->setUniformValue(moonShaderVars.eclipsePush, push)); // constant for now...
+	}
+	GL(horizonMap->bind(4));
+	GL(moonShaderProgram->setUniformValue(moonShaderVars.horizonMap, 4));
+
+	if(!sphereVAO)
+	{
+		sphereVAO.reset(new QOpenGLVertexArrayObject);
+		sphereVAO->create();
+		gl->glGenBuffers(1, &sphereVBO);
+	}
+
+	sphereVAO->bind();
+	gl->glBindBuffer(GL_ARRAY_BUFFER, sphereVBO);
+	gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereVBO);
+
+	const auto projectedVertArrSize = projectedVertexArr.size() * GLsizeiptr(sizeof projectedVertexArr[0]);
+
+	const auto modelVertArrOffset = projectedVertArrSize;
+	const auto modelVertArrSize = model.vertexArr.size() * GLsizeiptr(sizeof model.vertexArr[0]);
+
+	const auto indicesOffset = modelVertArrOffset + modelVertArrSize;
+	const auto indicesSize = model.indexArr.size() * GLsizeiptr(sizeof model.indexArr[0]);
+
+	gl->glBufferData(GL_ARRAY_BUFFER, projectedVertArrSize+modelVertArrSize+indicesSize, nullptr, GL_STREAM_DRAW);
+	gl->glBufferSubData(GL_ARRAY_BUFFER, 0, projectedVertArrSize, projectedVertexArr.constData());
+	gl->glBufferSubData(GL_ARRAY_BUFFER, modelVertArrOffset, modelVertArrSize, model.vertexArr.constData());
+	gl->glBufferSubData(GL_ARRAY_BUFFER, indicesOffset, indicesSize, model.indexArr.constData());
+
+	GL(moonShaderProgram->setAttributeBuffer(shaderVars->vertex, GL_FLOAT, 0, 3));
+	GL(moonShaderProgram->enableAttributeArray(shaderVars->vertex));
+	GL(moonShaderProgram->setAttributeBuffer(shaderVars->unprojectedVertex, GL_FLOAT, modelVertArrOffset, 3));
+	GL(moonShaderProgram->enableAttributeArray(shaderVars->unprojectedVertex));
+
+	painter->setDepthMask(true);
+	painter->setDepthTest(true);
+	gl->glClear(GL_DEPTH_BUFFER_BIT);
+
+	GL(gl->glDrawElements(GL_TRIANGLES, model.indexArr.size(), GL_UNSIGNED_INT, reinterpret_cast<void*>(indicesOffset)));
+
+	gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
+	sphereVAO->release();
+
+	GL(moonShaderProgram->release());
+
+	painter->setCullFace(false);
+}
+
 void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 {
 	const float sphereScaleF=static_cast<float>(sphereScale);
@@ -4063,6 +4231,13 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 	// Adapt the number of facets according with the size of the sphere for optimization
 	const unsigned short int nb_facet = static_cast<unsigned short int>(qBound(10u, static_cast<uint>(screenRd * 40.f/50.f * sqrt(sphereScaleF)), 100u));	// 40 facets for 1024 pixels diameter on screen
 
+	const SolarSystem* ssm = GETSTELMODULE(SolarSystem);
+
+	if(this==ssm->getMoon() && !drawOnlyRing)
+	{
+		drawMoon(painter);
+		return;
+	}
 	// Generates the vertices
 	Planet3DModel model;
 	sSphere(&model, static_cast<float>(equatorialRadius), static_cast<float>(oneMinusOblateness), nb_facet, nb_facet);
@@ -4075,8 +4250,6 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 		painter->getProjector()->project(p, *(reinterpret_cast<Vec3f*>(projectedVertexArr.data()+i*3)));
 	}
 	
-	const SolarSystem* ssm = GETSTELMODULE(SolarSystem);
-
 	//cancel out if shaders are invalid
 	if(shaderError)
 		return;
@@ -4087,11 +4260,6 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 	{
 		shader = ringPlanetShaderProgram;
 		shaderVars = &ringPlanetShaderVars;
-	}
-	if (this==ssm->getMoon())
-	{
-		shader = moonShaderProgram;
-		shaderVars = &moonShaderVars;
 	}
 	//check if shaders are loaded
 	if(!shader)
@@ -4108,10 +4276,6 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 		if (rings)
 		{
 			shader = ringPlanetShaderProgram;
-		}
-		if (this==ssm->getMoon())
-		{
-			shader = moonShaderProgram;
 		}
 	}
 
@@ -4132,46 +4296,6 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 		GL(ringPlanetShaderProgram->setUniformValue(ringPlanetShaderVars.innerRadius, rings->radiusMin));
 		GL(ringPlanetShaderProgram->setUniformValue(ringPlanetShaderVars.ringS, 2));
 		rings->tex->bind(2);
-	}
-
-	if (this==ssm->getMoon())
-	{
-		GL(normalMap->bind(2));
-		GL(moonShaderProgram->setUniformValue(moonShaderVars.normalMap, 2));
-		if (!rData.shadowCandidates.isEmpty())
-		{
-			GL(texEarthShadow->bind(3));
-			GL(moonShaderProgram->setUniformValue(moonShaderVars.earthShadow, 3));
-			// Ad-hoc visibility improvement during lunar eclipses:
-			// During partial umbra phase, make moon brighter so that the bright limb and umbra border has more visibility.
-			// When the moon is half in umbra, we start to raise its brightness. Near edge of totality we try to simulate the apparent super-bright edge.
-			static const double tweak=1.015; // 1.00 to have maximum push only in full umbra. 1.01 or even 1.02 looks better to show a brilliant last/first edge
-			GLfloat push=1.0f;
-
-			// Like in getVMagnitude() we must compute an elongation from the aberrated sun.
-			PlanetP sun=ssm->getSun();
-			const Vec3d obsPos=parent->eclipticPos-sun->getAberrationPush();
-			const double observerRq = obsPos.normSquared();
-			const Vec3d& planetHelioPos = getHeliocentricEclipticPos() - sun->getAberrationPush();
-			const double planetRq = planetHelioPos.normSquared();
-			const double observerPlanetRq = (obsPos - planetHelioPos).normSquared();
-			double aberratedElongation = std::acos((observerPlanetRq  + observerRq - planetRq)/(2.0*std::sqrt(observerPlanetRq*observerRq)));
-			const double od = 180. - aberratedElongation * (180.0/M_PI); // opposition distance [degrees]
-
-			// Compute umbra radius at lunar distance.
-			const double Lambda=getEclipticPos().norm();                             // Lunar distance [AU]
-			const double sigma=ssm->getEarthShadowRadiiAtLunarDistance().first[0]/3600.;
-			const double tau=atan(getEquatorialRadius()/Lambda) * M_180_PI; // geocentric angle of Lunar radius [degrees]
-
-			if (od<tweak*sigma-tau)     // if the Moon is fully immersed in the shadow
-				push=4.0f;
-			else if (od<tweak*sigma)    // If the Moon is half immersed, start pushing with a strong power function that make it apparent only in the last few percents.
-				push+=3.f*(1.f-pow(static_cast<float>((od-tweak*sigma+tau)/tau), 1.f/6.f));
-
-			GL(moonShaderProgram->setUniformValue(moonShaderVars.eclipsePush, push)); // constant for now...
-		}
-		GL(horizonMap->bind(4));
-		GL(moonShaderProgram->setUniformValue(moonShaderVars.horizonMap, 4));
 	}
 
 	if (englishName=="Mars")
