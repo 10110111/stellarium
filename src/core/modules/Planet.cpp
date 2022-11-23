@@ -39,6 +39,7 @@
 #include "StelTranslator.hpp"
 #include "StelUtils.hpp"
 #include "StelOpenGL.hpp"
+#include "StelMainView.hpp"
 #include "StelOBJ.hpp"
 #include "StelOpenGLArray.hpp"
 #include "StelHips.hpp"
@@ -3510,7 +3511,15 @@ void Planet::draw3dModel(StelCore* core, StelProjector::ModelViewTranformP trans
 
 		#ifdef GL_MULTISAMPLE
 		if(multisamplingEnabled_)
+		{
 			gl->glEnable(GL_MULTISAMPLE);
+			const auto& glInfo = StelMainView::getInstance().getGLInformation();
+			if(glInfo.glMinSampleShading && englishName=="Moon")
+			{
+				glInfo.glMinSampleShading(1);
+				gl->glEnable(GL_SAMPLE_SHADING);
+			}
+		}
 		#endif
 		
 		// Set the main source of light to be the sun.
@@ -3582,7 +3591,15 @@ void Planet::draw3dModel(StelCore* core, StelProjector::ModelViewTranformP trans
 		core->setClippingPlanes(n,f);  // Restore old clipping planes
 		#ifdef GL_MULTISAMPLE
 		if(multisamplingEnabled_)
+		{
 			gl->glDisable(GL_MULTISAMPLE);
+			const auto& glInfo = StelMainView::getInstance().getGLInformation();
+			if(glInfo.glMinSampleShading && englishName=="Moon")
+			{
+				glInfo.glMinSampleShading(0);
+				gl->glDisable(GL_SAMPLE_SHADING);
+			}
+		}
 		#endif
 	}
 
