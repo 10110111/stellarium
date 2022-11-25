@@ -263,7 +263,8 @@ void main()
     }
 
 #ifdef IS_MOON
-    mediump vec3 normal = texture2D(normalMap, texc).rgb-vec3(0.5, 0.5, 0);
+    mediump vec2 moonTexCoord = vec2(atan(normalZ.x, -normalZ.y)/(2.*PI)+0.5, asin(normalize(normalZ).z)/PI+0.5);
+    mediump vec3 normal = texture2D(normalMap, moonTexCoord).rgb-vec3(0.5, 0.5, 0);
     normal = normalize(normalX*normal.x+normalY*normal.y+normalZ*normal.z);
     // normal now contains the real surface normal taking normal map into account
 
@@ -275,7 +276,7 @@ void main()
 		mediump vec3 zenith = normalZ;
 		mediump float sunAzimuth = atan(dot(lightDirection,lonDir), dot(lightDirection,northDir));
 		mediump float sinSunElevation = dot(zenith, lightDirection);
-		mediump vec4 horizonElevSample = (texture2D(horizonMap, texc) - 0.5) * 2.;
+		mediump vec4 horizonElevSample = (texture2D(horizonMap, moonTexCoord) - 0.5) * 2.;
 		mediump vec4 sinHorizElevs = sign(horizonElevSample) * horizonElevSample * horizonElevSample;
 		mediump float sinHorizElevLeft, sinHorizElevRight;
 		mediump float alpha;
@@ -351,14 +352,16 @@ void main()
     //apply texture-colored rimlight
     //litColor.xyz = clamp( litColor.xyz + vec3(outgas), 0.0, 1.0);
 
-    lowp vec4 texColor = texture2D(tex, texc);
 #ifdef IS_MOON
+    lowp vec4 texColor = texture2D(tex, moonTexCoord);
     // Undo the extraneous gamma encoded in the texture.
     // FIXME: ideally, we want all the calculations to be done in linear scale,
     // and then *in the end* apply the exact sRGB transfer function. Currently
     // though, we don't do actual physically-correct simulation here, so we
     // just apply the approximate sRGB gamma.
     texColor = pow(texColor, vec4(2.8/2.2));
+#else
+    lowp vec4 texColor = texture2D(tex, texc);
 #endif
 
     mediump vec4 finalColor = texColor;
