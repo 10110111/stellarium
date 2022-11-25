@@ -3710,7 +3710,13 @@ struct Planet3DModel
 {
 	QVector<float> vertexArr;
 	QVector<float> texCoordArr;
-	QVector<unsigned> indiceArr;
+	QVector<unsigned short> indiceArr;
+};
+
+struct Moon3DModel
+{
+	QVector<float> vertexArr;
+	QVector<unsigned> indexArr;
 };
 
 template<typename T>
@@ -3756,11 +3762,10 @@ double sample(T const* data, const size_t width, const size_t height, const size
     return sampleLeft + (sampleRight-sampleLeft)*fracX;
 }
 
-void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
+void sMoon(Moon3DModel* model, const double sphericalApproximationRadius)
 {
-	model->indiceArr.resize(0);
+	model->indexArr.resize(0);
 	model->vertexArr.resize(0);
-	model->texCoordArr.resize(0);
 
 	constexpr bool useHeightMap = true;
 
@@ -3768,30 +3773,27 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 	constexpr int cubeSideLength = 1000;
 
 	// Top and bottom of the cube
-	for(const float z0 : {1.f, -1.f})
+	for(const double z0 : {1., -1.})
 	{
 		const int firstIndexInCurrentSide = model->vertexArr.size() / 3;
 		// Create a grid of vertices
 		for(int i = 0; i < cubeSideLength; ++i)
 		{
-			const float x0 = float(2*i+1)/cubeSideLength - 1;
+			const auto x0 = (2.*i+1.)/cubeSideLength - 1;
 			for(int j = 0; j < cubeSideLength; ++j)
 			{
-				const float y0 = float(2*j+1)/cubeSideLength - 1;
-				const float cubePointDistToOrigin = std::sqrt(x0*x0+y0*y0+z0*z0);
+				const auto y0 = (2.*j+1.)/cubeSideLength - 1;
+				const auto cubePointDistToOrigin = std::sqrt(x0*x0+y0*y0+z0*z0);
 
-				const float longitude = std::atan2(x0, -y0); // basically the same as atan(y,x)+90°, but in [-PI,PI]
-				const float latitude = std::acos(-z0/cubePointDistToOrigin) - float(0.5*M_PI);
-				const float s = longitude / float(2*M_PI) + 0.5f;
-				const float t = latitude / float(M_PI) + 0.5f;
-				model->texCoordArr << s << t;
+				const auto longitude = std::atan2(x0, -y0); // basically the same as atan(y,x)+90°, but in [-PI,PI]
+				const auto latitude = std::acos(-z0/cubePointDistToOrigin) - 0.5*M_PI;
 
 				const auto altitudeKm = moonHeightMapKmPerUnit*sample(moonHeightMapBits, moonHeightMapWidth, moonHeightMapHeight,
 																	  moonHeightMapRowStride, longitude, latitude);
-				const float radius = useHeightMap ? (moonHeightMapBaseRadiusKm+altitudeKm)/AU : sphericalApproximationRadius;
+				const auto radius = useHeightMap ? (moonHeightMapBaseRadiusKm+altitudeKm)/AU : sphericalApproximationRadius;
 
-				const float scale = radius / cubePointDistToOrigin;
-				const float x = scale*x0, y = scale*y0, z = scale*z0;
+				const auto scale = radius / cubePointDistToOrigin;
+				const auto x = scale*x0, y = scale*y0, z = scale*z0;
 				model->vertexArr << x << y << z;
 			}
 		}
@@ -3804,43 +3806,40 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 				const int posInRow1 = rowStartIndex + i + cubeSideLength;
 				if(z0 > 0)
 				{
-					model->indiceArr << posInRow0+0 << posInRow1+0 << posInRow0+1;
-					model->indiceArr << posInRow0+1 << posInRow1+0 << posInRow1+1;
+					model->indexArr << posInRow0+0 << posInRow1+0 << posInRow0+1;
+					model->indexArr << posInRow0+1 << posInRow1+0 << posInRow1+1;
 				}
 				else
 				{
-					model->indiceArr << posInRow0+0 << posInRow0+1 << posInRow1+0;
-					model->indiceArr << posInRow0+1 << posInRow1+1 << posInRow1+0;
+					model->indexArr << posInRow0+0 << posInRow0+1 << posInRow1+0;
+					model->indexArr << posInRow0+1 << posInRow1+1 << posInRow1+0;
 				}
 			}
 		}
 	}
 
 	// ±x faces
-	for(const float x0 : {1.f, -1.f})
+	for(const double x0 : {1., -1.})
 	{
 		const int firstIndexInCurrentSide = model->vertexArr.size() / 3;
 		// Create a grid of vertices
 		for(int i = 0; i < cubeSideLength; ++i)
 		{
-			const float z0 = float(2*i+1)/cubeSideLength - 1;
+			const auto z0 = (2.*i+1.)/cubeSideLength - 1;
 			for(int j = 0; j < cubeSideLength; ++j)
 			{
-				const float y0 = float(2*j+1)/cubeSideLength - 1;
-				const float cubePointDistToOrigin = std::sqrt(x0*x0+y0*y0+z0*z0);
+				const auto y0 = (2.*j+1.)/cubeSideLength - 1;
+				const auto cubePointDistToOrigin = std::sqrt(x0*x0+y0*y0+z0*z0);
 
-				const float longitude = std::atan2(x0, -y0); // basically the same as atan(y,x)+90°, but in [-PI,PI]
-				const float latitude = std::acos(-z0/cubePointDistToOrigin) - float(0.5*M_PI);
-				const float s = longitude / float(2*M_PI) + 0.5f;
-				const float t = latitude / float(M_PI) + 0.5f;
-				model->texCoordArr << s << t;
+				const auto longitude = std::atan2(x0, -y0); // basically the same as atan(y,x)+90°, but in [-PI,PI]
+				const auto latitude = std::acos(-z0/cubePointDistToOrigin) - 0.5*M_PI;
 
 				const auto altitudeKm = moonHeightMapKmPerUnit*sample(moonHeightMapBits, moonHeightMapWidth, moonHeightMapHeight,
 																	  moonHeightMapRowStride, longitude, latitude);
-				const float radius = useHeightMap ? (moonHeightMapBaseRadiusKm+altitudeKm)/AU : sphericalApproximationRadius;
+				const auto radius = useHeightMap ? (moonHeightMapBaseRadiusKm+altitudeKm)/AU : sphericalApproximationRadius;
 
-				const float scale = radius / cubePointDistToOrigin;
-				const float x = scale*x0, y = scale*y0, z = scale*z0;
+				const auto scale = radius / cubePointDistToOrigin;
+				const auto x = scale*x0, y = scale*y0, z = scale*z0;
 				model->vertexArr << x << y << z;
 			}
 		}
@@ -3853,43 +3852,40 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 				const int posInRow1 = rowStartIndex + i + cubeSideLength;
 				if(x0 < 0)
 				{
-					model->indiceArr << posInRow0+0 << posInRow1+0 << posInRow0+1;
-					model->indiceArr << posInRow0+1 << posInRow1+0 << posInRow1+1;
+					model->indexArr << posInRow0+0 << posInRow1+0 << posInRow0+1;
+					model->indexArr << posInRow0+1 << posInRow1+0 << posInRow1+1;
 				}
 				else
 				{
-					model->indiceArr << posInRow0+0 << posInRow0+1 << posInRow1+0;
-					model->indiceArr << posInRow0+1 << posInRow1+1 << posInRow1+0;
+					model->indexArr << posInRow0+0 << posInRow0+1 << posInRow1+0;
+					model->indexArr << posInRow0+1 << posInRow1+1 << posInRow1+0;
 				}
 			}
 		}
 	}
 
 	// ±y faces
-	for(const float y0 : {1.f, -1.f})
+	for(const double y0 : {1., -1.})
 	{
 		const int firstIndexInCurrentSide = model->vertexArr.size() / 3;
 		// Create a grid of vertices
 		for(int i = 0; i < cubeSideLength; ++i)
 		{
-			const float z0 = float(2*i+1)/cubeSideLength - 1;
+			const auto z0 = (2.*i+1.)/cubeSideLength - 1;
 			for(int j = 0; j < cubeSideLength; ++j)
 			{
-				const float x0 = float(2*j+1)/cubeSideLength - 1;
-				const float cubePointDistToOrigin = std::sqrt(x0*x0+y0*y0+z0*z0);
+				const auto x0 = (2.*j+1.)/cubeSideLength - 1;
+				const auto cubePointDistToOrigin = std::sqrt(x0*x0+y0*y0+z0*z0);
 
-				const float longitude = std::atan2(x0, -y0); // basically the same as atan(y,x)+90°, but in [-PI,PI]
-				const float latitude = std::acos(-z0/cubePointDistToOrigin) - float(0.5*M_PI);
-				const float s = longitude / float(2*M_PI) + 0.5f;
-				const float t = latitude / float(M_PI) + 0.5f;
-				model->texCoordArr << s << t;
+				const auto longitude = std::atan2(x0, -y0); // basically the same as atan(y,x)+90°, but in [-PI,PI]
+				const auto latitude = std::acos(-z0/cubePointDistToOrigin) - 0.5*M_PI;
 
 				const auto altitudeKm = moonHeightMapKmPerUnit*sample(moonHeightMapBits, moonHeightMapWidth, moonHeightMapHeight,
 																	  moonHeightMapRowStride, longitude, latitude);
-				const float radius = useHeightMap ? (moonHeightMapBaseRadiusKm+altitudeKm)/AU : sphericalApproximationRadius;
+				const auto radius = useHeightMap ? (moonHeightMapBaseRadiusKm+altitudeKm)/AU : sphericalApproximationRadius;
 
-				const float scale = radius / cubePointDistToOrigin;
-				const float x = scale*x0, y = scale*y0, z = scale*z0;
+				const auto scale = radius / cubePointDistToOrigin;
+				const auto x = scale*x0, y = scale*y0, z = scale*z0;
 				model->vertexArr << x << y << z;
 			}
 		}
@@ -3902,13 +3898,13 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 				const int posInRow1 = rowStartIndex + i + cubeSideLength;
 				if(y0 > 0)
 				{
-					model->indiceArr << posInRow0+0 << posInRow1+0 << posInRow0+1;
-					model->indiceArr << posInRow0+1 << posInRow1+0 << posInRow1+1;
+					model->indexArr << posInRow0+0 << posInRow1+0 << posInRow0+1;
+					model->indexArr << posInRow0+1 << posInRow1+0 << posInRow1+1;
 				}
 				else
 				{
-					model->indiceArr << posInRow0+0 << posInRow0+1 << posInRow1+0;
-					model->indiceArr << posInRow0+1 << posInRow1+1 << posInRow1+0;
+					model->indexArr << posInRow0+0 << posInRow0+1 << posInRow1+0;
+					model->indexArr << posInRow0+1 << posInRow1+1 << posInRow1+0;
 				}
 			}
 		}
@@ -3934,8 +3930,8 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 		const int bottomLeftIndex = offsetToMinusYFace + (verticesPerFace-cubeSideLength) + i;
 		const int bottomRightIndex = bottomLeftIndex+1;
 
-		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
-		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+		model->indexArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indexArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
 	}
 	//   +z
 	//  ----
@@ -3947,8 +3943,8 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 		const int bottomLeftIndex = offsetToPlusYFace + (verticesPerFace-1) - i;
 		const int bottomRightIndex = bottomLeftIndex-1;
 
-		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
-		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+		model->indexArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indexArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
 	}
 	//   +z
 	//  ----
@@ -3960,8 +3956,8 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 		const int bottomLeftIndex = offsetToMinusXFace + (verticesPerFace-cubeSideLength) + i;
 		const int bottomRightIndex = bottomLeftIndex+1;
 
-		model->indiceArr << topLeftIndex    << topRightIndex << bottomLeftIndex ;
-		model->indiceArr << bottomLeftIndex << topRightIndex << bottomRightIndex;
+		model->indexArr << topLeftIndex    << topRightIndex << bottomLeftIndex ;
+		model->indexArr << bottomLeftIndex << topRightIndex << bottomRightIndex;
 	}
 	//   +z
 	//  ----
@@ -3973,8 +3969,8 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 		const int bottomLeftIndex = offsetToPlusXFace + (verticesPerFace-cubeSideLength) + i;
 		const int bottomRightIndex = bottomLeftIndex+1;
 
-		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
-		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+		model->indexArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indexArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
 	}
 	//   -z
 	//  ----
@@ -3986,8 +3982,8 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 		const int bottomLeftIndex = offsetToMinusZFace + i*cubeSideLength;
 		const int bottomRightIndex = bottomLeftIndex+cubeSideLength;
 
-		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
-		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+		model->indexArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indexArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
 	}
 	//   -z
 	//  ----
@@ -3999,8 +3995,8 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 		const int bottomLeftIndex = offsetToMinusZFace + verticesPerFace-1 - i*cubeSideLength;
 		const int bottomRightIndex = bottomLeftIndex-cubeSideLength;
 
-		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
-		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+		model->indexArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indexArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
 	}
 	//   -z
 	//  ----
@@ -4012,8 +4008,8 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 		const int bottomLeftIndex = offsetToMinusZFace + i;
 		const int bottomRightIndex = bottomLeftIndex+1;
 
-		model->indiceArr << topLeftIndex    << topRightIndex << bottomLeftIndex ;
-		model->indiceArr << bottomLeftIndex << topRightIndex << bottomRightIndex;
+		model->indexArr << topLeftIndex    << topRightIndex << bottomLeftIndex ;
+		model->indexArr << bottomLeftIndex << topRightIndex << bottomRightIndex;
 	}
 	//   -z
 	//  ----
@@ -4025,8 +4021,8 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 		const int bottomLeftIndex = offsetToMinusZFace + (verticesPerFace-cubeSideLength) + i;
 		const int bottomRightIndex = bottomLeftIndex+1;
 
-		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
-		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+		model->indexArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indexArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
 	}
 	// -x | -y
 	for(int i = 0; i < cubeSideLength-1; ++i)
@@ -4036,8 +4032,8 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 		const int topLeftIndex  = bottomLeftIndex  + cubeSideLength;
 		const int topRightIndex = bottomRightIndex + cubeSideLength;
 
-		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
-		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+		model->indexArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indexArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
 	}
 	//  -y | +x
 	for(int i = 0; i < cubeSideLength-1; ++i)
@@ -4047,8 +4043,8 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 		const int topLeftIndex  = bottomLeftIndex  + cubeSideLength;
 		const int topRightIndex = bottomRightIndex + cubeSideLength;
 
-		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
-		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+		model->indexArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indexArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
 	}
 	//  +x | +y
 	for(int i = 0; i < cubeSideLength-1; ++i)
@@ -4058,8 +4054,8 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 		const int topLeftIndex  = bottomLeftIndex  + cubeSideLength;
 		const int topRightIndex = bottomRightIndex + cubeSideLength;
 
-		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
-		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+		model->indexArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indexArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
 	}
 	//  +y | -x
 	for(int i = 0; i < cubeSideLength-1; ++i)
@@ -4069,64 +4065,54 @@ void sMoon(Planet3DModel* model, const float sphericalApproximationRadius)
 		const int topLeftIndex  = bottomLeftIndex  + cubeSideLength;
 		const int topRightIndex = bottomRightIndex + cubeSideLength;
 
-		model->indiceArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
-		model->indiceArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
+		model->indexArr << topLeftIndex    << bottomLeftIndex  << topRightIndex;
+		model->indexArr << bottomLeftIndex << bottomRightIndex << topRightIndex;
 	}
 
 	// Fill in the 8 corners
 	// Top (+z)
 	// -x, -y, +z
-	model->indiceArr << offsetToMinusXFace+(cubeSideLength-1)*cubeSideLength
+	model->indexArr << offsetToMinusXFace+(cubeSideLength-1)*cubeSideLength
 					 << offsetToMinusYFace+(cubeSideLength-1)*cubeSideLength
 					 << offsetToPlusZFace;
 	// -y, +x, +z
-	model->indiceArr << offsetToMinusYFace+ cubeSideLength*cubeSideLength-1
+	model->indexArr << offsetToMinusYFace+ cubeSideLength*cubeSideLength-1
 					 << offsetToPlusXFace +(cubeSideLength-1)*cubeSideLength
 					 << offsetToPlusZFace +(cubeSideLength-1)*cubeSideLength;
 	// +x, +y, +z
-	model->indiceArr << offsetToPlusXFace+cubeSideLength*cubeSideLength-1
+	model->indexArr << offsetToPlusXFace+cubeSideLength*cubeSideLength-1
 					 << offsetToPlusYFace+cubeSideLength*cubeSideLength-1
 					 << offsetToPlusZFace+cubeSideLength*cubeSideLength-1;
 	// +y, -x, +z
-	model->indiceArr << offsetToPlusYFace+(cubeSideLength-1)*cubeSideLength
+	model->indexArr << offsetToPlusYFace+(cubeSideLength-1)*cubeSideLength
 					 << offsetToMinusXFace+cubeSideLength*cubeSideLength-1
 					 << offsetToPlusZFace+ cubeSideLength-1;
 	// Bottom (-z)
 	// -x, -y, -z
-	model->indiceArr << offsetToMinusXFace << offsetToMinusZFace << offsetToMinusYFace;
+	model->indexArr << offsetToMinusXFace << offsetToMinusZFace << offsetToMinusYFace;
 	// -y, +x, -z
-	model->indiceArr << offsetToMinusYFace+ cubeSideLength-1
+	model->indexArr << offsetToMinusYFace+ cubeSideLength-1
 					 << offsetToMinusZFace+(cubeSideLength-1)*cubeSideLength
 					 << offsetToPlusXFace;
 	// +x, +y, -z
-	model->indiceArr << offsetToPlusXFace + cubeSideLength-1
+	model->indexArr << offsetToPlusXFace + cubeSideLength-1
 					 << offsetToMinusZFace+ cubeSideLength*cubeSideLength-1
 					 << offsetToPlusYFace + cubeSideLength-1;
 	// +y, -x, -z
-	model->indiceArr << offsetToPlusYFace
+	model->indexArr << offsetToPlusYFace
 					 << offsetToMinusZFace+cubeSideLength-1
 					 << offsetToMinusXFace+cubeSideLength-1;
 }
 
-void sSphere(Planet3DModel* model, const float radius, const float oneMinusOblateness, const unsigned short int slices, const unsigned short int stacks, const bool isTheMoon = false)
+void sSphere(Planet3DModel* model, const float radius, const float oneMinusOblateness, const unsigned short int slices, const unsigned short int stacks)
 {
-	if(isTheMoon)
-	{
-		static Planet3DModel moon; // FIXME: this should be a data member of Planet, not a global static object
-		if(moon.indiceArr.isEmpty())
-			sMoon(&moon, radius);
-		model->indiceArr = moon.indiceArr;
-		model->vertexArr = moon.vertexArr;
-		model->texCoordArr = moon.texCoordArr;
-		return;
-	}
 	model->indiceArr.resize(0);
 	model->vertexArr.resize(0);
 	model->texCoordArr.resize(0);
 	
 	GLfloat x, y, z;
 	GLfloat s=0.f, t=1.f;
-	GLuint i, j;
+	GLushort i, j;
 
 	const float* cos_sin_rho = StelUtils::ComputeCosSinRho(stacks);
 	const float* cos_sin_theta =  StelUtils::ComputeCosSinTheta(slices);
@@ -4159,8 +4145,8 @@ void sSphere(Planet3DModel* model, const float radius, const float oneMinusOblat
 			model->vertexArr << x * radius << y * radius << z * oneMinusOblateness * radius;
 			s += ds;
 		}
-		unsigned int offset = i*(slices+1)*2;
-		unsigned int limit = slices*2u+2u;
+		unsigned short int offset = i*(slices+1)*2;
+		unsigned short int limit = slices*2u+2u;
 		for (j = 2u;j<limit;j+=2u)
 		{
 			model->indiceArr << offset+j-2u << offset+j-1u << offset+j;
@@ -4331,6 +4317,124 @@ Planet::RenderData Planet::setCommonShaderUniforms(const StelPainter& painter, Q
 	return data;
 }
 
+void Planet::drawMoon(StelPainter*const painter)
+{
+	if(shaderError)
+		return;
+
+	static Moon3DModel model; // FIXME: this should be a data member of Planet, not a global static object
+	if(model.indexArr.isEmpty())
+		sMoon(&model, equatorialRadius);
+
+	QVector<float> projectedVertexArr(model.vertexArr.size());
+	const auto sphereScaleF=static_cast<float>(sphereScale);
+	for (int i=0;i<model.vertexArr.size()/3;++i)
+	{
+		Vec3f p = *(reinterpret_cast<const Vec3f*>(model.vertexArr.constData()+i*3));
+		p *= sphereScaleF;
+		painter->getProjector()->project(p, *(reinterpret_cast<Vec3f*>(projectedVertexArr.data()+i*3)));
+	}
+
+	const SolarSystem* ssm = GETSTELMODULE(SolarSystem);
+
+	const PlanetShaderVars* shaderVars = &moonShaderVars;
+	//check if shaders are loaded
+	if(!moonShaderProgram)
+	{
+		Planet::initShader();
+
+		if(shaderError)
+		{
+			qCritical()<<"Can't use planet drawing, shaders invalid!";
+			return;
+		}
+	}
+
+	GL(moonShaderProgram->bind());
+
+	RenderData rData = setCommonShaderUniforms(*painter,moonShaderProgram,*shaderVars);
+
+	GL(normalMap->bind(2));
+	GL(moonShaderProgram->setUniformValue(moonShaderVars.normalMap, 2));
+	if (!rData.shadowCandidates.isEmpty())
+	{
+		GL(texEarthShadow->bind(3));
+		GL(moonShaderProgram->setUniformValue(moonShaderVars.earthShadow, 3));
+		// Ad-hoc visibility improvement during lunar eclipses:
+		// During partial umbra phase, make moon brighter so that the bright limb and umbra border has more visibility.
+		// When the moon is half in umbra, we start to raise its brightness. Near edge of totality we try to simulate the apparent super-bright edge.
+		static const double tweak=1.015; // 1.00 to have maximum push only in full umbra. 1.01 or even 1.02 looks better to show a brilliant last/first edge
+		GLfloat push=1.0f;
+
+		// Like in getVMagnitude() we must compute an elongation from the aberrated sun.
+		PlanetP sun=ssm->getSun();
+		const Vec3d obsPos=parent->eclipticPos-sun->getAberrationPush();
+		const double observerRq = obsPos.normSquared();
+		const Vec3d& planetHelioPos = getHeliocentricEclipticPos() - sun->getAberrationPush();
+		const double planetRq = planetHelioPos.normSquared();
+		const double observerPlanetRq = (obsPos - planetHelioPos).normSquared();
+		double aberratedElongation = std::acos((observerPlanetRq  + observerRq - planetRq)/(2.0*std::sqrt(observerPlanetRq*observerRq)));
+		const double od = 180. - aberratedElongation * (180.0/M_PI); // opposition distance [degrees]
+
+		// Compute umbra radius at lunar distance.
+		const double Lambda=getEclipticPos().norm();                             // Lunar distance [AU]
+		const double sigma=ssm->getEarthShadowRadiiAtLunarDistance().first[0]/3600.;
+		const double tau=atan(getEquatorialRadius()/Lambda) * M_180_PI; // geocentric angle of Lunar radius [degrees]
+
+		if (od<tweak*sigma-tau)     // if the Moon is fully immersed in the shadow
+			push=4.0f;
+		else if (od<tweak*sigma)    // If the Moon is half immersed, start pushing with a strong power function that make it apparent only in the last few percents.
+			push+=3.f*(1.f-pow(static_cast<float>((od-tweak*sigma+tau)/tau), 1.f/6.f));
+
+		GL(moonShaderProgram->setUniformValue(moonShaderVars.eclipsePush, push)); // constant for now...
+	}
+	GL(horizonMap->bind(4));
+	GL(moonShaderProgram->setUniformValue(moonShaderVars.horizonMap, 4));
+
+	if(!sphereVAO)
+	{
+		sphereVAO.reset(new QOpenGLVertexArrayObject);
+		sphereVAO->create();
+		gl->glGenBuffers(1, &sphereVBO);
+	}
+
+	sphereVAO->bind();
+	gl->glBindBuffer(GL_ARRAY_BUFFER, sphereVBO);
+	gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereVBO);
+
+	const auto projectedVertArrSize = projectedVertexArr.size() * GLsizeiptr(sizeof projectedVertexArr[0]);
+
+	const auto modelVertArrOffset = projectedVertArrSize;
+	const auto modelVertArrSize = model.vertexArr.size() * GLsizeiptr(sizeof model.vertexArr[0]);
+
+	const auto indicesOffset = modelVertArrOffset + modelVertArrSize;
+	const auto indicesSize = model.indexArr.size() * GLsizeiptr(sizeof model.indexArr[0]);
+
+	gl->glBufferData(GL_ARRAY_BUFFER, projectedVertArrSize+modelVertArrSize+indicesSize, nullptr, GL_STREAM_DRAW);
+	gl->glBufferSubData(GL_ARRAY_BUFFER, 0, projectedVertArrSize, projectedVertexArr.constData());
+	gl->glBufferSubData(GL_ARRAY_BUFFER, modelVertArrOffset, modelVertArrSize, model.vertexArr.constData());
+	gl->glBufferSubData(GL_ARRAY_BUFFER, indicesOffset, indicesSize, model.indexArr.constData());
+
+	GL(moonShaderProgram->setAttributeBuffer(shaderVars->vertex, GL_FLOAT, 0, 3));
+	GL(moonShaderProgram->enableAttributeArray(shaderVars->vertex));
+	GL(moonShaderProgram->setAttributeBuffer(shaderVars->unprojectedVertex, GL_FLOAT, modelVertArrOffset, 3));
+	GL(moonShaderProgram->enableAttributeArray(shaderVars->unprojectedVertex));
+
+	painter->setDepthMask(true);
+	painter->setDepthTest(true);
+	gl->glClear(GL_DEPTH_BUFFER_BIT);
+
+	GL(gl->glDrawElements(GL_TRIANGLES, model.indexArr.size(), GL_UNSIGNED_INT, reinterpret_cast<void*>(indicesOffset)));
+
+	gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	gl->glBindBuffer(GL_ARRAY_BUFFER, 0);
+	sphereVAO->release();
+
+	GL(moonShaderProgram->release());
+
+	painter->setCullFace(false);
+}
+
 void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 {
 	const float sphereScaleF=static_cast<float>(sphereScale);
@@ -4366,9 +4470,16 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 	// Adapt the number of facets according with the size of the sphere for optimization
 	const unsigned short int nb_facet = static_cast<unsigned short int>(qBound(10u, static_cast<uint>(screenRd * 40.f/50.f * sqrt(sphereScaleF)), 100u));	// 40 facets for 1024 pixels diameter on screen
 
+	const SolarSystem* ssm = GETSTELMODULE(SolarSystem);
+
+	if(this==ssm->getMoon() && !drawOnlyRing)
+	{
+		drawMoon(painter);
+		return;
+	}
 	// Generates the vertices
 	Planet3DModel model;
-	sSphere(&model, static_cast<float>(equatorialRadius), static_cast<float>(oneMinusOblateness), nb_facet, nb_facet, englishName=="Moon");
+	sSphere(&model, static_cast<float>(equatorialRadius), static_cast<float>(oneMinusOblateness), nb_facet, nb_facet);
 
 	QVector<float> projectedVertexArr(model.vertexArr.size());
 	for (int i=0;i<model.vertexArr.size()/3;++i)
@@ -4378,14 +4489,12 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 		painter->getProjector()->project(p, *(reinterpret_cast<Vec3f*>(projectedVertexArr.data()+i*3)));
 	}
 	
-	const SolarSystem* ssm = GETSTELMODULE(SolarSystem);
-
 	if (this==ssm->getSun())
 	{
 		texMap->bind();
 		//painter->setColor(2, 2, 0.2); // This is now in draw3dModel() to apply extinction
 		painter->setArrays(reinterpret_cast<const Vec3f*>(projectedVertexArr.constData()), reinterpret_cast<const Vec2f*>(model.texCoordArr.constData()));
-// FIXME: fix this		painter->drawFromArray(StelPainter::Triangles, model.indiceArr.size(), 0, false, model.indiceArr.constData());
+		painter->drawFromArray(StelPainter::Triangles, model.indiceArr.size(), 0, false, model.indiceArr.constData());
 		return;
 	}
 
@@ -4399,11 +4508,6 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 	{
 		shader = ringPlanetShaderProgram;
 		shaderVars = &ringPlanetShaderVars;
-	}
-	if (this==ssm->getMoon())
-	{
-		shader = moonShaderProgram;
-		shaderVars = &moonShaderVars;
 	}
 	//check if shaders are loaded
 	if(!shader)
@@ -4421,10 +4525,6 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 		{
 			shader = ringPlanetShaderProgram;
 		}
-		if (this==ssm->getMoon())
-		{
-			shader = moonShaderProgram;
-		}
 	}
 
 	GL(shader->bind());
@@ -4439,46 +4539,6 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 		GL(ringPlanetShaderProgram->setUniformValue(ringPlanetShaderVars.innerRadius, rings->radiusMin));
 		GL(ringPlanetShaderProgram->setUniformValue(ringPlanetShaderVars.ringS, 2));
 		rings->tex->bind(2);
-	}
-
-	if (this==ssm->getMoon())
-	{
-		GL(normalMap->bind(2));
-		GL(moonShaderProgram->setUniformValue(moonShaderVars.normalMap, 2));
-		if (!rData.shadowCandidates.isEmpty())
-		{
-			GL(texEarthShadow->bind(3));
-			GL(moonShaderProgram->setUniformValue(moonShaderVars.earthShadow, 3));
-			// Ad-hoc visibility improvement during lunar eclipses:
-			// During partial umbra phase, make moon brighter so that the bright limb and umbra border has more visibility.
-			// When the moon is half in umbra, we start to raise its brightness. Near edge of totality we try to simulate the apparent super-bright edge.
-			static const double tweak=1.015; // 1.00 to have maximum push only in full umbra. 1.01 or even 1.02 looks better to show a brilliant last/first edge
-			GLfloat push=1.0f;
-
-			// Like in getVMagnitude() we must compute an elongation from the aberrated sun.
-			PlanetP sun=ssm->getSun();
-			const Vec3d obsPos=parent->eclipticPos-sun->getAberrationPush();
-			const double observerRq = obsPos.normSquared();
-			const Vec3d& planetHelioPos = getHeliocentricEclipticPos() - sun->getAberrationPush();
-			const double planetRq = planetHelioPos.normSquared();
-			const double observerPlanetRq = (obsPos - planetHelioPos).normSquared();
-			double aberratedElongation = std::acos((observerPlanetRq  + observerRq - planetRq)/(2.0*std::sqrt(observerPlanetRq*observerRq)));
-			const double od = 180. - aberratedElongation * (180.0/M_PI); // opposition distance [degrees]
-
-			// Compute umbra radius at lunar distance.
-			const double Lambda=getEclipticPos().norm();                             // Lunar distance [AU]
-			const double sigma=ssm->getEarthShadowRadiiAtLunarDistance().first[0]/3600.;
-			const double tau=atan(getEquatorialRadius()/Lambda) * M_180_PI; // geocentric angle of Lunar radius [degrees]
-
-			if (od<tweak*sigma-tau)     // if the Moon is fully immersed in the shadow
-				push=4.0f;
-			else if (od<tweak*sigma)    // If the Moon is half immersed, start pushing with a strong power function that make it apparent only in the last few percents.
-				push+=3.f*(1.f-pow(static_cast<float>((od-tweak*sigma+tau)/tau), 1.f/6.f));
-
-			GL(moonShaderProgram->setUniformValue(moonShaderVars.eclipsePush, push)); // constant for now...
-		}
-		GL(horizonMap->bind(4));
-		GL(moonShaderProgram->setUniformValue(moonShaderVars.horizonMap, 4));
 	}
 
 	if (englishName=="Mars")
@@ -4539,7 +4599,7 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 	GL(shader->setAttributeBuffer(shaderVars->texCoord, GL_FLOAT, texCoordsOffset, 2));
 	GL(shader->enableAttributeArray(shaderVars->texCoord));
 
-//	if (rings && !drawOnlyRing)
+	if (rings && !drawOnlyRing)
 	{
 		painter->setDepthMask(true);
 		painter->setDepthTest(true);
@@ -4547,7 +4607,7 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 	}
 	
 	if (!drawOnlyRing)
-		GL(gl->glDrawElements(GL_TRIANGLES, model.indiceArr.size(), GL_UNSIGNED_INT, reinterpret_cast<void*>(indicesOffset)));
+		GL(gl->glDrawElements(GL_TRIANGLES, model.indiceArr.size(), GL_UNSIGNED_SHORT, reinterpret_cast<void*>(indicesOffset)));
 
 	if (rings)
 	{

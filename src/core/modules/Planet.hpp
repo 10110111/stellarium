@@ -692,6 +692,9 @@ protected:
 	//! Draw the 3D sphere
 	void drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing=false);
 
+	//! Draw the Moon
+	void drawMoon(StelPainter* painter);
+
 	//! Draw the Hips survey.
 	void drawSurvey(StelCore* core, StelPainter* painter);
 
