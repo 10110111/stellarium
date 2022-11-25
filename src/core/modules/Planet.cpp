@@ -3956,6 +3956,7 @@ void Planet::PlanetShaderVars::initLocations(QOpenGLShaderProgram* p)
 	GL(hasAtmosphere = p->uniformLocation("hasAtmosphere"));
 	GL(hasNormalMap = p->uniformLocation("hasNormalMap"));
 	GL(hasHorizonMap = p->uniformLocation("hasHorizonMap"));
+	GL(texCoordsFromFragment = p->uniformLocation("texCoordsFromFragment"));
 
 	// Moon-specific variables
 	GL(earthShadow = p->uniformLocation("earthShadow"));
@@ -4779,8 +4780,9 @@ void Planet::computeModelMatrix(Mat4d &result, bool solarEclipseCase) const
 	}
 }
 
-Planet::RenderData Planet::setCommonShaderUniforms(const StelPainter& painter, QOpenGLShaderProgram* shader, const PlanetShaderVars& shaderVars,
-                                                   const StelPainterLight& light, const bool hasNormalMap, const bool hasHorizonMap)
+Planet::RenderData Planet::setCommonShaderUniforms(const StelPainter& painter, QOpenGLShaderProgram* shader,
+                                                   const PlanetShaderVars& shaderVars, const StelPainterLight& light, 
+                                                   const bool hasNormalMap, const bool hasHorizonMap, const bool texCoordsFromFragment)
 {
 	RenderData data;
 
@@ -4830,6 +4832,7 @@ Planet::RenderData Planet::setCommonShaderUniforms(const StelPainter& painter, Q
 
 	GL(shader->setUniformValue(shaderVars.hasNormalMap, GLint(hasNormalMap)));
 	GL(shader->setUniformValue(shaderVars.hasHorizonMap, GLint(hasHorizonMap)));
+	GL(shader->setUniformValue(shaderVars.texCoordsFromFragment, GLint(texCoordsFromFragment)));
 
 	GL(shader->setUniformValue(shaderVars.projectionMatrix, qMat));
 	GL(shader->setUniformValue(shaderVars.hasAtmosphere, GLint(atmosphere)));
@@ -4960,7 +4963,7 @@ void Planet::drawSphere(const StelPainterLight& light, StelPainter* painter, flo
 
 	GL(shader->bind());
 
-	RenderData rData = setCommonShaderUniforms(*painter,shader,*shaderVars,light, isMoon,isMoon);
+	RenderData rData = setCommonShaderUniforms(*painter,shader,*shaderVars,light, isMoon,isMoon,isMoon);
 	if(this==ssm->getSun())
 	{
 		const auto color = painter->getColor();
@@ -5210,7 +5213,7 @@ void Planet::drawSurvey(const StelPainterLight& light, StelCore* core, StelPaint
 	}
 
 	GL(shader->bind());
-	RenderData rData = setCommonShaderUniforms(*painter, shader, *shaderVars, light, !!survey.normals, !!survey.horizons);
+	RenderData rData = setCommonShaderUniforms(*painter, shader, *shaderVars, light, !!survey.normals, !!survey.horizons, false);
 	QVector<Vec3f> projectedVertsArray;
 	QVector<Vec3f> vertsArray;
 	const double angle = 2 * getSpheroidAngularRadius(core) * M_PI_180;
@@ -5504,7 +5507,7 @@ bool Planet::drawObjModel(const StelPainterLight& light, StelPainter *painter, f
 	GL(shd->enableAttributeArray("vertex"));
 	objModel->projPosBuffer->release();
 
-	setCommonShaderUniforms(*painter,shd,*shdVars,light,false,false);
+	setCommonShaderUniforms(*painter,shd,*shdVars,light,false,false,false);
 
 	//draw that model using the array wrapper
 	objModel->arr->draw();
