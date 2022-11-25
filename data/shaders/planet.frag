@@ -28,8 +28,8 @@ const highp float PI = 3.14159265;
 
 uniform sampler2D tex;
 uniform mediump vec2 poleLat; //latitudes of pole caps, in terms of texture coordinate. x>0...north, y<1...south. 
-uniform mediump vec3 ambientLight; // Must be in linear sRGB, without OETF application
-uniform mediump vec3 diffuseLight; // Must be in linear sRGB, without OETF application
+uniform mediump vec3 ambientLight;
+uniform mediump vec3 diffuseLight;
 uniform highp vec4 sunInfo;
 uniform mediump float skyBrightness;
 uniform bool hasAtmosphere;
@@ -187,7 +187,6 @@ void main()
         const vec3 a1 = vec3(0.848380336865573, 0.937696820066542, 0.981762186155682);
         const vec3 a0 = vec3(1) - a1 - a2;
         float cosTheta = dot(eyeDirection, normalize(normalVS));
-        cosTheta = max(0., cosTheta); // Rounding errors sometimes lead to negative value
         float cosTheta2 = cosTheta*cosTheta;
         vec3 limbDarkeningCoef = a0 + a1*cosTheta + a2*cosTheta2;
         vec3 color = texColor.rgb * limbDarkeningCoef;
@@ -285,11 +284,13 @@ void main()
     }
 
 #ifdef IS_MOON
+    mediump vec2 moonTexCoord = vec2(atan(normalZ.x, -normalZ.y)/(2.*PI)+0.5, asin(normalize(normalZ).z)/PI+0.5);
+
     mediump vec3 normal;
     if(isSurvey)
         normal = vec3(0,0,1); // Surveys' texture coordinates are unsuitable for non-survey normal maps
     else
-        normal = texture2D(normalMap, texc).rgb-vec3(0.5, 0.5, 0);
+        normal = texture2D(normalMap, moonTexCoord).rgb-vec3(0.5, 0.5, 0);
 
     normal = normalize(normalX*normal.x+normalY*normal.y+normalZ*normal.z);
     // normal now contains the real surface normal taking normal map into account
@@ -303,7 +304,7 @@ void main()
         mediump vec3 zenith = normalZ;
         mediump float sunAzimuth = atan(dot(lightDirection,lonDir), dot(lightDirection,northDir));
         mediump float sinSunElevation = dot(zenith, lightDirection);
-        mediump vec4 horizonElevSample = (texture2D(horizonMap, texc) - 0.5) * 2.;
+        mediump vec4 horizonElevSample = (texture2D(horizonMap, moonTexCoord) - 0.5) * 2.;
         mediump vec4 sinHorizElevs = sign(horizonElevSample) * horizonElevSample * horizonElevSample;
         mediump float sinHorizElevLeft, sinHorizElevRight;
         mediump float alpha;
@@ -380,14 +381,20 @@ void main()
         // TODO: replace it with the correct BRDF (possibly different for different planets).
         lum *= lum;
     }
+    mediump vec3 ambientLightToUse = srgbToLinear(ambientLight); // FIXME: this should be supplied as linear
+    mediump vec3 diffuseLightToUse = srgbToLinear(diffuseLight); // FIXME: this should be supplied as linear
     //final lighting color
-    mediump vec4 litColor = vec4(lum * final_illumination * diffuseLight + ambientLight, 1.0);
+    mediump vec4 litColor = vec4(lum * final_illumination * diffuseLightToUse + ambientLightToUse, 1.0);
 
     //apply texture-colored rimlight
     //litColor.xyz = clamp( litColor.xyz + vec3(outgas), 0.0, 1.0);
 
     lowp vec4 texColor;
-#ifdef RINGS_SUPPORT
+#ifdef IS_MOON
+    texColor = texture2D(tex, moonTexCoord);
+    texColor.rgb = srgbToLinear(texColor.rgb);
+#else
+# ifdef RINGS_SUPPORT
     if(isRing)
     {
         float radius = length(texc);
@@ -399,12 +406,13 @@ void main()
             texColor = vec4(0);
     }
     else
-#endif
+# endif // RINGS_SUPPORT
     {
         texColor = texture2D(tex, texc);
     }
 
     texColor.rgb = srgbToLinear(texColor.rgb);
+#endif // IS_MOON
 
     mediump vec4 finalColor = texColor;
     // apply (currently only Martian) pole caps. texc.t=0 at south pole, 1 at north pole. 
