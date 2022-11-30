@@ -54,16 +54,26 @@ uniform highp sampler2D shadowTex;
 VARYING highp vec4 shadowCoord;
 #endif
 
-#if defined(IS_OBJ)
+#if defined(IS_OBJ) || defined(IS_MOON)
     #define OREN_NAYAR 1
     //light direction in model space, pre-normalized
     uniform highp vec3 lightDirection;  
     //x = A, y = B, z = scaling factor (rho/pi * E0), w roughness
     uniform mediump vec4 orenNayarParameters;
 #endif
+#ifdef IS_MOON
+    uniform sampler2D earthShadow;
+    uniform mediump float eclipsePush;
+    uniform sampler2D normalMap;
+	uniform sampler2D horizonMap;
 
-VARYING mediump float lambertIllum;
-VARYING mediump vec3 normalVS; //pre-calculated normals or spherical normals in model space
+    VARYING highp vec3 normalX;
+    VARYING highp vec3 normalY;
+    VARYING highp vec3 normalZ;
+#else
+    VARYING mediump float lambertIllum;
+    VARYING mediump vec3 normalVS; //pre-calculated normals or spherical normals in model space
+#endif
 
 const highp float M_PI=3.1415926535897932384626433832795;
 
@@ -221,7 +231,11 @@ void main()
                 }
                 else if( d <= r - R ) // fully inside umbra
                 {
+#ifdef IS_MOON
+                    illumination = (d / (r - R)) * 0.594; // prepare texture coordinate. 0.6=umbra edge. Smaller number->larger shadow.
+#else
                     illumination = 0.0;
+#endif
                 }
                 else if(d <= R - r)
                 {
@@ -230,6 +244,10 @@ void main()
                 }
                 else // penumbra: partially inside
                 {
+#ifdef IS_MOON
+                    //illumination = ((d - abs(R-r)) / (R + r - abs(R-r))) * 0.4 + 0.6;
+                    illumination = ((d - r + R) / (2.0 * R )) * 0.406 + 0.594;
+#else
                     mediump float x = (R * R + d * d - r * r) / (2.0 * d);
                     mediump float alpha = acos(x / R);
                     mediump float beta = acos((d - x) / r);
@@ -237,18 +255,76 @@ void main()
                     mediump float Ar = r * r * (beta - 0.5 * sin(2.0 * beta));
                     mediump float AS = R * R * 2.0 * 1.57079633;
                     illumination = 1.0 - (AR + Ar) / AS;
+#endif
                 }
                 final_illumination = min(illumination, final_illumination);
             }
         }
     }
 
+#ifdef IS_MOON
+    mediump vec2 moonTexCoord = vec2(atan(normalZ.x, -normalZ.y)/(2.*PI)+0.5, asin(normalize(normalZ).z)/PI+0.5);
+    mediump vec3 normal = texture2D(normalMap, moonTexCoord).rgb-vec3(0.5, 0.5, 0);
+    normal = normalize(normalX*normal.x+normalY*normal.y+normalZ*normal.z);
+    // normal now contains the real surface normal taking normal map into account
+
+	mediump float horizonShadowCoefficient = 1.;
+	{
+		// Check whether the fragment is in the shadow of surrounding mountains or the horizon
+		mediump vec3 lonDir = normalX;
+		mediump vec3 northDir = normalY;
+		mediump vec3 zenith = normalZ;
+		mediump float sunAzimuth = atan(dot(lightDirection,lonDir), dot(lightDirection,northDir));
+		mediump float sinSunElevation = dot(zenith, lightDirection);
+		mediump vec4 horizonElevSample = (texture2D(horizonMap, moonTexCoord) - 0.5) * 2.;
+		mediump vec4 sinHorizElevs = sign(horizonElevSample) * horizonElevSample * horizonElevSample;
+		mediump float sinHorizElevLeft, sinHorizElevRight;
+		mediump float alpha;
+		if(sunAzimuth >= PI/2.)
+		{
+			// Sun is between East and South
+			sinHorizElevLeft = sinHorizElevs[1];
+			sinHorizElevRight = sinHorizElevs[2];
+			alpha = (sunAzimuth - PI/2.) / (PI/2.);
+		}
+		else if(sunAzimuth >= 0.)
+		{
+			// Sun is between North and East
+			sinHorizElevLeft = sinHorizElevs[0];
+			sinHorizElevRight = sinHorizElevs[1];
+			alpha = sunAzimuth / (PI/2.);
+		}
+		else if(sunAzimuth <= -PI/2.)
+		{
+			// Sun is between South and West
+			sinHorizElevLeft = sinHorizElevs[2];
+			sinHorizElevRight = sinHorizElevs[3];
+			alpha = (sunAzimuth + PI) / (PI/2.);
+		}
+		else
+		{
+			// Sun is between West and North
+			sinHorizElevLeft = sinHorizElevs[3];
+			sinHorizElevRight = sinHorizElevs[0];
+			alpha = (sunAzimuth + PI/2.) / (PI/2.);
+		}
+		mediump float horizElevLeft = asin(sinHorizElevLeft);
+		mediump float horizElevRight = asin(sinHorizElevRight);
+		mediump float horizElev = horizElevLeft + (horizElevRight-horizElevLeft)*alpha;
+		if(sinSunElevation < sin(horizElev))
+			horizonShadowCoefficient = 0.;
+	}
+#else
     // important to normalize here again
     mediump vec3 normal = normalize(normalVS);
+#endif
 #ifdef OREN_NAYAR
     // Use an Oren-Nayar model for rough surfaces
     // Ref: http://content.gpwiki.org/index.php/D3DBook:(Lighting)_Oren-Nayar
     lum = orenNayar(normal, lightDirection, eyeDirection, orenNayarParameters.x, orenNayarParameters.y, orenNayarParameters.z, orenNayarParameters.w);
+#endif
+#ifdef IS_MOON
+	lum *= horizonShadowCoefficient;
 #endif
     //calculate pseudo-outgassing/rim-lighting effect
     lowp float outgas = 0.0;
@@ -276,7 +352,17 @@ void main()
     //apply texture-colored rimlight
     //litColor.xyz = clamp( litColor.xyz + vec3(outgas), 0.0, 1.0);
 
+#ifdef IS_MOON
+    lowp vec4 texColor = texture2D(tex, moonTexCoord);
+    // Undo the extraneous gamma encoded in the texture.
+    // FIXME: ideally, we want all the calculations to be done in linear scale,
+    // and then *in the end* apply the exact sRGB transfer function. Currently
+    // though, we don't do actual physically-correct simulation here, so we
+    // just apply the approximate sRGB gamma.
+    texColor = pow(texColor, vec4(2.8/2.2));
+#else
     lowp vec4 texColor = texture2D(tex, texc);
+#endif
 
     mediump vec4 finalColor = texColor;
 	// apply (currently only Martian) pole caps. texc.t=0 at south pole, 1 at north pole. 
@@ -294,7 +380,19 @@ void main()
 		//finalColor.xyz=mix(vec3(1., 1., 1.), finalColor.xyz, 1.-mixfactor); 
 		finalColor.xyz=mix(vec3(1., 1., 1.), finalColor.xyz, smoothstep(0., 1., 1.-mixfactor)); 
 	}
-	finalColor *= litColor;
+#ifdef IS_MOON
+    if(final_illumination < 0.9999)
+    {
+        lowp vec4 shadowColor = texture2D(earthShadow, vec2(final_illumination, 0.5));
+        finalColor =
+		eclipsePush*(1.0-0.75*shadowColor.a)*
+		mix(finalColor * litColor, shadowColor, clamp(shadowColor.a, 0.0, 0.7)); // clamp alpha to allow some maria detail.
+    }
+    else
+#endif
+    {
+        finalColor *= litColor;
+    }
 
     //apply white rimlight
     finalColor.xyz = clamp( finalColor.xyz + vec3(outgas), 0.0, 1.0);

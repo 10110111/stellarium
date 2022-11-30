@@ -3163,39 +3163,6 @@ bool Planet::initShader()
 	QByteArray fsrc = fFile.readAll();
 	fFile.close();
 
-	QString vMoonFileName = StelFileMgr::findFile("data/shaders/moon.vert",StelFileMgr::File);
-	QString fMoonFileName = StelFileMgr::findFile("data/shaders/moon.frag",StelFileMgr::File);
-
-	if(vMoonFileName.isEmpty())
-	{
-		qCritical()<<"Cannot find 'data/shaders/moon.vert', can't use planet rendering!";
-		return false;
-	}
-	if(fMoonFileName.isEmpty())
-	{
-		qCritical()<<"Cannot find 'data/shaders/moon.frag', can't use planet rendering!";
-		return false;
-	}
-
-	QFile vMoonFile(vMoonFileName);
-	QFile fMoonFile(fMoonFileName);
-
-	if(!vMoonFile.open(QIODevice::ReadOnly | QIODevice::Text))
-	{
-		qCritical()<<"Cannot load planet vertex shader file"<<vMoonFileName<<vMoonFile.errorString();
-		return false;
-	}
-	QByteArray vMoonSrc = vMoonFile.readAll();
-	vMoonFile.close();
-
-	if(!fMoonFile.open(QIODevice::ReadOnly | QIODevice::Text))
-	{
-		qCritical()<<"Cannot load planet fragment shader file"<<fMoonFileName<<fMoonFile.errorString();
-		return false;
-	}
-	QByteArray fMoonSrc = fMoonFile.readAll();
-	fMoonFile.close();
-
 	shaderError = false;
 
 	// Default planet shader program
@@ -3203,7 +3170,7 @@ bool Planet::initShader()
 	// Planet with ring shader program
 	ringPlanetShaderProgram = createShader("ringPlanetShaderProgram",ringPlanetShaderVars,vsrc,fsrc,"#define RINGS_SUPPORT\n\n");
 	// Moon shader program
-	moonShaderProgram = createShader("moonShaderProgram",moonShaderVars,vMoonSrc,fMoonSrc);
+	moonShaderProgram = createShader("moonShaderProgram",moonShaderVars,vsrc,fsrc,"#define IS_MOON\n\n");
 	// OBJ model shader program
 	// we REQUIRE some fixed attribute locations here
 	QMap<QByteArray,int> attrLoc;

@@ -5,8 +5,6 @@ INSTALL(FILES ssystem_major.ini ssystem_minor.ini ssystem_1000comets.ini base_lo
 INSTALL(DIRECTORY shaders/ DESTINATION ${SDATALOC}/data/shaders FILES_MATCHING
 	PATTERN "planet*" 
 	)
-INSTALL(DIRECTORY shaders/ DESTINATION ${SDATALOC}/data/shaders FILES_MATCHING
-	PATTERN "moon*")
 
 ########### splash target ##############
 ADD_CUSTOM_TARGET(splash ALL)
