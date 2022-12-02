@@ -54,13 +54,20 @@ uniform highp sampler2D shadowTex;
 VARYING highp vec4 shadowCoord;
 #endif
 
-#if defined(IS_OBJ) || defined(IS_MOON)
+#if defined(IS_OBJ)
     #define OREN_NAYAR 1
     //light direction in model space, pre-normalized
     uniform highp vec3 lightDirection;  
     //x = A, y = B, z = scaling factor (rho/pi * E0), w roughness
     uniform mediump vec4 orenNayarParameters;
 #endif
+
+#if defined(IS_MOON)
+# define HAPKE 1
+//light direction in model space, pre-normalized
+uniform highp vec3 lightDirection;
+#endif
+
 #ifdef IS_MOON
     uniform sampler2D earthShadow;
     uniform mediump float eclipsePush;
@@ -165,6 +172,120 @@ mediump float orenNayar(in mediump vec3 normal, in highp vec3 lightDir, in highp
     return clamp(ON, 0.0, 1.0);
 }
 #endif
+#ifdef HAPKE
+struct HapkeParameters
+{
+    float theta_p;
+    float phi;
+    float h_C;
+    float B_C0;
+    float h_S;
+    float B_S0;
+    float w;
+    float b;
+    float c;
+};
+
+float hapkeBRDF(vec3 N, vec3 L, vec3 V, HapkeParameters params)
+{
+    float PI = 3.14159265358979323846;
+    float cos_g = dot(L, V);
+    float cos_i = dot(L, N); // N=L => 1
+    float cos_e = dot(V, N); // N=L => cos_g
+    float g = acos(clamp(cos_g, -1., 1.));
+    float i = acos(clamp(cos_i, -1., 1.));
+    float e = acos(clamp(cos_e, -1., 1.));
+    float my_0 = cos_i;
+    float my = cos_e;
+    float sin_i = sin(i);
+    float sin_e = sin(e);
+    // Calculate Psi by projecting L and V on a plane with N as the normal and getting
+    // the cosine of the angle between the projections.
+    //float Psi = acos((cos_g - cos_e * cos_i) / (sin_e * sin_i));
+    float cos_Psi = dot(normalize(L - cos_i * N), normalize(V - cos_e * N));
+    cos_Psi = clamp(cos_Psi, -1., 1.);
+	if(isnan(cos_Psi) || isinf(cos_Psi))
+		cos_Psi = 1.;
+    float Psi = acos(cos_Psi);
+    float PsiHalf = Psi / 2;
+    float f_Psi = exp(-2 * sqrt((1-cos_Psi)/(1+cos_Psi))); // = exp(-2 * tan(PsiHalf)) but preventing tan()<0 that can happen due to bad acos implementation (e.g. Intel UHD 620 @ Mesa)
+    float sin_PsiHalf = sin(PsiHalf);
+    float sin2_PsiHalf = sin_PsiHalf * sin_PsiHalf;
+    float PsiPerPI = Psi / PI;
+    float tan_theta_p = tan(params.theta_p * PI / 180);
+    float tan2_theta_p = tan_theta_p * tan_theta_p;
+    // The tan_theta_p is zero when theta_p is zero.
+    // A zero for theta_p is somewhat unrealistic.
+    float cot_theta_p = 1 / tan_theta_p;
+    float cot2_theta_p = cot_theta_p * cot_theta_p;
+    float tan_i = tan(i);
+    float tan_e = tan(e);
+    // Here, tan_i and tan_e are zero each when i and e are zero each.
+    // Because 1 / 0.0 is positive infinity we should check the usages.
+    // The results are only used as factors for exponential functions,
+    // where the whole expressions for the arguments are negated and
+    // therefore result in negative infinity. Thus overall, these
+    // exponential functions simply result in zero. No fix needed.
+    float cot_i = 1 / tan_i;
+    float cot_e = 1 / tan_e;
+    float cot2_i = cot_i * cot_i;
+    float cot2_e = cot_e * cot_e;
+
+    float E_1_i = exp(-2 / PI * cot_theta_p * cot_i);
+    float E_1_e = exp(-2 / PI * cot_theta_p * cot_e);
+    float E_2_i = exp(-1 / PI * cot2_theta_p * cot2_i);
+    float E_2_e = exp(-1 / PI * cot2_theta_p * cot2_e);
+    float chi_theta_p = 1 / sqrt(1 + PI * tan2_theta_p);
+    float eta_i = chi_theta_p * (cos_i + sin_i * tan_theta_p * E_2_i / (2 - E_1_i));
+    float eta_e = chi_theta_p * (cos_e + sin_e * tan_theta_p * E_2_e / (2 - E_1_e));
+    float my_0e = chi_theta_p;
+    float my_e = chi_theta_p;
+    float S;
+    // It looks worse than it is.
+    if(i <= e)
+    {
+        my_0e *= cos_i + sin_i * tan_theta_p * (cos_Psi * E_2_e + sin2_PsiHalf * E_2_i) / (2 - E_1_e - PsiPerPI * E_1_i);
+        my_e  *= cos_e + sin_e * tan_theta_p * (E_2_e - sin2_PsiHalf * E_2_i) / (2 - E_1_e - PsiPerPI * E_1_i);
+        S = my_e / eta_e * my_0 / eta_i * chi_theta_p / (1 - f_Psi + f_Psi * chi_theta_p * (my_0 / eta_i));
+    }
+    else
+    {
+        my_0e *= cos_i + sin_i * tan_theta_p * (E_2_i - sin2_PsiHalf * E_2_e) / (2 - E_1_i - PsiPerPI * E_1_e);
+        my_e  *= cos_e + sin_e * tan_theta_p * (cos_Psi * E_2_i + sin2_PsiHalf * E_2_e) / (2 - E_1_i - PsiPerPI * E_1_e);
+        S = my_e / eta_e * my_0 / eta_i * chi_theta_p / (1 - f_Psi + f_Psi * chi_theta_p * (my / eta_e));
+    }
+    float KphiTerm = 1.209 * pow(params.phi, 2.0 / 3);
+    // This goes into complex numbers already within [0, 1].
+    float K = -log(1 - KphiTerm) / KphiTerm;
+    float gHalf = g / 2;
+    float tan_gHalf = tan(gHalf);
+    float tan_gHalfPerh_C = tan_gHalf / params.h_C;
+    float B_C = (1 + (1 - exp(-tan_gHalfPerh_C)) / tan_gHalfPerh_C) / (2 * pow(1 + tan_gHalfPerh_C, 2));
+    // When g = 0, the division in the upper part causes a NaN.
+    if(isnan(B_C))
+    {
+        B_C = 1;
+    }
+    float r_0Term = sqrt(1 - params.w);
+    float r_0 = (1 - r_0Term) / (1 + r_0Term);
+    float LS = my_0e / (my_0e + my_e);
+    float b2 = params.b * params.b;
+    // An approximation from the publication.
+    //c = 3.29 * exp(-17.4 * b2) - 0.908;
+    float oneMinusb2 = 1 - b2;
+    float twobcos_g = 2 * params.b * cos_g;
+
+    float p_g = (1 + params.c) / 2 * oneMinusb2 / pow(1 - twobcos_g + b2, 1.5) +
+                (1 - params.c) / 2 * oneMinusb2 / pow(1 + twobcos_g + b2, 1.5);
+    float B_S = 1 / (1 + tan_gHalf / params.h_S);
+    float x_i = my_0e / K;
+    float x_e = my_e / K;
+    float H_i = 1 / (1 - params.w * x_i * (r_0 + (1 - 2 * r_0 * x_i) / 2 * log((1 + x_i) / x_i)));
+    float H_e = 1 / (1 - params.w * x_e * (r_0 + (1 - 2 * r_0 * x_e) / 2 * log((1 + x_e) / x_e)));
+    float M = H_i * H_e - 1;
+    return LS * K * params.w / (4 * PI) * (p_g * (1 + params.B_S0 * B_S) + M) * (1 + params.B_C0 * B_C) * S / cos_i;
+}
+#endif
 
 // calculate pseudo-outgassing effect, inspired by MeshLab's "electronic microscope" shader
 lowp float outgasFactor(in mediump vec3 normal, in highp vec3 lightDir, in mediump float falloff)
@@ -178,7 +299,7 @@ lowp float outgasFactor(in mediump vec3 normal, in highp vec3 lightDir, in mediu
 void main()
 {
     mediump float final_illumination = 1.0;
-#ifdef OREN_NAYAR
+#if defined OREN_NAYAR || defined HAPKE
     mediump float lum = 1.;
 #else
     mediump float lum = lambertIllum;
@@ -322,6 +443,38 @@ void main()
     // Use an Oren-Nayar model for rough surfaces
     // Ref: http://content.gpwiki.org/index.php/D3DBook:(Lighting)_Oren-Nayar
     lum = orenNayar(normal, lightDirection, eyeDirection, orenNayarParameters.x, orenNayarParameters.y, orenNayarParameters.z, orenNayarParameters.w);
+#endif
+#ifdef HAPKE
+	{
+		HapkeParameters hapkeParams;
+		hapkeParams.w = 0.32357;
+		hapkeParams.b = 0.23955;
+		hapkeParams.c = 0.30452;
+		hapkeParams.B_C0 = 0.0;
+		hapkeParams.h_C = 1.0;
+		hapkeParams.B_S0 = 1.80238;
+		hapkeParams.h_S = 0.07145;
+		hapkeParams.theta_p = 23.4;
+		hapkeParams.phi = 0.3;
+		float f_r = hapkeBRDF(normal, lightDirection, eyeDirection, hapkeParams);
+		if(isnan(f_r) || f_r < 0 || isinf(f_r))
+		{
+			lum = 0;
+		}
+		else
+		{
+			vec3 L = lightDirection, V = eyeDirection;
+			float dotLV = dot(L, V);
+			vec3 refNormal = dotLV > 0. ? L /* N=L */
+										: normalize(L - dotLV * V) /* clamp to the rim, so that N⊥V */;
+			float ref = hapkeBRDF(refNormal, lightDirection, eyeDirection, hapkeParams);
+			float cos_ref_i = dot(refNormal, lightDirection);
+			float illuminance = 1. / (ref * max(0., cos_ref_i));
+
+			float cos_i = dot(normal, lightDirection);
+			lum = max(0., cos_i) * f_r * illuminance;
+		}
+	}
 #endif
 #ifdef IS_MOON
 	lum *= horizonShadowCoefficient;
