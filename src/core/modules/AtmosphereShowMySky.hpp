@@ -111,7 +111,6 @@ private:
 	} shaderAttribLocations;
 
 	StelTextureSP ditherPatternTex_;
-	StelProjectorP prevProjector_;
 	std::unique_ptr<TextureAverageComputer> textureAverager_;
 
 	float prevFad=0, prevFov=0;
@@ -144,12 +143,12 @@ private:
 	// Gets average value of the pixels rendered to the FBO texture as the value of the deepest mipmap level
 	Vec4f getMeanPixelValue();
 	void resizeRenderTarget(int width, int height);
-	void drawAtmosphere(Mat4f const& projectionMatrix, float sunAzimuth, float sunZenithAngle, float sunAngularRadius,
+	void drawAtmosphere(float sunAzimuth, float sunZenithAngle, float sunAngularRadius,
 						float moonAzimuth, float moonZenithAngle, float earthMoonDistance, float altitude,
 	                    float brightness, float lightPollutionGroundLuminance, float airglowRelativeBrightness,
 	                    bool drawAsEclipse, bool clearTarget);
 	bool dynamicResolution(StelProjectorP prj, Vec3d &sunPos, int width, int height);
-	std::pair<QByteArray,QByteArray> getViewDirShaderSources(const StelProjector& projector) const;
+	std::pair<QByteArray,QByteArray> getViewDirShaderSources() const;
 	void probeZenithLuminances(float altitude);
 #endif // ENABLE_SHOWMYSKY
 };

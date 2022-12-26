@@ -48,8 +48,11 @@
 #include <QTimeZone>
 #include <QFile>
 #include <QDir>
+#include <QOpenGLBuffer>
 #include <QRegularExpression>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLVertexArrayObject>
+#include <QOpenGLFramebufferObject>
 
 #include <iostream>
 #include <fstream>
@@ -70,6 +73,12 @@ const double StelCore::JD_HOUR   = 0.041666666666666666666;	// 1/24
 const double StelCore::JD_DAY    = 1.;
 const double StelCore::ONE_OVER_JD_SECOND = 86400;		// 86400
 const double StelCore::TZ_ERA_BEGINNING = 2395996.5;		// December 1, 1847
+
+namespace
+{
+constexpr int FS_QUAD_COORDS_PER_VERTEX = 2;
+constexpr int FS_QUAD_VERTEX_ATTRIB_INDEX = 0;
+}
 
 StelCore::StelCore()
 	: skyDrawer(Q_NULLPTR)
@@ -350,6 +359,28 @@ void StelCore::init()
 
 	actionsMgr->addAction("actionHorizontal_Flip", displayGroup, N_("Flip scene horizontally"), this, "flipHorz", "Ctrl+Shift+H", "", true);
 	actionsMgr->addAction("actionVertical_Flip", displayGroup, N_("Flip scene vertically"), this, "flipVert", "Ctrl+Shift+V", "", true);
+
+	fullScreenQuadVBO.reset(new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer));
+	fullScreenQuadVBO->create();
+	fullScreenQuadVBO->bind();
+	const GLfloat vertices[]=
+	{
+		// full screen quad
+		-1, -1,
+		 1, -1,
+		-1,  1,
+		 1,  1,
+	};
+	fullScreenQuadVBO->allocate(vertices, sizeof vertices);
+	fullScreenQuadVBO->release();
+
+	fullScreenQuadVAO.reset(new QOpenGLVertexArrayObject);
+	fullScreenQuadVAO->create();
+	bindFullScreenQuadVAO();
+	setupCurrentFullScreenQuadVAO();
+	releaseFullScreenQuadVAO();
+
+	initViewDirTexture();
 }
 
 QString StelCore::getDefaultProjectionTypeKey() const
@@ -509,6 +540,157 @@ void StelCore::update(double deltaTime)
 	skyDrawer->update(deltaTime);
 }
 
+int StelCore::getViewDirTexture()
+{
+	const auto pixelRatio = currentProjectorParams.devicePixelsPerPixel;
+	const int width = currentProjectorParams.viewportXywh[2] * pixelRatio;
+	const int height = currentProjectorParams.viewportXywh[3] * pixelRatio;
+	if(!viewDirFBO || viewDirFBO->width() != width || viewDirFBO->height() != height)
+		initViewDirTexture();
+	return viewDirFBO->texture();
+}
+
+void StelCore::initViewDirTexture()
+{
+	const auto pixelRatio = currentProjectorParams.devicePixelsPerPixel;
+	const int width = currentProjectorParams.viewportXywh[2] * pixelRatio;
+	const int height = currentProjectorParams.viewportXywh[3] * pixelRatio;
+	auto& gl = *QOpenGLContext::currentContext()->functions();
+    GLint fboToRestore=-1;
+    gl.glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &fboToRestore);
+	GLint progToRestore = -1;
+	gl.glGetIntegerv(GL_CURRENT_PROGRAM, &progToRestore);
+	GLint blendToRestore = -1;
+	gl.glGetIntegerv(GL_BLEND, &blendToRestore);
+
+	qDebug() << "Creating view direction FBO with size" << width << "x" << height;
+	viewDirFBO.reset(new QOpenGLFramebufferObject(width, height, QOpenGLFramebufferObject::NoAttachment,
+												  GL_TEXTURE_2D, GL_RGBA32F));
+
+	gl.glDisable(GL_BLEND);
+	updateViewDirTexture();
+
+	gl.glUseProgram(progToRestore);
+	gl.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboToRestore);
+	if(blendToRestore)
+		gl.glEnable(GL_BLEND);
+
+	const auto texture = viewDirFBO->texture();
+	gl.glActiveTexture(GL_TEXTURE0);
+	gl.glBindTexture(GL_TEXTURE_2D, texture);
+	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	gl.glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void StelCore::setupCurrentFullScreenQuadVAO()
+{
+	auto& gl = *QOpenGLContext::currentContext()->functions();
+	fullScreenQuadVBO->bind();
+	gl.glVertexAttribPointer(0, FS_QUAD_COORDS_PER_VERTEX, GL_FLOAT, false, 0, 0);
+	fullScreenQuadVBO->release();
+	gl.glEnableVertexAttribArray(FS_QUAD_VERTEX_ATTRIB_INDEX);
+}
+
+void StelCore::bindFullScreenQuadVAO()
+{
+	if(fullScreenQuadVAO->isCreated())
+		fullScreenQuadVAO->bind();
+	else
+		setupCurrentFullScreenQuadVAO();
+}
+
+void StelCore::releaseFullScreenQuadVAO()
+{
+	if(fullScreenQuadVAO->isCreated())
+	{
+		fullScreenQuadVAO->release();
+	}
+	else
+	{
+		auto& gl = *QOpenGLContext::currentContext()->functions();
+		gl.glDisableVertexAttribArray(FS_QUAD_VERTEX_ATTRIB_INDEX);
+	}
+}
+
+void StelCore::updateViewDirTexture()
+{
+	const auto projector = getProjection(StelCore::FrameAltAz, StelCore::RefractionOff);
+
+	if(!prevProjector || !projector->isSameProjection(*prevProjector))
+	{
+		qDebug() << "Projection changed, recompiling view direction computation shader program";
+		viewDirGenProgram.reset(new QOpenGLShaderProgram);
+		prevProjector = projector;
+
+		{
+			static auto vert =
+				StelOpenGL::globalShaderPrefix(StelOpenGL::VERTEX_SHADER) +
+				R"(
+ATTRIBUTE highp vec3 vertex;
+VARYING highp vec3 ndcPos;
+void main()
+{
+	gl_Position = vec4(vertex, 1.);
+	ndcPos = vertex;
+}
+)";
+			bool ok = viewDirGenProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, vert);
+			if(!viewDirGenProgram->log().isEmpty())
+				qWarning().noquote() << "StelCore::updateViewDirTexture(): warnings while compiling vertex shader:\n"
+									 << viewDirGenProgram->log();
+			if(!ok) return;
+		}
+		{
+			const auto frag =
+				StelOpenGL::globalShaderPrefix(StelOpenGL::FRAGMENT_SHADER) +
+				projector->getUnProjectShader() +
+				R"(
+VARYING vec3 ndcPos;
+uniform mat4 projectionMatrixInverse;
+void main()
+{
+	const float PI = 3.14159265;
+	vec4 winPos = projectionMatrixInverse * vec4(ndcPos, 1);
+	bool ok = false;
+	vec3 modelPos = unProject(winPos.x, winPos.y, ok).xyz;
+
+	FRAG_COLOR = vec4(normalize(modelPos), ok ? 1. : 0.);
+}
+)";
+			bool ok = viewDirGenProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, frag);
+			if(!viewDirGenProgram->log().isEmpty())
+				qWarning().noquote() << "StelCore::updateViewDirTexture(): warnings while compiling fragment shader:\n"
+									 << viewDirGenProgram->log();
+			if(!ok) return;
+		}
+
+		viewDirGenProgram->bindAttributeLocation("vertex", 0);
+
+		if(!StelPainter::linkProg(viewDirGenProgram.get(), "View direction computation program"))
+			return;
+	}
+	if(!viewDirGenProgram || !viewDirGenProgram->isLinked())
+		return;
+
+	auto& gl = *QOpenGLContext::currentContext()->functions();
+
+    GLint targetFBO=-1;
+    gl.glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &targetFBO);
+
+	gl.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, viewDirFBO->handle());
+	viewDirGenProgram->bind();
+	viewDirGenProgram->setUniformValue("projectionMatrixInverse",
+									   projector->getProjectionMatrix().inverse().toQMatrix());
+	projector->setUnProjectUniforms(*viewDirGenProgram);
+
+	bindFullScreenQuadVAO();
+	gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	releaseFullScreenQuadVAO();
+
+	viewDirGenProgram->release();
+	gl.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, targetFBO);
+}
 
 /*************************************************************************
  Execute all the pre-drawing functions
@@ -528,6 +710,8 @@ void StelCore::preDraw()
 	gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	skyDrawer->preDraw();
+
+	updateViewDirTexture();
 }
 
 

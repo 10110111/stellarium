@@ -95,9 +95,6 @@ struct SkySettings : ShowMySky::Settings, QObject
 	bool pseudoMirrorEnabled_ = true;
 	bool useEclipseShader_ = false;
 
-	// These variables are not used by AtmosphereRenderer, but it's convenient to keep them here
-	QMatrix4x4 projectionMatrixInverse_;
-
 private:
 	static constexpr const char* zeroOrderScatteringPropName() { return "LandscapeMgr.flagAtmosphereZeroOrderScattering"; }
 	static constexpr const char* singleScatteringPropName()    { return "LandscapeMgr.flagAtmosphereSingleScattering"; }
@@ -211,37 +208,34 @@ void AtmosphereShowMySky::initProperties()
 	propertiesInited_ = true;
 }
 
-std::pair<QByteArray,QByteArray> AtmosphereShowMySky::getViewDirShaderSources(const StelProjector& projector) const
+std::pair<QByteArray,QByteArray> AtmosphereShowMySky::getViewDirShaderSources() const
 {
-	static constexpr char viewDirVertShaderSrc[]=R"(
+	static constexpr char viewDirVertShaderSrc[] = R"(
 #version 330
 in vec3 vertex;
-out vec3 ndcPos;
+out vec2 viewDirTexCoord;
 void main()
 {
 	gl_Position = vec4(vertex, 1.);
-	ndcPos = vertex;
+	viewDirTexCoord = 0.5*vertex.xy+0.5;
 }
 )";
-	const auto viewDirFragShaderSrc =
-		"#version 330\n" +
-		projector.getUnProjectShader() +
-		R"(
-in vec3 ndcPos;
-uniform mat4 projectionMatrixInverse;
+	static constexpr char viewDirFragShaderSrc[] = R"(
+#version 330
+in vec2 viewDirTexCoord;
+uniform sampler2D viewDirTexture;
 uniform bool isZenithProbe;
 vec3 calcViewDir()
 {
 	if(isZenithProbe) return vec3(0,0,1);
 
-	const float PI = 3.14159265;
-	vec4 winPos = projectionMatrixInverse * vec4(ndcPos, 1);
-	bool ok = false;
-	vec3 modelPos = unProject(winPos.x, winPos.y, ok).xyz;
+	vec4 tex = texture(viewDirTexture, viewDirTexCoord);
+#if 0
+	bool ok = bool(tex.w);
+	if(!ok) return vec3(0);
+#endif
 
-//	if(!ok) return vec3(0);
-
-	return normalize(modelPos);
+	return tex.xyz;
 }
 )";
 	return {viewDirVertShaderSrc, viewDirFragShaderSrc};
@@ -321,11 +315,10 @@ void main()
 		if(!StelPainter::linkProg(luminanceToScreenProgram_.get(), "atmosphere luminance-to-screen"))
 			throw InitFailure("Shader program linking failed");
 	}
-	const auto& core = StelApp::getInstance().getCore();
-	const auto projector = core->getProjection(StelCore::FrameAltAz, StelCore::RefractionOff);
-	const auto shaderSources = getViewDirShaderSources(*projector);
+	const auto shaderSources = getViewDirShaderSources();
 	renderer_->initDataLoading(shaderSources.first, shaderSources.second,
-							   {std::pair<std::string,GLuint>{"vertex", SKY_VERTEX_ATTRIB_INDEX}});
+							   {std::pair<std::string,GLuint>{"vertex", SKY_VERTEX_ATTRIB_INDEX}},
+							   1);
 }
 
 void AtmosphereShowMySky::resizeRenderTarget(int width, int height)
@@ -441,14 +434,12 @@ AtmosphereShowMySky::AtmosphereShowMySky()
 		skySettings_.reset(new SkySettings);
 		renderSurfaceFunc_=[this](QOpenGLShaderProgram& prog)
 		{
-			const auto& settings = *static_cast<SkySettings*>(skySettings_.get());
-			prog.setUniformValue("projectionMatrixInverse", settings.projectionMatrixInverse_);
-			prog.setUniformValue("isZenithProbe", false);
 			const auto& core = StelApp::getInstance().getCore();
-			const auto projector = core->getProjection(StelCore::FrameAltAz, StelCore::RefractionOff);
-			projector->setUnProjectUniforms(prog);
-
 			auto& gl = *glfuncs();
+			GL(gl.glActiveTexture(GL_TEXTURE0));
+			GL(gl.glBindTexture(GL_TEXTURE_2D, core->getViewDirTexture()));
+			prog.setUniformValue("viewDirTexture", 0);
+			prog.setUniformValue("isZenithProbe", false);
 
 			GL(gl.glViewport(viewport[0], viewport[1], viewport[2]/atmoRes, viewport[3]/atmoRes));
 			GL(gl.glBindVertexArray(mainVAO_));
@@ -509,34 +500,27 @@ void AtmosphereShowMySky::probeZenithLuminances(const float altitude)
 
 	renderer_->setDrawSurfaceCallback([this](QOpenGLShaderProgram& prog)
 	{
-		const auto& settings = *static_cast<SkySettings*>(skySettings_.get());
-		prog.setUniformValue("projectionMatrixInverse", settings.projectionMatrixInverse_);
 		prog.setUniformValue("isZenithProbe", true);
-		const auto& core = StelApp::getInstance().getCore();
-		const auto projector = core->getProjection(StelCore::FrameAltAz, StelCore::RefractionOff);
-		projector->setUnProjectUniforms(prog);
-
 		auto& gl = *glfuncs();
 		GL(gl.glBindVertexArray(zenithProbeVAO_));
 		GL(gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 		GL(gl.glBindVertexArray(0));
 	});
 
-	const auto unitMat = Mat4f(1,0,0,0,
-	                           0,1,0,0,
-	                           0,0,1,0,
-	                           0,0,0,1);
+	StelOpenGL::checkGLErrors(__FILE__,__LINE__);
 	GL(gl.glScissor(0,prevHeight_-1,1,1));
-	drawAtmosphere(unitMat, 0, M_PI, 0, 0, M_PI, 0, altitude, 1, 1, 0, false, true);
+	StelOpenGL::checkGLErrors(__FILE__,__LINE__);
+	drawAtmosphere(0, M_PI, 0, 0, M_PI, 0, altitude, 1, 1, 0, false, true);
+	StelOpenGL::checkGLErrors(__FILE__,__LINE__);
 	lightPollutionUnitLuminance_ = renderer_->getPixelLuminance({0,0}).y();
-	drawAtmosphere(unitMat, 0, M_PI, 0, 0, M_PI, 0, altitude, 1, 0, 1, false, true);
+	drawAtmosphere(0, M_PI, 0, 0, M_PI, 0, altitude, 1, 0, 1, false, true);
 	airglowUnitLuminance_ = renderer_->getPixelLuminance({0,0}).y();
 
 	renderer_->setDrawSurfaceCallback(renderSurfaceFunc_);
 	GL(gl.glScissor(origScissor[0], origScissor[1], origScissor[2], origScissor[3]));
 }
 
-void AtmosphereShowMySky::drawAtmosphere(Mat4f const& projectionMatrix, const float sunAzimuth, const float sunZenithAngle,
+void AtmosphereShowMySky::drawAtmosphere(const float sunAzimuth, const float sunZenithAngle,
 	                                     const float sunAngularRadius, const float moonAzimuth, const float moonZenithAngle,
 	                                     const float earthMoonDistance, const float altitude, const float brightness_,
 	                                     const float lightPollutionGroundLuminance, const float airglowRelativeBrightness,
@@ -545,7 +529,6 @@ void AtmosphereShowMySky::drawAtmosphere(Mat4f const& projectionMatrix, const fl
 	StelOpenGL::checkGLErrors(__FILE__,__LINE__);
 	Q_UNUSED(airglowRelativeBrightness)
 	auto& settings = *static_cast<SkySettings*>(skySettings_.get());
-	settings.projectionMatrixInverse_ = projectionMatrix.toQMatrix().inverted();
 	settings.altitude_=altitude;
 	settings.sunAzimuth_=sunAzimuth;
 	settings.sunZenithAngle_=sunZenithAngle;
@@ -696,15 +679,6 @@ void AtmosphereShowMySky::computeColor(StelCore* core, const double JD, const Pl
 		initProperties();
 
 		const auto prj = core->getProjection(StelCore::FrameAltAz, StelCore::RefractionOff);
-
-		if(!prevProjector_ || !prj->isSameProjection(*prevProjector_))
-		{
-			const auto shaderSources = getViewDirShaderSources(*prj);
-			renderer_->setViewDirShaders(shaderSources.first, shaderSources.second,
-										 {std::pair<std::string,GLuint>{"vertex", SKY_VERTEX_ATTRIB_INDEX}});
-			prevProjector_ = prj;
-		}
-
 		if (viewport != prj->getViewport())
 			viewport = prj->getViewport();
 		const auto width=viewport[2], height=viewport[3];
@@ -714,6 +688,7 @@ void AtmosphereShowMySky::computeColor(StelCore* core, const double JD, const Pl
 			dynResTimer=0;
 		}
 
+		StelOpenGL::checkGLErrors(__FILE__,__LINE__);
 		if(location.altitude != lastUsedAltitude_)
 		{
 			lastUsedAltitude_ = location.altitude;
@@ -775,15 +750,17 @@ void AtmosphereShowMySky::computeColor(StelCore* core, const double JD, const Pl
 		const auto moonAzimuth = std::atan2(moonDir[1], moonDir[0]);
 		const auto moonZenithAngle = std::acos(moonDir[2]);
 
+		StelOpenGL::checkGLErrors(__FILE__,__LINE__);
 		const auto lightPollutionRelativeBrightness = fader.getInterstate() * lightPollutionLuminance / lightPollutionUnitLuminance_;
 		const auto airglowRelativeBrightness = 1.f;
 		const auto sunRelativeBrightness = noScatter ? 0.f : 1.f;
-		drawAtmosphere(prj->getProjectionMatrix(), sunAzimuth, sunZenithAngle, sunAngularRadius, moonAzimuth, moonZenithAngle, earthMoonDistance,
+		drawAtmosphere(sunAzimuth, sunZenithAngle, sunAngularRadius, moonAzimuth, moonZenithAngle, earthMoonDistance,
 					   location.altitude, sunRelativeBrightness, lightPollutionRelativeBrightness, airglowRelativeBrightness,
 					   eclipseFactor < 1, true);
+		StelOpenGL::checkGLErrors(__FILE__,__LINE__);
 		const auto nonExtLunarMagnitude = moon ? moon->getVMagnitude(core) : 100.f;
 		const auto moonRelativeBrightness = noScatter ? 0.f : std::pow(10.f, 0.4f*(nonExtinctedSolarMagnitude-nonExtLunarMagnitude));
-		drawAtmosphere(prj->getProjectionMatrix(), moonAzimuth, moonZenithAngle, 0, 0, M_PI, 0, location.altitude,
+		drawAtmosphere(moonAzimuth, moonZenithAngle, 0, 0, M_PI, 0, location.altitude,
 					   moonRelativeBrightness, 0, 0, false, false);
 
 		if (!overrideAverageLuminance)
@@ -845,10 +822,12 @@ void AtmosphereShowMySky::draw(StelCore* core)
 		GL(ditherPatternTex_->bind(ditherTexSampler));
 	GL(luminanceToScreenProgram_->setUniformValue(shaderAttribLocations.ditherPattern, ditherTexSampler));
 
+	StelOpenGL::checkGLErrors(__FILE__,__LINE__);
 	GL(gl.glBindVertexArray(mainVAO_));
 	GL(gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 	GL(gl.glBindVertexArray(0));
 
+	StelOpenGL::checkGLErrors(__FILE__,__LINE__);
 	GL(luminanceToScreenProgram_->release());
 }
 

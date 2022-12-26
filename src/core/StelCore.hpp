@@ -27,11 +27,13 @@
 #include "StelSkyDrawer.hpp"
 #include "StelPropertyMgr.hpp"
 #include "Dithering.hpp"
+#include <memory>
 #include <QString>
 #include <QStringList>
 #include <QTime>
 #include <QPair>
 
+class QOpenGLTexture;
 class StelToneReproducer;
 class StelSkyDrawer;
 class StelGeodesicGrid;
@@ -366,6 +368,9 @@ public:
 	QString getDefaultProjectionTypeKey(void) const;
 
 	Vec3d getMouseJ2000Pos(void) const;
+
+	//! Returns the OpenGL name of the texture that maintains view direction of framebuffer pixels
+	int getViewDirTexture();
 
 public slots:
 	//! Smoothly move the observer to the given location
@@ -837,6 +842,13 @@ signals:
 	void updateSearchLists();
 	void ditheringModeChanged(DitheringMode mode);
 
+private:
+	void initViewDirTexture();
+	void updateViewDirTexture();
+	void bindFullScreenQuadVAO();
+	void releaseFullScreenQuadVAO();
+	void setupCurrentFullScreenQuadVAO();
+
 private slots:
 	//! Call this whenever latitude changes. I.e., just connect it to the locationChanged() signal.
 	void updateFixedEquatorialTransformMatrices();
@@ -844,6 +856,11 @@ private:
 	DitheringMode parseDitheringMode(const QString& s);
 
 private:
+	std::unique_ptr<QOpenGLBuffer> fullScreenQuadVBO;
+	std::unique_ptr<QOpenGLVertexArrayObject> fullScreenQuadVAO;
+	std::unique_ptr<QOpenGLShaderProgram> viewDirGenProgram;
+	std::unique_ptr<QOpenGLFramebufferObject> viewDirFBO;
+	StelProjectorP prevProjector;
 	StelToneReproducer* toneReproducer;		// Tones conversion between stellarium world and display device
 	StelSkyDrawer* skyDrawer;
 	StelMovementMgr* movementMgr;		// Manage vision movements
