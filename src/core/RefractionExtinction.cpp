@@ -282,6 +282,13 @@ QByteArray Refraction::getForwardTransformShader() const
 {
 	return QByteArray(1+R"(
 uniform float REFRACTION_press_temp_corr;
+// Workaround for Intel's unusable implementation of sin & cos, which leads to broken geometry of the Moon every 0.9° of elevation.
+float REFRACTION_sin(float x)
+{
+	const float PI = 3.14159265;
+    x = mod(x+PI, 2*PI)-PI;
+    return x*(0.999999599920672 + x*x*(-0.166665526354071 + x*x*(0.00833240298869917 + x*x*(-0.0001980863334175 + x*x*(2.69971463693744e-6 - 2.03622449118901e-8*x*x)))));
+}
 vec3 innerRefractionForward(vec3 altAzPos)
 {
 	const float PI = 3.14159265;
@@ -321,7 +328,7 @@ vec3 innerRefractionForward(vec3 altAzPos)
 	// We have to shorten X,Y components of the vector as well by the change in cosines of altitude, or (sqrt(1-sin(alt))
 
 	float refr_alt_rad=geom_alt_deg*M_PI_180;
-	float sinRef=sin(refr_alt_rad);
+	float sinRef = REFRACTION_sin(refr_alt_rad);
 
 	// FIXME: do we really need double's mantissa length here as a comment in the C++ code says?
 	float shortenxy = abs(sinGeo)>=1.0 ? 1.0 : sqrt((1.-sinRef*sinRef)/(1.-sinGeo*sinGeo));
