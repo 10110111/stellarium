@@ -421,20 +421,23 @@ void StelMovementMgr::handleKeys(QKeyEvent* event)
 		{
 			case Qt::Key_Left:
 				if (gimbal && event->modifiers().testFlag(Qt::AltModifier)){
-					gimbal->addToLongitude(-5.);
+					const double step = event->modifiers() & Qt::ControlModifier ? 0.1 : 5;
+					gimbal->addToLongitude(-step);
 				} else {
 					turnLeft(true);
 				}
 				break;
 			case Qt::Key_Right:
 				if (gimbal && event->modifiers().testFlag(Qt::AltModifier)){
-					gimbal->addToLongitude(5.);
+					const double step = event->modifiers() & Qt::ControlModifier ? 0.1 : 5;
+					gimbal->addToLongitude(step);
 				} else
 				turnRight(true);
 				break;
 			case Qt::Key_Up:
 				if (gimbal && event->modifiers().testFlag(Qt::AltModifier)){
-					gimbal->addToLatitude(5.);
+					const double step = event->modifiers() & Qt::ControlModifier ? 0.1 : 5;
+					gimbal->addToLatitude(step);
 				}
 				else if (event->modifiers().testFlag(Qt::ControlModifier)){
 					zoomIn(true);
@@ -444,7 +447,8 @@ void StelMovementMgr::handleKeys(QKeyEvent* event)
 				break;
 			case Qt::Key_Down:
 				if (gimbal && event->modifiers().testFlag(Qt::AltModifier)){
-					gimbal->addToLatitude(-5.);
+					const double step = event->modifiers() & Qt::ControlModifier ? 0.1 : 5;
+					gimbal->addToLatitude(-step);
 				}
 				else if (event->modifiers().testFlag(Qt::ControlModifier)) {
 					zoomOut(true);
