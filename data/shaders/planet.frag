@@ -385,6 +385,7 @@ void main()
 #ifdef IS_MOON
     texColor = texture2D(tex, moonTexCoord);
     texColor.rgb = srgbToLinear(texColor.rgb);
+    texColor.rgb *= vec3(1., 0.79, 0.57);
 #else
 # ifdef RINGS_SUPPORT
     if(isRing)
