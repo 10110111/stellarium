@@ -20,18 +20,18 @@ max_jobs: 4
 # environment variables
 environment:
   matrix:
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    qtver: 6.4
-    qtbin: msvc2019_64
-    msvcname: Visual Studio 16 2019
+#  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+#    qtver: 6.4
+#    qtbin: msvc2019_64
+#    msvcname: Visual Studio 16 2019
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
     qtver: 5.12
     qtbin: msvc2017_64
     msvcname: Visual Studio 15 2017 Win64
-  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    qtver: 5.12
-    qtbin: msvc2017
-    msvcname: Visual Studio 15 2017
+#  - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+#    qtver: 5.12
+#    qtbin: msvc2017
+#    msvcname: Visual Studio 15 2017
 
 before_build:
   - ps: if($env:qtbin.contains('_64')) { $env:BITS=64 } else { $env:BITS=32 }
