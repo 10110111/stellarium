@@ -20,10 +20,12 @@
 #ifndef STELAPP_HPP
 #define STELAPP_HPP
 
+#include <memory>
 #include <qguiapplication.h>
 #include <QString>
 #include <QObject>
 #include <QRandomGenerator>
+#include "StelTextureTypes.hpp"
 #include "StelModule.hpp"
 #include "VecMath.hpp"
 
@@ -37,6 +39,9 @@ class StelMainView;
 class StelSkyCultureMgr;
 class StelViewportEffect;
 class QOpenGLFramebufferObject;
+class QOpenGLVertexArrayObject;
+class QOpenGLShaderProgram;
+class QOpenGLBuffer;
 class QOpenGLFunctions;
 class QSettings;
 class QNetworkAccessManager;
@@ -368,6 +373,8 @@ private:
 	//! @param drawFbo the OpenGL fbo we need to render into.
 	void applyRenderBuffer(quint32 drawFbo=0);
 
+	void setupLinearToSRGBBlitter();
+
 	QString getVersion() const;
 
 	// The StelApp singleton
@@ -473,6 +480,18 @@ private:
 
 	// Framebuffer object used for viewport effects.
 	QOpenGLFramebufferObject* renderBuffer;
+	std::unique_ptr<QOpenGLBuffer> linearToSRGB_VBO;
+	std::unique_ptr<QOpenGLVertexArrayObject> linearToSRGB_VAO;
+	std::unique_ptr<QOpenGLShaderProgram> linearToSRGB_Program;
+	std::unique_ptr<QOpenGLFramebufferObject> linearLightTexFBO;
+	std::unique_ptr<QOpenGLFramebufferObject> linearLightMultisampledFBO;
+	StelTextureSP ditherPatternTex;
+	struct LinearToSRGBUniformLocations
+	{
+		int tex;
+		int ditherPattern;
+		int rgbMaxValue;
+	} linearToSRGBUniformLocations;
 	StelViewportEffect* viewportEffect;
 	QOpenGLFunctions* gl;
 	
