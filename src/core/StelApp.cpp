@@ -907,7 +907,7 @@ void StelApp::draw()
 		qDebug().nospace() << "Creating linear-light FBO with size " << w << "x" << h;
 		QOpenGLFramebufferObjectFormat format;
 		format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-		format.setInternalTextureFormat(GL_SRGB8_ALPHA8);
+		format.setInternalTextureFormat(GL_RGBA16);
 		const auto samples = confSettings->value("video/multisampling", 0).toInt();
 		if(samples > 1)
 		{
@@ -936,7 +936,6 @@ void StelApp::draw()
 
 	GL(gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
-	gl->glEnable(GL_FRAMEBUFFER_SRGB);
 	for(auto* module : modules)
 		module->draw(core);
 
@@ -946,7 +945,6 @@ void StelApp::draw()
 		QOpenGLFramebufferObject::blitFramebuffer(linearLightTexFBO.get(), linearLightMultisampledFBO.get(),
 												  GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 	}
-	gl->glDisable(GL_FRAMEBUFFER_SRGB);
 
 	GL(gl->glBindFramebuffer(GL_FRAMEBUFFER, srgbFBO));
 	linearToSRGB_Program->bind();
