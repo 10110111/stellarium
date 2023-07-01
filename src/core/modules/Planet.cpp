@@ -3874,7 +3874,7 @@ void sMoon(Moon3DModel* model, const double equatorialRadius, const double oneMi
 {
 	try
 	{
-		const auto path = StelFileMgr::findFile("models/moon-vertices-indices-striped.bin", StelFileMgr::File);
+		const auto path = StelFileMgr::findFile("models/moon-vertices-indices.bin", StelFileMgr::File);
 		if(path.isEmpty())
 			throw std::runtime_error("cannot find the model file");
 
