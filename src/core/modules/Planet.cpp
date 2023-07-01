@@ -370,12 +370,10 @@ Planet::~Planet()
 			gl->glDeleteBuffers(1, &sphereVBO);
 		if(ringsVAO)
 			gl->glDeleteBuffers(1, &ringsVBO);
-		if(moonVAO)
-			gl->glDeleteBuffers(1, &moonVBO);
 		if(surveyVBO)
 			gl->glDeleteBuffers(1, &surveyVBO);
-		if(moonVBO)
-			gl->glDeleteBuffers(1, &moonVBO);
+		if(!moonVBOs.empty())
+			gl->glDeleteBuffers(moonVBOs.size(), moonVBOs.data());
 	}
 }
 
@@ -3866,40 +3864,57 @@ void sSphere(Planet3DModel* model, const float radius, const float oneMinusOblat
 
 struct Moon3DModel
 {
-	QVector<float> vertexArr;
-	QVector<uint32_t> indexArr;
+	struct Mesh
+	{
+		QVector<float> vertexArr;
+		QVector<uint32_t> indexArr;
+	};
+	std::vector<Mesh> meshes;
 };
 
 void sMoon(Moon3DModel* model, const double equatorialRadius, const double oneMinusOblateness)
 {
 	try
 	{
-		const auto path = StelFileMgr::findFile("models/moon-vertices-indices.bin", StelFileMgr::File);
-		if(path.isEmpty())
-			throw std::runtime_error("cannot find the model file");
+		for(int dir = 0; dir < 6; ++dir)
+		{
+			for(int cell = 0; cell < 4; ++cell)
+			{
+				static constexpr char symbols[6] = {'X', 'x', 'Y', 'y', 'Z', 'z'};
+				const auto pathTemplate = QString("models/moon-vertices-indices-%1%2.bin").arg(symbols[dir]).arg(cell);
+				const auto path = StelFileMgr::findFile(pathTemplate, StelFileMgr::File);
+				if(path.isEmpty())
+					throw std::runtime_error("cannot find the model file "+pathTemplate.toStdString());
 
-		QFile file(path);
-		if(!file.open(QFile::ReadOnly))
-			throw std::runtime_error("cannot open file: "+file.errorString().toStdString());
+				QFile file(path);
+				if(!file.open(QFile::ReadOnly))
+					throw std::runtime_error("cannot open file: "+file.errorString().toStdString());
 
-		uint32_t vertexCount, indexCount;
-		if(file.read(reinterpret_cast<char*>(&vertexCount), sizeof vertexCount) != qint64(sizeof vertexCount))
-			throw std::runtime_error("cannot read vertex count");
-		if(file.read(reinterpret_cast<char*>(&indexCount), sizeof indexCount) != qint64(sizeof indexCount))
-			throw std::runtime_error("cannot read index count");
+				uint32_t vertexCount, indexCount;
+				if(file.read(reinterpret_cast<char*>(&vertexCount), sizeof vertexCount) != qint64(sizeof vertexCount))
+					throw std::runtime_error("cannot read vertex count");
+				if(file.read(reinterpret_cast<char*>(&indexCount), sizeof indexCount) != qint64(sizeof indexCount))
+					throw std::runtime_error("cannot read index count");
 
-		model->vertexArr.resize(3 * vertexCount);
-		const qint64 vertSize = model->vertexArr.size()*sizeof model->vertexArr[0];
-		if(file.read(reinterpret_cast<char*>(model->vertexArr.data()), vertSize) != vertSize)
-			throw std::runtime_error("cannot read vertices");
+				model->meshes.push_back({});
+				model->meshes.back().vertexArr.resize(3 * vertexCount);
+				const qint64 vertSize = model->meshes.back().vertexArr.size()*sizeof model->meshes.back().vertexArr[0];
+				if(file.read(reinterpret_cast<char*>(model->meshes.back().vertexArr.data()), vertSize) != vertSize)
+					throw std::runtime_error("cannot read vertices");
 
-		model->indexArr.resize(indexCount);
-		const qint64 indSize = model->indexArr.size()*sizeof model->indexArr[0];
-		if(file.read(reinterpret_cast<char*>(model->indexArr.data()), indSize) != indSize)
-			throw std::runtime_error("cannot read indices");
-
-		qDebug() << "The Moon: read" << model->vertexArr.size()/3
-				 << "vertices and" << model->indexArr.size() << "indices";
+				model->meshes.back().indexArr.resize(indexCount);
+				const qint64 indSize = model->meshes.back().indexArr.size()*sizeof model->meshes.back().indexArr[0];
+				if(file.read(reinterpret_cast<char*>(model->meshes.back().indexArr.data()), indSize) != indSize)
+					throw std::runtime_error("cannot read indices");
+			}
+		}
+		unsigned totalVertices = 0, totalIndices = 0;
+		for(const auto& mesh : model->meshes)
+		{
+			totalVertices += mesh.vertexArr.size() / 3;
+			totalIndices += mesh.indexArr.size();
+		}
+		qDebug() << "The Moon: read" << totalVertices << "vertices and" << totalIndices << "indices";
 	}
 	catch(std::exception const& ex)
 	{
@@ -3907,10 +3922,12 @@ void sMoon(Moon3DModel* model, const double equatorialRadius, const double oneMi
 		qWarning() << "Falling back to an ellipsoid";
 		Planet3DModel p;
 		sSphere(&p, equatorialRadius, oneMinusOblateness, 100, 100);
-		model->vertexArr = std::move(p.vertexArr);
-		model->indexArr.resize(p.indiceArr.size());
-		std::transform(p.indiceArr.begin(), p.indiceArr.end(), model->indexArr.begin(),
-					   [](const unsigned x){ return uint32_t(x); });
+		model->meshes.push_back({});
+		model->meshes.back().vertexArr = std::move(p.vertexArr);
+		model->meshes.back().indexArr.resize(p.indiceArr.size());
+		std::transform(p.indiceArr.begin(), p.indiceArr.end(),
+			       model->meshes.back().indexArr.begin(),
+			       [](const unsigned x){ return uint32_t(x); });
 	}
 }
 
@@ -4085,29 +4102,29 @@ Planet::RenderData Planet::setCommonShaderUniforms(const StelPainter& painter, Q
 	return data;
 }
 
-void Planet::setupMoonVAO()
+void Planet::setupMoonVAO(const unsigned vaoIndex)
 {
 	auto& gl = *QOpenGLContext::currentContext()->functions();
-	gl.glBindBuffer(GL_ARRAY_BUFFER, moonVBO);
-	gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, moonVBO);
+	gl.glBindBuffer(GL_ARRAY_BUFFER, moonVBOs[vaoIndex]);
+	gl.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, moonVBOs[vaoIndex]);
 	moonShaderProgram->setAttributeBuffer(moonShaderVars.vertex, GL_FLOAT, 0, 3);
 	moonShaderProgram->enableAttributeArray(moonShaderVars.vertex);
 	gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Planet::bindMoonVAO()
+void Planet::bindMoonVAO(const unsigned vaoIndex)
 {
-	if(moonVAO->isCreated())
-		moonVAO->bind();
+	if(moonVAOs[vaoIndex]->isCreated())
+		moonVAOs[vaoIndex]->bind();
 	else
-		setupMoonVAO();
+		setupMoonVAO(vaoIndex);
 }
 
-void Planet::releaseMoonVAO()
+void Planet::releaseMoonVAO(const unsigned vaoIndex)
 {
-	if(moonVAO->isCreated())
+	if(moonVAOs[vaoIndex]->isCreated())
 	{
-		moonVAO->release();
+		moonVAOs[vaoIndex]->release();
 	}
 	else
 	{
@@ -4122,7 +4139,7 @@ void Planet::drawMoon(StelPainter*const painter)
 		return;
 
 	static Moon3DModel model; // FIXME: this should be a data member of Planet, not a global static object
-	if(model.indexArr.isEmpty())
+	if(model.meshes.empty())
 		sMoon(&model, equatorialRadius, oneMinusOblateness);
 
 	const auto projector = painter->getProjector();
@@ -4235,33 +4252,48 @@ void Planet::drawMoon(StelPainter*const painter)
 	GL(horizonMap->bind(4));
 	GL(moonShaderProgram->setUniformValue(moonShaderVars.horizonMap, 4));
 
-	const auto vertArrSize = model.vertexArr.size() * GLsizeiptr(sizeof model.vertexArr[0]);
-	const auto indicesOffset = vertArrSize;
-	const auto indicesSize = model.indexArr.size() * GLsizeiptr(sizeof model.indexArr[0]);
-
-	if(!moonVAO)
+	if(moonVAOs.empty())
 	{
-		moonVAO.reset(new QOpenGLVertexArrayObject);
-		moonVAO->create();
-		gl->glGenBuffers(1, &moonVBO);
+		moonVBOs.resize(model.meshes.size());
+		gl->glGenBuffers(moonVBOs.size(), moonVBOs.data());
 
-		gl->glBindBuffer(GL_ARRAY_BUFFER, moonVBO);
-		gl->glBufferData(GL_ARRAY_BUFFER, vertArrSize+indicesSize, nullptr, GL_STATIC_DRAW);
-		gl->glBufferSubData(GL_ARRAY_BUFFER, 0, vertArrSize, model.vertexArr.constData());
-		gl->glBufferSubData(GL_ARRAY_BUFFER, indicesOffset, indicesSize, model.indexArr.constData());
+		for(unsigned n = 0; n < moonVBOs.size(); ++n)
+		{
+			const auto moonVBO = moonVBOs[n];
 
-		bindMoonVAO();
-		setupMoonVAO();
-		releaseMoonVAO();
+			const auto& mesh = model.meshes[n];
+			const auto vertArrSize = mesh.vertexArr.size() * GLsizeiptr(sizeof mesh.vertexArr[0]);
+			const auto indicesOffset = vertArrSize;
+			const auto indicesSize = mesh.indexArr.size() * GLsizeiptr(sizeof mesh.indexArr[0]);
+
+			moonVAOs.emplace_back(new QOpenGLVertexArrayObject);
+			moonVAOs.back()->create();
+
+			gl->glBindBuffer(GL_ARRAY_BUFFER, moonVBO);
+			gl->glBufferData(GL_ARRAY_BUFFER, vertArrSize+indicesSize, nullptr, GL_STATIC_DRAW);
+			gl->glBufferSubData(GL_ARRAY_BUFFER, 0, vertArrSize, mesh.vertexArr.constData());
+			gl->glBufferSubData(GL_ARRAY_BUFFER, indicesOffset, indicesSize, mesh.indexArr.constData());
+
+			bindMoonVAO(n);
+			setupMoonVAO(n);
+			releaseMoonVAO(n);
+		}
 	}
 
 	painter->setDepthMask(true);
 	painter->setDepthTest(true);
 	gl->glClear(GL_DEPTH_BUFFER_BIT);
 
-	bindMoonVAO();
-	GL(gl->glDrawElements(GL_TRIANGLES, model.indexArr.size(), GL_UNSIGNED_INT, reinterpret_cast<void*>(indicesOffset)));
-	releaseMoonVAO();
+	for(unsigned vaoIndex = 0; vaoIndex < moonVAOs.size(); ++vaoIndex)
+	{
+		bindMoonVAO(vaoIndex);
+		const auto& mesh = model.meshes[vaoIndex];
+		const auto vertArrSize = mesh.vertexArr.size() * GLsizeiptr(sizeof mesh.vertexArr[0]);
+		const auto indicesOffset = vertArrSize;
+		GL(gl->glDrawElements(GL_TRIANGLES, mesh.indexArr.size(),
+				      GL_UNSIGNED_INT, reinterpret_cast<void*>(indicesOffset)));
+		releaseMoonVAO(vaoIndex);
+	}
 
 	GL(moonShaderProgram->release());
 

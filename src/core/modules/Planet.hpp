@@ -845,19 +845,19 @@ private:
 
 	std::unique_ptr<QOpenGLVertexArrayObject> sphereVAO;
 	std::unique_ptr<QOpenGLVertexArrayObject> ringsVAO;
-	std::unique_ptr<QOpenGLVertexArrayObject> moonVAO;
+	std::vector<std::unique_ptr<QOpenGLVertexArrayObject>> moonVAOs;
 	GLuint sphereVBO=0;
 	GLuint ringsVBO=0;
-	GLuint moonVBO=0;
+	std::vector<GLuint> moonVBOs;
 
 	std::unique_ptr<QOpenGLVertexArrayObject> surveyVAO;
 	GLuint surveyVBO=0;
 
 	StelProjectorP prevProjector;
 
-	void setupMoonVAO();
-	void bindMoonVAO();
-	void releaseMoonVAO();
+	void setupMoonVAO(unsigned vaoIndex);
+	void bindMoonVAO(unsigned vaoIndex);
+	void releaseMoonVAO(unsigned vaoIndex);
 
 	const QString getContextString() const;
 	QPair<double, double> getLunarEclipseMagnitudes() const;
