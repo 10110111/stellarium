@@ -3890,29 +3890,37 @@ void sMoon(Moon3DModel* model, const double equatorialRadius, const double oneMi
 {
 	try
 	{
-		const auto path = StelFileMgr::findFile("models/moon-vertices-indices-striped.bin", StelFileMgr::File);
+		const auto path = StelFileMgr::findFile("models/moon-vertices-indices.bin.gz", StelFileMgr::File);
 		if(path.isEmpty())
 			throw std::runtime_error("cannot find the model file");
 
 		QFile file(path);
 		if(!file.open(QFile::ReadOnly))
 			throw std::runtime_error("cannot open file: "+file.errorString().toStdString());
+		const auto data = StelUtils::uncompress(file);
 
 		uint32_t vertexCount, indexCount;
-		if(file.read(reinterpret_cast<char*>(&vertexCount), sizeof vertexCount) != qint64(sizeof vertexCount))
-			throw std::runtime_error("cannot read vertex count");
-		if(file.read(reinterpret_cast<char*>(&indexCount), sizeof indexCount) != qint64(sizeof indexCount))
-			throw std::runtime_error("cannot read index count");
+		if(data.size() < sizeof vertexCount + sizeof indexCount)
+			throw std::runtime_error("cannot read vertex and index count");
+		qsizetype pos = 0;
+		std::memcpy(&vertexCount, data.data() + pos, sizeof vertexCount);
+		pos += sizeof vertexCount;
+		std::memcpy(&indexCount, data.data() + pos, sizeof indexCount);
+		pos += sizeof indexCount;
 
 		model->vertexArr.resize(3 * vertexCount);
 		const qint64 vertSize = model->vertexArr.size()*sizeof model->vertexArr[0];
-		if(file.read(reinterpret_cast<char*>(model->vertexArr.data()), vertSize) != vertSize)
+		if(data.size() < pos + vertSize)
 			throw std::runtime_error("cannot read vertices");
+		std::memcpy(model->vertexArr.data(), data.data() + pos, vertSize);
+		pos += vertSize;
 
 		model->indexArr.resize(indexCount);
 		const qint64 indSize = model->indexArr.size()*sizeof model->indexArr[0];
-		if(file.read(reinterpret_cast<char*>(model->indexArr.data()), indSize) != indSize)
+		if(data.size() < pos + indSize)
 			throw std::runtime_error("cannot read indices");
+		std::memcpy(model->indexArr.data(), data.data() + pos, indSize);
+		pos += indSize;
 
 		qDebug() << "The Moon: read" << model->vertexArr.size()/3
 				 << "vertices and" << model->indexArr.size() << "indices";
