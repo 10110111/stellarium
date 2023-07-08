@@ -42,16 +42,22 @@ class StelTexture: public QObject, public QEnableSharedFromThis<StelTexture>
 	Q_OBJECT
 
 public:
+	enum class ColorSpace
+	{
+		sRGB,
+		LinearSRGB,
+	};
 	//! Contains the parameters defining how a texture is created.
 	struct StelTextureParams
 	{
-		StelTextureParams(bool qgenerateMipmaps=false, GLint afiltering=GL_LINEAR,
-				  GLint awrapMode=GL_CLAMP_TO_EDGE, bool qfilterMipmaps=false, int decimateBy=1)
+		StelTextureParams(bool qgenerateMipmaps=false, GLint afiltering=GL_LINEAR, GLint awrapMode=GL_CLAMP_TO_EDGE,
+		                  bool qfilterMipmaps=false, ColorSpace colorSpace=ColorSpace::LinearSRGB, int decimateBy=1)
 			: generateMipmaps(qgenerateMipmaps)
 			, filterMipmaps(qfilterMipmaps)
 			, filtering(afiltering)
 			, wrapMode(awrapMode)
 			, decimation(decimateBy)
+			, colorSpace(colorSpace)
 		{
 		}
 		//! Define if mipmaps must be created.
@@ -66,6 +72,7 @@ public:
 		//! Allow a reduction of the size of the texture image (useful for very limited hardware)
 		//! The image size will be divided by this factor (e.g. 2, 3, 4, ...)
 		int decimation;
+		ColorSpace colorSpace;
 	};
 
 	//! Destructor
