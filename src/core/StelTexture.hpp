@@ -43,18 +43,16 @@ class StelTexture: public QObject, public QEnableSharedFromThis<StelTexture>
 	Q_OBJECT
 
 public:
+	enum class ColorSpace
+	{
+		sRGB,
+		LinearSRGB,
+	};
 	//! Contains the parameters defining how a texture is created.
 	struct StelTextureParams
 	{
-		StelTextureParams(bool qgenerateMipmaps=false, GLint afiltering=GL_LINEAR,
-				  GLint awrapMode=GL_CLAMP_TO_EDGE, bool qfilterMipmaps=false, int decimateBy=1)
-			: generateMipmaps(qgenerateMipmaps)
-			, filterMipmaps(qfilterMipmaps)
-			, filtering(afiltering)
-			, wrapMode(awrapMode)
-			, decimation(decimateBy)
-		{
-		}
+		StelTextureParams(bool qgenerateMipmaps=false, GLint afiltering=GL_LINEAR, GLint awrapMode=GL_CLAMP_TO_EDGE,
+		                  bool qfilterMipmaps=false, ColorSpace colorSpace = ColorSpace::LinearSRGB, int decimateBy=1);
 		//! Define if mipmaps must be created.
 		bool generateMipmaps;
 		//! If true, mipmapped textures are filtered with GL_LINEAR_MIPMAP_LINEAR instead
@@ -67,6 +65,11 @@ public:
 		//! Allow a reduction of the size of the texture image (useful for very limited hardware)
 		//! The image size will be divided by this factor (e.g. 2, 3, 4, ...)
 		int decimation;
+		//! \brief If set to ColorSpace::sRGB, the texture samples will automatically convert
+		//! the values sampled to linear color.
+		//!
+		//! This is intended only for high graphics mode, it must be set to LinearSRGB in legacy mode.
+		ColorSpace colorSpace = ColorSpace::LinearSRGB;
 	};
 
 	//! Destructor
