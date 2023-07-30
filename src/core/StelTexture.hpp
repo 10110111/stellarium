@@ -52,7 +52,7 @@ public:
 	struct StelTextureParams
 	{
 		StelTextureParams(bool qgenerateMipmaps=false, GLint afiltering=GL_LINEAR, GLint awrapMode=GL_CLAMP_TO_EDGE,
-		                  bool qfilterMipmaps=false, ColorSpace colorSpace = ColorSpace::LinearSRGB, int decimateBy=1);
+		                  bool qfilterMipmaps=false, ColorSpace colorSpace = ColorSpace::sRGB, int decimateBy=1);
 		//! Define if mipmaps must be created.
 		bool generateMipmaps;
 		//! If true, mipmapped textures are filtered with GL_LINEAR_MIPMAP_LINEAR instead

@@ -21,6 +21,7 @@
 
 #include "Landscape.hpp"
 #include "StelApp.hpp"
+#include "StelSRGB.hpp"
 #include "StelTextureMgr.hpp"
 #include "StelFileMgr.hpp"
 #include "StelLocation.hpp"
@@ -1080,7 +1081,8 @@ void LandscapeOldStyle::drawFog(StelCore*const core, const int firstFreeTexSampl
 	renderProgram->setUniformValue(shaderVars.fogCylinderHeight, height);
 	renderProgram->setUniformValue(shaderVars.vshift, vpos);
 
-	const float brightness = landFader.getInterstate()*fogFader.getInterstate()*(0.1f+0.1f*landscapeBrightness);
+	const float brightness =
+		colorToShader(landFader.getInterstate()*fogFader.getInterstate()*(0.1f+0.1f*landscapeBrightness));
 	renderProgram->setUniformValue(shaderVars.brightness, brightness, brightness, brightness,
 				       (1.f-landscapeTransparency)*landFader.getInterstate());
 	renderProgram->setUniformValue(shaderVars.projectionMatrixInverse, prj->getProjectionMatrix().toQMatrix().inverted());
@@ -1103,15 +1105,15 @@ void LandscapeOldStyle::drawDecor(StelCore*const core, const int firstFreeTexSam
 
 	if (drawLight)
 	{
-		const auto brightness = illumFader.getInterstate()*lightScapeBrightness;
+		const auto brightness = colorToShader(illumFader.getInterstate()*lightScapeBrightness);
 		renderProgram->setUniformValue(shaderVars.brightness,
 					       brightness, brightness, brightness,
 					       (1.f-landscapeTransparency)*landFader.getInterstate());
 	}
 	else
 	{
-		renderProgram->setUniformValue(shaderVars.brightness,
-					       landscapeBrightness, landscapeBrightness, landscapeBrightness,
+		const auto brightness = colorToShader(landscapeBrightness);
+		renderProgram->setUniformValue(shaderVars.brightness, brightness, brightness, brightness,
 					       (1.f-landscapeTransparency)*landFader.getInterstate());
 	}
 
@@ -1207,8 +1209,8 @@ void LandscapeOldStyle::drawGround(StelCore*const core, const int firstFreeTexSa
 	renderProgram->setUniformValue(shaderVars.mapTex, texSampler);
 	renderProgram->setUniformValue(shaderVars.vshift, vshift);
 	renderProgram->setUniformValue(shaderVars.projectionMatrixInverse, prj->getProjectionMatrix().toQMatrix().inverted());
-	renderProgram->setUniformValue(shaderVars.brightness,
-				       landscapeBrightness, landscapeBrightness, landscapeBrightness,
+	const auto brightness = colorToShader(landscapeBrightness);
+	renderProgram->setUniformValue(shaderVars.brightness, brightness, brightness, brightness,
 				       (1.f-landscapeTransparency)*landFader.getInterstate());
 	prj->setUnProjectUniforms(*renderProgram);
 	gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -1685,9 +1687,9 @@ void main(void)
 	if (!onlyPolygon || !horizonPolygon) // Make sure to draw the regular pano when there is no polygon
 	{
 		renderProgram->bind();
-		renderProgram->setUniformValue(shaderVars.brightness,
-					       landscapeBrightness, landscapeBrightness,
-					       landscapeBrightness, landFader.getInterstate());
+		const auto brightness = colorToShader(landscapeBrightness);
+		renderProgram->setUniformValue(shaderVars.brightness, brightness, brightness, brightness,
+					       landFader.getInterstate());
 		const int mainTexSampler = 0;
 		mapTex->bind(mainTexSampler);
 		renderProgram->setUniformValue(shaderVars.mapTex, mainTexSampler);
@@ -1706,7 +1708,8 @@ void main(void)
 		if ((mapTexFog) && (core->getSkyDrawer()->getFlagHasAtmosphere()))
 		{
 			gl.glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
-			const float brightness = landFader.getInterstate()*fogFader.getInterstate()*(0.1f+0.1f*landscapeBrightness);
+			const float brightness =
+				colorToShader(landFader.getInterstate()*fogFader.getInterstate()*(0.1f+0.1f*landscapeBrightness));
 
 			renderProgram->setUniformValue(shaderVars.brightness, brightness, brightness, brightness,
 						       landFader.getInterstate());
@@ -1717,7 +1720,7 @@ void main(void)
 		if (mapTexIllum && lightScapeBrightness>0.0f && (illumFader.getInterstate()>0.f))
 		{
 			gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			const float brightness = lightScapeBrightness*illumFader.getInterstate();
+			const float brightness = colorToShader(lightScapeBrightness*illumFader.getInterstate());
 			renderProgram->setUniformValue(shaderVars.brightness, brightness, brightness, brightness,
 						       landFader.getInterstate());
 			mapTexIllum->bind();
@@ -2038,15 +2041,15 @@ void main(void)
 	if (!onlyPolygon || !horizonPolygon) // Make sure to draw the regular pano when there is no polygon
 	{
 		renderProgram->bind();
-		renderProgram->setUniformValue(shaderVars.bottomCapColor,
-					       landscapeBrightness*bottomCapColor[0],
-					       landscapeBrightness*bottomCapColor[1],
-					       landscapeBrightness*bottomCapColor[2],
+		const auto color = colorToShader(Vec3f(landscapeBrightness*bottomCapColor[0],
+		                                       landscapeBrightness*bottomCapColor[1],
+		                                       landscapeBrightness*bottomCapColor[2]));
+		renderProgram->setUniformValue(shaderVars.bottomCapColor, color.x(), color.y(), color.z(),
 					       bottomCapColor[0] < 0 ? 0 : landFader.getInterstate());
 
-		renderProgram->setUniformValue(shaderVars.brightness,
-					       landscapeBrightness, landscapeBrightness,
-					       landscapeBrightness, (1.f-landscapeTransparency)*landFader.getInterstate());
+		const auto brightness = colorToShader(landscapeBrightness);
+		renderProgram->setUniformValue(shaderVars.brightness, brightness, brightness, brightness,
+					       (1.f-landscapeTransparency)*landFader.getInterstate());
 		const int mainTexSampler = 0;
 		mapTex->bind(mainTexSampler);
 		renderProgram->setUniformValue(shaderVars.mapTex, mainTexSampler);
@@ -2068,7 +2071,7 @@ void main(void)
 		{
 			gl.glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
 			const float brightness =
-				landFader.getInterstate()*fogFader.getInterstate()*(0.1f+0.1f*landscapeBrightness);
+				colorToShader(landFader.getInterstate()*fogFader.getInterstate()*(0.1f+0.1f*landscapeBrightness));
 
 			renderProgram->setUniformValue(shaderVars.bottomCapColor, 0.f, 0.f, 0.f, 0.f);
 			renderProgram->setUniformValue(shaderVars.brightness,
@@ -2084,7 +2087,7 @@ void main(void)
 		if (mapTexIllum && (lightScapeBrightness>0.0f) && (illumFader.getInterstate()>0.0f))
 		{
 			gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			const float brightness = lightScapeBrightness*illumFader.getInterstate();
+			const float brightness = colorToShader(lightScapeBrightness*illumFader.getInterstate());
 			renderProgram->setUniformValue(shaderVars.bottomCapColor, 0.f, 0.f, 0.f, 0.f);
 			renderProgram->setUniformValue(shaderVars.brightness,
 						       brightness, brightness, brightness,
