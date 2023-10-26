@@ -87,6 +87,12 @@
           </property>
           <item>
            <widget class="QLineEdit" name="lineEditSearchSkyObject">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
               <width>0</width>
@@ -116,7 +122,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButtonGotoSearchSkyObject">
+           <widget class="QToolButton" name="pushButtonGotoSearchSkyObject">
             <property name="focusPolicy">
              <enum>Qt::NoFocus</enum>
             </property>
@@ -124,12 +130,6 @@
              <iconset resource="../../data/gui/guiRes.qrc">
               <normaloff>:/graphicGui/uibtSearch.png</normaloff>
               <disabledoff>:/graphicGui/uibtSearch.png</disabledoff>:/graphicGui/uibtSearch.png</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>24</width>
-              <height>24</height>
-             </size>
             </property>
             <property name="checkable">
              <bool>false</bool>
@@ -782,7 +782,7 @@
              </widget>
             </item>
             <item row="1" column="2">
-             <widget class="QPushButton" name="goPushButton">
+             <widget class="QToolButton" name="goPushButton">
               <property name="toolTip">
                <string>Go to position</string>
               </property>
@@ -1083,7 +1083,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="recentSearchClearDataPushButton">
+             <widget class="QToolButton" name="recentSearchClearDataPushButton">
               <property name="toolTip">
                <string extracomment="Deletes all recent search object data"/>
               </property>
