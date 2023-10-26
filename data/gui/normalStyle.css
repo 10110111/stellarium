@@ -369,6 +369,11 @@ QToolButton#pushButtonGotoSearchSkyObject {
 	qproperty-iconSize: 24px;
 }
 
+QToolButton#pushButtonCustomStepsDialog, QToolButton#pushButtonNow {
+	qproperty-iconSize: 20px;
+	padding: 0;
+}
+
 /*
  * QCheckBox
  */
