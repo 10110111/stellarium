@@ -374,6 +374,15 @@ QToolButton#pushButtonCustomStepsDialog, QToolButton#pushButtonNow {
 	padding: 0;
 }
 
+StelCloseButton, StelCloseButton:hover {
+	min-width: 16px;
+	max-width: 16px;
+	min-height: 16px;
+	max-height: 16px;
+	margin: 0;
+	background: none;
+}
+
 /*
  * QCheckBox
  */
