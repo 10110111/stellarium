@@ -66,6 +66,10 @@
 #include <QAction>
 #include <QKeySequence>
 
+// TODO:
+// * `grep '\<\(setFixedSize\|setIconSize\)\>' src/ plugins/ -rI` should find nothing
+// * `find . -name '*.ui' -exec grep -H --color '\<iconSize\|minimumSize\|maximumSize\>' {} +` should find nothing
+// * Fix clipping of text in the list in View->Surveys
 static QString applyScaleToCSS(const QString& css, const double scale)
 {
 	auto out = css;
