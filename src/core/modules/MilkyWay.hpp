@@ -61,6 +61,9 @@ public:
 
 	//! Draw the Milky Way.
 	void draw(StelCore* core) override;
+
+	//! Draw the Milky Way.
+	void physicalDraw(StelCore* core) override;
 	
 	//! Update and time-dependent state.  Updates the fade level while the 
 	//! Milky way rendering is being changed from on to off or off to on.
@@ -108,6 +111,7 @@ private:
 	void setupCurrentVAO();
 	void bindVAO();
 	void releaseVAO();
+	double computeIlluminanceByLMCTexture() const;
 
 private:
 	StelTextureSP mainTex;
@@ -118,14 +122,15 @@ private:
 	double intensityMaxFov;
 	class LinearFader* fader;
 	double saturation = 1.0;
+	double texRGB2cdm2 = 0;
 
 	struct
 	{
 		int mainTex;
 		int brightness;
 		int saturation;
-		int bortleIntensity;
-		int extinctionEnabled;
+		int bortleIntensity; // only for legacy rendering
+		int extinctionEnabled; // only for legacy rendering
 		int projectionMatrixInverse;
 	} shaderVars;
 

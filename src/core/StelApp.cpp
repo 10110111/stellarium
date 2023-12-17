@@ -990,9 +990,17 @@ void StelApp::highGraphicsModeDraw()
 
 	const QList<StelModule*> modules = moduleMgr->getCallOrders(StelModule::ActionDraw);
 
-	for(auto* module : modules)
+	static const bool physicalDrawEnabled = std::string(std::getenv("PHYSICAL_DRAW") ?
+	                                                    std::getenv("PHYSICAL_DRAW") : "") == "1"; // FIXME: stub
+	if(physicalDrawEnabled)
 	{
-		module->draw(core);
+		for(auto* module : modules)
+			module->physicalDraw(core);
+	}
+	else
+	{
+		for(auto* module : modules)
+			module->draw(core);
 	}
 
 	if(sceneMultisampledFBO)

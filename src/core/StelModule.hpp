@@ -72,9 +72,12 @@ public:
 	//! The default implementation returns a null pointer!
 	virtual QSettings *getSettings() {return Q_NULLPTR;}
 
-	//! Execute all the drawing functions for this module.
+	//! Execute all the legacy drawing functions for this module.
 	//! @param core the core to use for the drawing
 	virtual void draw(StelCore* core) {Q_UNUSED(core)}
+
+	//! Do physically-based rendering if applicable
+	virtual void physicalDraw(StelCore*) {}
 
 	//! Update the module with respect to the time.
 	//! @param deltaTime the time increment in second since last call.

@@ -50,6 +50,7 @@ namespace
 {
 constexpr int FS_QUAD_COORDS_PER_VERTEX = 2;
 constexpr int SKY_VERTEX_ATTRIB_INDEX = 0;
+const char mainTexRelPath[] = "/textures/milkyway.png";
 }
 
 // Class which manages the displaying of the Milky Way
@@ -77,7 +78,7 @@ void MilkyWay::init()
 
 	auto& gl = *QOpenGLContext::currentContext()->functions();
 
-	mainTex = StelApp::getInstance().getTextureManager().createTexture(StelFileMgr::getInstallationDir()+"/textures/milkyway.png");
+	mainTex = StelApp::getInstance().getTextureManager().createTexture(StelFileMgr::getInstallationDir()+mainTexRelPath);
 	mainTex->bind(0);
 	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	mainTex->release();
@@ -105,8 +106,74 @@ void MilkyWay::init()
 	setupCurrentVAO();
 	releaseVAO();
 
+	const double lmcVMag = 0.13; // Ref: https://ned.ipac.caltech.edu/byname?objname=Large+Magellanic+Cloud
+	const double illuminanceByLMC = std::pow(10., (-14.18-lmcVMag)/2.5);
+	texRGB2cdm2 = illuminanceByLMC / computeIlluminanceByLMCTexture();
+
 	QString displayGroup = N_("Display Options");
 	addAction("actionShow_MilkyWay", displayGroup, N_("Milky Way"), "flagMilkyWayDisplayed", "M");
+}
+
+double MilkyWay::computeIlluminanceByLMCTexture() const
+{
+	const auto imgPath = StelFileMgr::getInstallationDir()+mainTexRelPath;
+	const auto texImg = QImage(imgPath).convertToFormat(QImage::Format_RGBX8888);
+	if(texImg.isNull())
+	{
+		qWarning() << "Failed to read Milky Way texture from" << imgPath;
+		return NAN;
+	}
+	const uchar*const data = texImg.bits();
+	const size_t stride = texImg.bytesPerLine();
+	const size_t W = texImg.width(), H = texImg.height();
+
+	constexpr double degree = M_PI/180;
+	const double lmcRA = 80.91245*degree;
+	const double lmcDE = -69.7565*degree;
+	const double RAmin = lmcRA - 10*degree;
+	const double RAmax = lmcRA + 10*degree;
+	const double DEmin = lmcDE - 5*degree;
+	const double DEmax = lmcDE + 5*degree;
+
+	assert(DEmin >= -M_PI/2 && DEmin <= M_PI/2);
+	assert(DEmax >= -M_PI/2 && DEmax <= M_PI/2);
+
+	size_t iMin = std::fmod((-RAmax/(2*M_PI)+0.25+1.)*W-0.5, W);
+	size_t iMax = std::fmod((-RAmin/(2*M_PI)+0.25+1.)*W-0.5, W);
+	if(iMax < iMin) iMax += W;
+	const size_t jMin = std::clamp(std::lround((0.5 - DEmax/M_PI) * (H-1)), 0L, long(H-1));
+	const size_t jMax = std::clamp(std::lround((0.5 - DEmin/M_PI) * (H-1)), 0L, long(H-1));
+
+	assert(iMin < iMax);
+	assert(jMin < jMax);
+
+	// Second row of the sRGB-to-XYZ matrix
+	const auto rgb2lum = Vec3d(0.212639, 0.715169, 0.072192);
+
+	double illum = 0;
+	for(size_t j = jMin; j < jMax; ++j)
+	{
+		const double DE = M_PI * (0.5 - j / (H-1.));
+		const double jacobian = std::cos(DE);
+		for(size_t i = iMin; i < iMax; ++i)
+		{
+			//const double RA = -2*M_PI * (i+0.5) / W;
+			const size_t pos = j*stride + 4*(i%W);
+			const double r = data[pos+0] / 255.;
+			const double g = data[pos+1] / 255.;
+			const double b = data[pos+2] / 255.;
+			const Vec3d rgb = srgbToLinear(Vec3d(r,g,b));
+			const double lum = rgb2lum.dot(rgb);
+
+			// NOTE: Ignoring the Lambertian factor, since it only
+			// decreases from 1.00 to 0.99 at 10° shift from the center.
+			illum += lum * jacobian;
+		}
+	}
+	const double dDE = M_PI / (H-1.);
+	const double dRA = 2*M_PI / W;
+	illum *= dRA * dDE;
+	return illum;
 }
 
 void MilkyWay::setupCurrentVAO()
@@ -344,6 +411,116 @@ void main(void)
 	core->setAberrationUniforms(*renderProgram);
 	projector->setUnProjectUniforms(*renderProgram);
 	extinction.setForwardTransformUniforms(*renderProgram);
+
+	auto& gl = *QOpenGLContext::currentContext()->functions();
+
+	gl.glEnable(GL_BLEND);
+	gl.glBlendFunc(GL_ONE,GL_ONE); // allow colored sky background
+	bindVAO();
+	gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	releaseVAO();
+	gl.glDisable(GL_BLEND);
+}
+
+void MilkyWay::physicalDraw(StelCore* core)
+{
+	if (!fader->getInterstate())
+		return;
+
+	const auto modelView = core->getJ2000ModelViewTransform();
+	const auto projector = core->getProjection(modelView);
+
+	if(!renderProgram || !prevProjector || !projector->isSameProjection(*prevProjector))
+	{
+		renderProgram.reset(new QOpenGLShaderProgram);
+		prevProjector = projector;
+
+		const auto vert =
+			StelOpenGL::globalShaderPrefix(StelOpenGL::VERTEX_SHADER) +
+			R"(
+ATTRIBUTE highp vec3 vertex;
+VARYING highp vec3 ndcPos;
+void main()
+{
+	gl_Position = vec4(vertex, 1.);
+	ndcPos = vertex;
+}
+)";
+		bool ok = renderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, vert);
+		if(!renderProgram->log().isEmpty())
+			qWarning().noquote() << "MilkyWay: Warnings while compiling vertex shader:\n" << renderProgram->log();
+		if(!ok) return;
+
+		const auto frag =
+			StelOpenGL::globalShaderPrefix(StelOpenGL::FRAGMENT_SHADER) +
+			projector->getUnProjectShader() +
+			core->getAberrationShader() +
+			makeSaturationShader()+
+			R"(
+VARYING highp vec3 ndcPos;
+uniform sampler2D mainTex;
+uniform lowp float saturation;
+uniform float brightness;
+uniform mat4 projectionMatrixInverse;
+void main()
+{
+	const float PI = 3.14159265;
+	vec4 winPos = projectionMatrixInverse * vec4(ndcPos, 1);
+	bool ok = false;
+	vec3 modelPos = unProject(winPos.x, winPos.y, ok).xyz;
+	if(!ok)
+	{
+		FRAG_COLOR = vec4(0);
+		return;
+	}
+	modelPos = normalize(modelPos);
+	modelPos = applyAberrationToViewDir(modelPos);
+	float modelZenithAngle = acos(-modelPos.z);
+	float modelLongitude = atan(modelPos.x, modelPos.y);
+	vec2 texc = vec2(modelLongitude/(2.*PI), modelZenithAngle/PI);
+
+	vec4 color = texture2D(mainTex, texc)*vec4(vec3(brightness),1);
+	if(saturation != 1.0)
+		color.rgb = saturate(color.rgb, saturation);
+	FRAG_COLOR = color;
+}
+)";
+		ok = renderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, frag);
+		if(!renderProgram->log().isEmpty())
+			qWarning().noquote() << "MilkyWay: Warnings while compiling fragment shader:\n" << renderProgram->log();
+
+		if(!ok) return;
+
+		renderProgram->bindAttributeLocation("vertex", SKY_VERTEX_ATTRIB_INDEX);
+
+		if(!StelPainter::linkProg(renderProgram.get(), "Milky Way render program"))
+			return;
+
+		renderProgram->bind();
+		shaderVars.mainTex          = renderProgram->uniformLocation("mainTex");
+		shaderVars.saturation       = renderProgram->uniformLocation("saturation");
+		shaderVars.brightness       = renderProgram->uniformLocation("brightness");
+		shaderVars.projectionMatrixInverse = renderProgram->uniformLocation("projectionMatrixInverse");
+		renderProgram->release();
+	}
+	if(!renderProgram || !renderProgram->isLinked())
+		return;
+
+	Q_ASSERT(mainTex); // A texture must be loaded before calling this
+
+	renderProgram->bind();
+
+	const int mainTexSampler = 0;
+	mainTex->bind(mainTexSampler);
+	renderProgram->setUniformValue(shaderVars.mainTex, mainTexSampler);
+
+	renderProgram->setUniformValue(shaderVars.projectionMatrixInverse,
+	                               projector->getProjectionMatrix().toQMatrix().inverted());
+	renderProgram->setUniformValue(shaderVars.brightness, GLfloat(texRGB2cdm2*intensity*fader->getInterstate()));
+	renderProgram->setUniformValue(shaderVars.saturation, GLfloat(saturation));
+
+	core->setAberrationUniforms(*renderProgram);
+	projector->setUnProjectUniforms(*renderProgram);
 
 	auto& gl = *QOpenGLContext::currentContext()->functions();
 
