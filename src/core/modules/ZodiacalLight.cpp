@@ -83,7 +83,17 @@ void ZodiacalLight::init()
 
 	// The Paper describes brightness values over the complete sky, so also the texture covers the full sky. 
 	// The data hole around the sun has been filled by useful values.
-	mainTex = StelApp::getInstance().getTextureManager().createTexture(StelFileMgr::getInstallationDir()+"/textures/zodiacallight_2004.png");
+	auto& texMan = StelApp::getInstance().getTextureManager();
+	if(StelApp::getInstance().physicalDrawEnabled())
+	{
+		const auto params = StelTexture::StelTextureParams(true, GL_LINEAR, GL_REPEAT, true,
+		                                                   StelTexture::ColorSpace::LinearSRGB);
+		mainTex = texMan.createTexture(StelFileMgr::getInstallationDir()+"/textures/zodiacal-light.png", params);
+	}
+	else
+	{
+		mainTex = texMan.createTexture(StelFileMgr::getInstallationDir()+"/textures/zodiacallight_2004.png");
+	}
 	mainTex->bind(0);
 	gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	mainTex->release();
@@ -391,6 +401,140 @@ void main(void)
 
 	projector->setUnProjectUniforms(*renderProgram);
 	extinction.setForwardTransformUniforms(*renderProgram);
+
+	auto& gl = *QOpenGLContext::currentContext()->functions();
+
+	gl.glEnable(GL_BLEND);
+	gl.glBlendFunc(GL_ONE,GL_ONE); // allow colored sky background
+	bindVAO();
+	gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	releaseVAO();
+	gl.glDisable(GL_BLEND);
+}
+
+void ZodiacalLight::physicalDraw(StelCore* core)
+{
+	if ((fader->getInterstate() == 0.f) || (getIntensity()<0.01) || !(propMgr->getStelPropertyValue("SolarSystem.planetsDisplayed").toBool()))
+		return;
+
+	// Test if we are not on Earth. Texture would not fit, so don't draw then.
+	if (! QString("Earth Moon").contains(core->getCurrentLocation().planetName)) return;
+
+	// The ZL is best observed from Earth only. On the Moon, we must be happy with ZL along the J2000 ecliptic. (Sorry for LP:1628765, I don't find a general solution.)
+	StelProjector::ModelViewTranformP transfo;
+	if (core->getCurrentLocation().planetName == "Earth")
+		transfo = core->getObservercentricEclipticOfDateModelViewTransform();
+	else
+		transfo = core->getObservercentricEclipticJ2000ModelViewTransform();
+
+	const StelProjectorP projector = core->getProjection(transfo);
+
+	if(!renderProgram || !prevProjector || !projector->isSameProjection(*prevProjector))
+	{
+		renderProgram.reset(new QOpenGLShaderProgram);
+		prevProjector = projector;
+
+		const auto vert =
+			StelOpenGL::globalShaderPrefix(StelOpenGL::VERTEX_SHADER) +
+			R"(
+ATTRIBUTE highp vec3 vertex;
+VARYING highp vec3 ndcPos;
+void main()
+{
+	gl_Position = vec4(vertex, 1.);
+	ndcPos = vertex;
+}
+)";
+		bool ok = renderProgram->addShaderFromSourceCode(QOpenGLShader::Vertex, vert);
+		if(!renderProgram->log().isEmpty())
+			qWarning().noquote() << "ZodiacalLight: Warnings while compiling vertex shader:\n" << renderProgram->log();
+		if(!ok) return;
+
+		const auto frag =
+			StelOpenGL::globalShaderPrefix(StelOpenGL::FRAGMENT_SHADER) +
+			projector->getUnProjectShader() +
+			R"(
+VARYING highp vec3 ndcPos;
+uniform sampler2D mainTex;
+uniform float brightness;
+uniform mat4 projectionMatrixInverse;
+uniform float lambdaSun;
+void main()
+{
+	const float PI = 3.14159265;
+	vec4 winPos = projectionMatrixInverse * vec4(ndcPos, 1);
+	bool ok = false;
+	vec3 modelPos = unProject(winPos.x, winPos.y, ok).xyz;
+	if(!ok)
+	{
+		FRAG_COLOR = vec4(0);
+		return;
+	}
+	modelPos = normalize(modelPos);
+	float modelZenithAngle = acos(-modelPos.z);
+	float modelLongitude = atan(modelPos.x, modelPos.y) + lambdaSun;
+	vec2 texc = vec2(modelLongitude/(2.*PI), modelZenithAngle/PI);
+
+	const float dataMin = 4.04305126783455;
+	const float dataMax = 10.8197782844103;
+	vec4 color = exp(texture2D(mainTex, texc)*(dataMax-dataMin)+dataMin)*vec4(vec3(brightness),1);
+	FRAG_COLOR = color;
+}
+)";
+		ok = renderProgram->addShaderFromSourceCode(QOpenGLShader::Fragment, frag);
+		if(!renderProgram->log().isEmpty())
+			qWarning().noquote() << "ZodiacalLight: Warnings while compiling fragment shader:\n" << renderProgram->log();
+
+		if(!ok) return;
+
+		renderProgram->bindAttributeLocation("vertex", SKY_VERTEX_ATTRIB_INDEX);
+
+		if(!StelPainter::linkProg(renderProgram.get(), "ZodiacalLight render program"))
+			return;
+
+		renderProgram->bind();
+		shaderVars.mainTex          = renderProgram->uniformLocation("mainTex");
+		shaderVars.lambdaSun        = renderProgram->uniformLocation("lambdaSun");
+		shaderVars.brightness       = renderProgram->uniformLocation("brightness");
+		shaderVars.projectionMatrixInverse = renderProgram->uniformLocation("projectionMatrixInverse");
+		renderProgram->release();
+	}
+	if(!renderProgram || !renderProgram->isLinked())
+		return;
+
+	Q_ASSERT(mainTex); // A texture must be loaded before calling this
+
+	renderProgram->bind();
+
+	const int mainTexSampler = 0;
+	mainTex->bind(mainTexSampler);
+	renderProgram->setUniformValue(shaderVars.mainTex, mainTexSampler);
+
+	renderProgram->setUniformValue(shaderVars.projectionMatrixInverse, projector->getProjectionMatrix().toQMatrix().inverted());
+
+	// The Zodiacal light texture was made from a combination of data in:
+	// 1. S. M. Kwon, S. S. Hong, J. L. Weinberg
+	//    "An observational model of the zodiacal light brightness distribution"
+	//    New Astronomy 10 (2004) 91-107. doi:10.1016/j.newast.2004.05.004;
+	// 2. Levasseur-Regourd, A-Ch., and R. Dumont "Absolute photometry of zodiacal light"
+	//    Astron. Astrophys., 84, 277-279 (as reproduced in table 17 of Ch. Leinert et al.,
+	//    "The 1997 reference of diffuse night sky brightness")
+	//
+	// The missing data in [2] (beta 0..10 and lambda 0..10, except the point beta=lambda=10°)
+	// were manually filled with something that looked sensible (basically, extrapolation).
+	// The data from [1] were augmented with the completed data from [2], an overlapping
+	// area around the missing part of [1] was used to smoothly interpolate between the two functions.
+	// The data are presented is S10 units (unchanged from the papers), put into the texture after the
+	// following transformation: tex=(log(data)-min(log(data))/(max(log(data))-min(log(data))).
+	//
+	// The following conversion coefficient is taken from
+	// "The 1997 reference of diffuse night sky brightness".
+	// This reference says that "By definition 1 S10 unit corresponds to 27.78 mag/sec^2".
+	const auto texRGB2cdm2 = StelCore::mpsasToLuminance(27.78);
+	renderProgram->setUniformValue(shaderVars.brightness, GLfloat(texRGB2cdm2*intensity*fader->getInterstate()));
+	renderProgram->setUniformValue(shaderVars.lambdaSun, GLfloat(lambdaSun));
+
+	projector->setUnProjectUniforms(*renderProgram);
 
 	auto& gl = *QOpenGLContext::currentContext()->functions();
 

@@ -181,6 +181,8 @@ public:
 	float getRandF() const {Q_ASSERT(randomGenerator); return static_cast<float>(randomGenerator->generateDouble());}
 	float getRandFp1() const {Q_ASSERT(randomGenerator); return static_cast<float>(randomGenerator->generate()) / (static_cast<float>(RAND_MAX)+1.f);}
 
+	bool physicalDrawEnabled() const { return physicalDrawEnabled_; }
+
 	//! Get the common instance of QNetworkAccessManager used in stellarium
 	QNetworkAccessManager* getNetworkAccessManager() const {return networkAccessManager;}
 
@@ -529,6 +531,7 @@ private:
 
 	// The current main FBO/render target handle, without requiring GL queries. Valid through a draw() call
 	quint32 currentFbo;
+	bool physicalDrawEnabled_ = false;
 };
 
 #endif // STELAPP_HPP

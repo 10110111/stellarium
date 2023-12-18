@@ -719,6 +719,8 @@ void StelApp::init(QSettings* conf)
 		qApp->setProperty("spout", "");
 	}
 #endif
+	physicalDrawEnabled_ = std::string(std::getenv("PHYSICAL_DRAW") ?
+	                                   std::getenv("PHYSICAL_DRAW") : "") == "1";
 
 	initialized = true;
 }
@@ -990,9 +992,7 @@ void StelApp::highGraphicsModeDraw()
 
 	const QList<StelModule*> modules = moduleMgr->getCallOrders(StelModule::ActionDraw);
 
-	static const bool physicalDrawEnabled = std::string(std::getenv("PHYSICAL_DRAW") ?
-	                                                    std::getenv("PHYSICAL_DRAW") : "") == "1"; // FIXME: stub
-	if(physicalDrawEnabled)
+	if(physicalDrawEnabled_)
 	{
 		for(auto* module : modules)
 			module->physicalDraw(core);

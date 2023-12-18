@@ -81,6 +81,9 @@ public:
 
 	//! Draw the Zodiacal Light.
 	void draw(StelCore* core) override;
+
+	//! Draw the Zodiacal Light.
+	void physicalDraw(StelCore* core) override;
 	
 	//! Update and time-dependent state.  Updates the fade level while the 
 	//! Zodiacal Light rendering is being changed from on to off or off to on.
@@ -149,8 +152,8 @@ private:
 		int mainTex;
 		int lambdaSun;
 		int brightness;
-		int bortleIntensity;
-		int extinctionEnabled;
+		int bortleIntensity; // only for legacy rendering
+		int extinctionEnabled; // only for legacy rendering
 		int projectionMatrixInverse;
 	} shaderVars;
 	std::unique_ptr<QOpenGLVertexArrayObject> vao;
