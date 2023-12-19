@@ -148,6 +148,8 @@ public:
 	//! @return false if the object is too faint to be displayed
 	bool computeRCMag(float mag, RCMag*) const;
 
+	bool computeRCMagForPhysicalRendering(float mag, RCMag*) const;
+
 	//! Report that an object of luminance lum with an on-screen area of area pixels is currently displayed
 	//! This information is used to determine the world adaptation luminance
 	//! This method should be called during the update operations of the main loop
@@ -443,6 +445,7 @@ private:
 	bool flagStarTwinkle;      //! flickering stars due to atmospheric turbulence
 	bool flagForcedTwinkle;    //! force flickering even if atmosphere is off
 	double twinkleAmount;      //! magnitude range of atmospheric flicker at horizon
+	float pixelsPerRadAtCenter = 50;
 	bool flagDrawBigStarHalo;
 	bool flagStarSpiky;
 
