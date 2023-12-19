@@ -266,6 +266,10 @@ void StelSkyDrawer::update(double)
 			fov = minAdaptFov;
 	}
 
+	const StelProjector::ModelViewTranformP unitXform(new StelProjector::Mat4dTransform(Mat4d::identity(),Mat4d::identity()));
+	const auto proj = core->getProjection(unitXform);
+	pixelsPerRadAtCenter = proj->getPixelPerRadAtCenter();
+
 	if (getFlagHasAtmosphere() && core->getJD()>2387627.5) // JD given is J1825.0; ignore Bortle scale index before that.
 	{
         // GZ: Light pollution must take global atmosphere setting into account!
@@ -422,6 +426,20 @@ bool StelSkyDrawer::computeRCMag(float mag, RCMag* rcMag) const
 		}
 	}
 	return true;
+}
+
+bool StelSkyDrawer::computeRCMagForPhysicalRendering(const float mag, RCMag* rcMag) const
+{
+	// Use the legacy faintness cutoff for now...
+	const bool ret = computeRCMag(mag, rcMag);
+
+	// ...and use our own output values
+	const float illuminance = std::pow(10., (-14.18-mag)/2.5);
+	const float inversePixelSolidAngle = pixelsPerRadAtCenter * pixelsPerRadAtCenter;
+	rcMag->luminance = illuminance * inversePixelSolidAngle;
+	rcMag->radius=1;
+
+	return ret;
 }
 
 void StelSkyDrawer::preDrawPointSource(StelPainter* p)

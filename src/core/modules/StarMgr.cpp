@@ -1347,6 +1347,7 @@ void StarMgr::draw(StelCore* core)
 				}
 				break;
 			}
+
 			rcmag_table[i].radius *= starsFader.getInterstate();
 		}
 		lastMaxSearchLevel = z->level;
@@ -1376,6 +1377,87 @@ void StarMgr::draw(StelCore* core)
 		drawPointer(sPainter, core);
 }
 
+void StarMgr::physicalDraw(StelCore* core)
+{
+	const StelProjectorP prj = core->getProjection(StelCore::FrameJ2000);
+	StelSkyDrawer* skyDrawer = core->getSkyDrawer();
+	// If stars are turned off don't waste time below
+	// projecting all stars just to draw disembodied labels
+	if (!static_cast<bool>(starsFader.getInterstate()))
+		return;
+
+	int maxSearchLevel = getMaxSearchLevel();
+	QVector<SphericalCap> viewportCaps = prj->getViewportConvexPolygon()->getBoundingSphericalCaps();
+	viewportCaps.append(core->getVisibleSkyArea());
+	const GeodesicSearchResult* geodesic_search_result = core->getGeodesicGrid(maxSearchLevel)->search(viewportCaps,maxSearchLevel);
+
+	// Set temporary static variable for optimization
+	const float names_brightness = labelsFader.getInterstate() * starsFader.getInterstate();
+
+	// prepare for aberration: Explan. Suppl. 2013, (7.38)
+	const bool withAberration=core->getUseAberration();
+	Vec3d vel(0.);
+	if (withAberration)
+	{
+		vel=core->getCurrentPlanet()->getHeliocentricEclipticVelocity();
+		StelCore::matVsop87ToJ2000.transfo(vel);
+		vel*=core->getAberrationFactor()*(AU/(86400.0*SPEED_OF_LIGHT));
+	}
+	const Vec3f velf=vel.toVec3f();
+
+	// Prepare openGL for drawing many stars
+	StelPainter sPainter(prj);
+	sPainter.setFont(starFont);
+	skyDrawer->preDrawPointSource(&sPainter);
+
+	// Prepare a table for storing precomputed RCMag for all ZoneArrays
+	RCMag rcmag_table[RCMAG_TABLE_SIZE];
+
+	// Draw all the stars of all the selected zones
+	for (const auto* z : std::as_const(gridLevels))
+	{
+		int limitMagIndex=RCMAG_TABLE_SIZE;
+		const float mag_min = 0.001f*z->mag_min;
+		const float k = (0.001f*z->mag_range)/z->mag_steps; // MagStepIncrement
+		for (int i=0;i<RCMAG_TABLE_SIZE;++i)
+		{
+			const float mag = mag_min+k*i;
+			if (!skyDrawer->computeRCMagForPhysicalRendering(mag, &rcmag_table[i]))
+			{
+				if (i==0)
+					goto exit_loop;
+
+				// The last magnitude at which the star is visible
+				limitMagIndex = i-1;
+
+				// We reached the point where stars are not visible anymore
+				// Fill the rest of the table with zero and leave.
+				for (;i<RCMAG_TABLE_SIZE;++i)
+				{
+					rcmag_table[i].luminance=0;
+					rcmag_table[i].radius=0;
+				}
+				break;
+			}
+			rcmag_table[i].radius *= starsFader.getInterstate();
+		}
+		lastMaxSearchLevel = z->level;
+
+		int maxMagStarName = 0;
+		int zone;
+		for (GeodesicSearchInsideIterator it1(*geodesic_search_result,z->level);(zone = it1.next()) >= 0;)
+			z->draw(&sPainter, zone, true, rcmag_table, limitMagIndex, core, maxMagStarName, names_brightness, viewportCaps, withAberration, velf);
+		for (GeodesicSearchBorderIterator it1(*geodesic_search_result,z->level);(zone = it1.next()) >= 0;)
+			z->draw(&sPainter, zone, false, rcmag_table, limitMagIndex, core, maxMagStarName,names_brightness, viewportCaps, withAberration, velf);
+	}
+	exit_loop:
+
+	// Finish drawing many stars
+	skyDrawer->postDrawPointSource(&sPainter);
+
+	if (objectMgr->getFlagSelectedObjectPointer())
+		drawPointer(sPainter, core);
+}
 
 // Return a QList containing the stars located
 // inside the limFov circle around position vv (in J2000 frame without aberration)

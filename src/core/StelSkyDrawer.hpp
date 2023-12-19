@@ -138,6 +138,8 @@ public:
 	//! @return false if the object is too faint to be displayed
 	bool computeRCMag(float mag, RCMag*) const;
 
+	bool computeRCMagForPhysicalRendering(float mag, RCMag*) const;
+
 	//! Report that an object of luminance lum with an on-screen area of area pixels is currently displayed
 	//! This information is used to determine the world adaptation luminance
 	//! This method should be called during the update operations of the main loop
@@ -450,6 +452,7 @@ private:
 	Refraction refraction;
 
 	float maxAdaptFov, minAdaptFov, lnfovFactor;
+	float pixelsPerRadAtCenter = 50;
 	bool flagStarTwinkle;
 	bool flagForcedTwinkle;
 	double twinkleAmount;

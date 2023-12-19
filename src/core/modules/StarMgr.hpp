@@ -153,6 +153,9 @@ public:
 	//! Draw the stars and the star selection indicator if necessary.
 	void draw(StelCore* core) override;
 
+	//! Draw the stars and the star selection indicator if necessary.
+	void physicalDraw(StelCore* core) override;
+
 	//! Update any time-dependent features.
 	//! Includes fading in and out stars and labels when they are turned on and off.
 	void update(double deltaTime) override {labelsFader.update(static_cast<int>(deltaTime*1000)); starsFader.update(static_cast<int>(deltaTime*1000));}
