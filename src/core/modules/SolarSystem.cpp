@@ -298,7 +298,7 @@ void SolarSystem::init()
 	
 	StelApp *app = &StelApp::getInstance();
 	connect(app, SIGNAL(languageChanged()), this, SLOT(updateI18n()));
-	connect(&app->getSkyCultureMgr(), &StelSkyCultureMgr::currentSkyCultureIDChanged, this, &SolarSystem::updateSkyCulture);
+	connect(&app->getSkyCultureMgr(), &StelSkyCultureMgr::currentSkyCultureChanged, this, &SolarSystem::updateSkyCulture);
 	connect(&StelMainView::getInstance(), SIGNAL(reloadShadersRequested()), this, SLOT(reloadShaders()));
 	StelCore *core = app->getCore();
 	connect(core, SIGNAL(locationChanged(StelLocation)), this, SLOT(recreateTrails()));
@@ -402,14 +402,14 @@ void SolarSystem::recreateTrails()
 }
 
 
-void SolarSystem::updateSkyCulture(const QString& skyCultureDir)
+void SolarSystem::updateSkyCulture(const StelSkyCulture& skyCulture)
 {
 	planetNativeNamesMap.clear();
 	planetNativeNamesMeaningMap.clear();
 
-	QString namesFile = StelFileMgr::findFile("skycultures/" + skyCultureDir + "/planet_names.fab");
+	QString namesFile = skyCulture.path + "/planet_names.fab";
 
-	if (namesFile.isEmpty())
+	if (!QFileInfo(namesFile).exists())
 	{
 		for (const auto& p : std::as_const(systemPlanets))
 		{
