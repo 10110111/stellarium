@@ -1,0 +1,5222 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Last-Translator: Stellarium Labs\n"
+"Language-Team: Stellarium Labs\n"
+"Language: bs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# Aztec constellation, pronounce: Mamalhuaztli
+msgid "New fire"
+msgstr ""
+
+# Description of Aztec constellation New fire
+msgid ""
+"Ancient Aztec named Orion's Belt 'Mamalhuaztli'. It represented the wood sticks\n"
+"used to light the new fire in the commemoration celebrated every 52 years by\n"
+"the Mexicans and their neighbors. This celebration was named _toxiuh molpilia_\n"
+"which means 'binding of the years' and coincided with the beginning of the new\n"
+"year named _xiuhtzitzquilo_.\n"
+"\n"
+"![](mamalhuaztli_image.webp)"
+msgstr ""
+
+# Aztec constellation, pronounce: Tianquiztli
+msgid "Market"
+msgstr ""
+
+# Description of Aztec constellation Market
+msgid ""
+"For the Mexicans, the group of stars known as Pleiades symbolized _Tianquiztli_\n"
+"(the Market), perhaps because of the crowd that gathers on them. Normally, they\n"
+"are represented by one or two people inside a circle with goods.\n"
+"\n"
+"![](tiaquitztli_image.webp)\n"
+"\n"
+"Nowadays, in Mexico the informal market or street markets are called _Tianguis_."
+msgstr ""
+
+# Aztec constellation, pronounce: Citlaltlachtli
+msgid "Ball game of the stars"
+msgstr ""
+
+# Description of Aztec constellation Ball game of the stars
+msgid ""
+"The constellation of Gemini was called _Citlaltlachtli_, which means the ball\n"
+"game of the stars. This game was endowed with a ritual significance and used a\n"
+"natural rubber ball. It is said that the movement of the ball within the\n"
+"playing field refers to the movement of the Sun and Moon."
+msgstr ""
+
+# Aztec constellation, pronounce: Xonecuilli
+msgid "Twisted foot"
+msgstr ""
+
+# Description of Aztec constellation Twisted foot
+msgid ""
+"The constellation of Ursa Minor, the Little Bear, is identified as _Xonecuilli_\n"
+"(the Twisted foot). It is related to _Nanahuatzin_, a character represented\n"
+"with twisted feet, filled with boils and sores. This sick and poor God\n"
+"sacrificed himself to become _Tonatiuh_, the Sun god.\n"
+"\n"
+"![](nanahuatzin.webp)\n"
+"\n"
+"Apparently, this constellation name can also be associated with the Southern\n"
+"Cross and its surrounding stars (especially in texts by Tezozomoc). The Spanish\n"
+"missionary priest Sahagún reports [#7], the shape of this constellations\n"
+"resembles a bread in the form of the letter S and it is called _xonecuilli_ by\n"
+"the Aztecs.\n"
+"\n"
+"![Xonecuilli](xonecuilli_Glifo.webp)\n"
+"Xonecuilli\n"
+"{: .img_and_caption }"
+msgstr ""
+
+# Aztec constellation, pronounce: Colotl Ixayac
+msgid "Scorpion face"
+msgstr ""
+
+# Description of Aztec constellation Scorpion face
+msgid ""
+"According to the Florentino Codex, Sahagun's informants identified a group of\n"
+"stars known as _Citlalcolotl_ with the stars of the Scorpion. In turn,\n"
+"Tezozomoc also mentions the scorpion star and he called it _Colotlixayac_,\n"
+"which means face of a scorpion.\n"
+"\n"
+"![Paris Codex](colotlixayac_image.webp)\n"
+"In a section of the Paris Codex called zodiac pages [#3],[#10], the scorpion is\n"
+"also mentioned. In this codex the icons shows figures of animals hanging from\n"
+"the body of the Celestial Dragon.\n"
+"{: .img_and_caption }"
+msgstr ""
+
+# Belarusian constellation, native: Іллёў воз, pronounce: Illyouo voz
+msgid "Elias's Cart"
+msgstr ""
+
+# Description of Belarusian constellation Elias's Cart
+msgid ""
+"The burning cart that is ridden by Elias, the Christianized version of a\n"
+"constellation previously seen as simply a large cart."
+msgstr ""
+
+# Belarusian constellation, native: Нявеста, pronounce: Niavesta
+msgid "The Bride"
+msgstr ""
+
+# Belarusian constellation, native: Куркі, pronounce: Kurki
+msgid "The Hens"
+msgstr ""
+
+# Belarusian constellation, native: Пятроў крэст, pronounce: Petrou Krest
+msgid "The Cross of Saint Peter"
+msgstr ""
+
+# Description of Belarusian constellation The Cross of Saint Peter
+msgid "A Peter’s cross."
+msgstr ""
+
+# Belarusian constellation, native: Карона, pronounce: Karona
+msgid "The Crown"
+msgstr ""
+
+# Description of Belarusian constellation The Crown
+msgid "The thorn wreath that was put on Christ’s head."
+msgstr ""
+
+# Belarusian constellation, native: Каза, pronounce: Kaza
+msgid "The She-Goat"
+msgstr ""
+
+# Belarusian constellation, native: Вужы, pronounce: Vuzhy
+msgid "The Grass Snakes"
+msgstr ""
+
+# Belarusian constellation
+msgid "Poland and Lithuania"
+msgstr ""
+
+# Belarusian constellation, native: Касцы, pronounce: Kastsy
+msgid "The Mowers"
+msgstr ""
+
+# Description of Belarusian constellation The Mowers
+msgid ""
+"These three stars stand one after another in the manner of people mowing the\n"
+"fields."
+msgstr ""
+
+# Belarusian constellation, native: Гвоздзь, pronounce: Gvozd
+msgid "The Nail"
+msgstr ""
+
+# Description of Belarusian constellation The Nail
+msgid "The north star is seen as a nail around which the skies revolve."
+msgstr ""
+
+# Belarusian constellation, native: Ратай, pronounce: Rataj
+msgid "The Ploughman"
+msgstr ""
+
+# Belarusian constellation, native: Граблі, pronounce: Grabli
+msgid "The Rake"
+msgstr ""
+
+# Belarusian constellation, native: Баран, pronounce: Baran
+msgid "The Ram"
+msgstr ""
+
+# Belarusian constellation, native: Змей, pronounce: Zmej
+msgid "The Serpent"
+msgstr ""
+
+# Description of Belarusian constellation The Serpent
+msgid ""
+"St. Yuri killed this serpent and hung it near the star that always stands in\n"
+"the same place."
+msgstr ""
+
+# Belarusian constellation, native: Сіта, pronounce: Sito
+msgid "The Sieve"
+msgstr ""
+
+# Description of Belarusian constellation The Sieve
+msgid "It was said that \"God used to sift grains of _zhito_ through it\"."
+msgstr ""
+
+# Belarusian constellation, native: Малы воз, pronounce: Maly Vos
+msgid "The Small Cart"
+msgstr ""
+
+# Description of Belarusian constellation The Small Cart
+msgid "Ursa Minor resembles the large cart of Ursa Major."
+msgstr ""
+
+# Belarusian constellation, native: Крэсельца Пана Езуса, pronounce: Kreselca
+# Pana Jezusa
+msgid "The Throne of Jesus"
+msgstr ""
+
+# Description of Belarusian constellation The Throne of Jesus
+msgid "Lord Jesus's chair."
+msgstr ""
+
+# Belarusian constellation, native: Блізнюкі, pronounce: Blizniuki
+msgid "The Twins"
+msgstr ""
+
+# Belarusian constellation, native: Казярог, pronounce: Kaziarog
+msgid "The Wild Goat"
+msgstr ""
+
+# Belarusian constellation, native: Гусіная дарога, pronounce: Gusina Daroga
+msgid "The Goose's Way"
+msgstr ""
+
+# Name for HIP 24608
+msgid "Kaza"
+msgstr ""
+
+# Boorong constellation, native: Wanjel
+msgid "Long-necked tortoise"
+msgstr ""
+
+# Boorong constellation, native: Yurree
+msgid "Fan-tailed cockatoo"
+msgstr ""
+
+# Boorong constellation, native: Kulkunbulla
+msgid "Two teenage boys"
+msgstr ""
+
+# Boorong constellation, native: Lamankurrk
+msgid "Girls"
+msgstr ""
+
+# Boorong constellation, native: Purra
+msgid "Red kangaroo"
+msgstr ""
+
+# Boorong constellation, native: Bunya
+msgid "Ring-tail possum"
+msgstr ""
+
+# Boorong constellation, native: Djuit
+msgid "Red-rumped parrot"
+msgstr ""
+
+# Boorong constellation, native: War
+msgid "Crow"
+msgstr ""
+
+# Boorong constellation, native: Collowgulloric War
+msgid "Female crow, wife of War"
+msgstr ""
+
+# Boorong constellation, native: Yerredetkurrk
+msgid "Owlet nightjar"
+msgstr ""
+
+# Boorong constellation, native: Tourtchinboiongerra
+msgid "Needlewood hakea and willie wagtails"
+msgstr ""
+
+# Boorong constellation, native: Berm-Berm-Gle
+msgid "Red-kneed dotterel"
+msgstr ""
+
+# Boorong constellation, native: Karik Karik
+msgid "Australian kestrel"
+msgstr ""
+
+# Boorong constellation, native: Neilloan
+msgid "Mallee fowl"
+msgstr ""
+
+# Boorong constellation, native: Unurgunite
+msgid "Jacky lizard"
+msgstr ""
+
+# Boorong constellation, native: Kourt-chin
+msgid "Female brolga"
+msgstr ""
+
+# Boorong constellation, native: Kourt-chin
+msgid "Male brolga"
+msgstr ""
+
+# Boorong constellation, native: Otchocut
+msgid "Great fish"
+msgstr ""
+
+# Boorong constellation, native: Warepil
+msgid "Wedge tailed eagle"
+msgstr ""
+
+# Boorong constellation, native: Collowgulloric Warepil
+msgid "Female eagle, wife of Warepil"
+msgstr ""
+
+# Boorong constellation, native: Tchingal
+msgid "Emu"
+msgstr ""
+
+# Boorong constellation, native: Totyarguil
+msgid "Purple crowned lorikeet"
+msgstr ""
+
+# Boorong constellation, native: Marpeankurrk
+msgid "Meat ant"
+msgstr ""
+
+# Boorong constellation, native: Warring
+msgid "Galaxy"
+msgstr ""
+
+# Boorong constellation, native: Weetkurrk
+msgid "Singing bushlark"
+msgstr ""
+
+# Boorong constellation, native: Gellarlec
+msgid "Pink cockatoo"
+msgstr ""
+
+# Boorong constellation, native: Collenbitchick
+msgid "Species of ant"
+msgstr ""
+
+# Boorong constellation, native: Won
+msgid "Boomerang"
+msgstr ""
+
+# Boorong constellation, native: Mindi
+msgid "The maned snake"
+msgstr ""
+
+# Chinese constellation, native: 毕宿, pronounce: Bìxiù
+msgid "Net"
+msgstr ""
+
+# Chinese constellation, native: 壁宿, pronounce: Bìxiù
+msgid "Wall"
+msgstr ""
+
+# Chinese constellation, native: 参宿, pronounce: Shēnxiù
+msgid "Three Stars"
+msgstr ""
+
+# Chinese constellation, native: 氐宿, pronounce: Dīxiù
+msgid "Root"
+msgstr ""
+
+# Chinese constellation, native: 斗宿, pronounce: Dǒuxiù
+msgid "Dipper"
+msgstr ""
+
+# Chinese constellation, native: 房宿, pronounce: Fángxiù
+msgid "Room"
+msgstr ""
+
+# Chinese constellation, native: 鬼宿, pronounce: Guǐxiù
+msgid "Ghosts"
+msgstr ""
+
+# Chinese constellation, native: 箕宿, pronounce: Jīxiù
+msgid "Winnowing Basket"
+msgstr ""
+
+# Chinese constellation, native: 角宿, pronounce: Jiǎoxiù
+msgid "Horn"
+msgstr ""
+
+# Chinese constellation, native: 井宿, pronounce: Jǐngxiù
+msgid "Well"
+msgstr ""
+
+# Chinese constellation, native: 亢宿, pronounce: Kàngxiù
+msgid "Neck"
+msgstr ""
+
+# Chinese constellation, native: 奎宿, pronounce: Kuíxiù
+msgid "Legs"
+msgstr ""
+
+# Chinese constellation, native: 柳宿, pronounce: Liǔxiù
+msgid "Willow"
+msgstr ""
+
+# Chinese constellation, native: 娄宿, pronounce: Loúxiù
+msgid "Bond"
+msgstr ""
+
+# Chinese constellation, native: 昴宿, pronounce: Mǎoxiù
+msgid "Hairy Head"
+msgstr ""
+
+# Chinese constellation, native: 牛宿, pronounce: Niúxiù
+msgid "Ox"
+msgstr ""
+
+# Chinese constellation, native: 女宿, pronounce: Nǚxiù
+msgid "Girl"
+msgstr ""
+
+# Chinese constellation, native: 室宿, pronounce: Shìxiù
+msgid "Encampment"
+msgstr ""
+
+# Chinese constellation, native: 太微右垣, pronounce: Tàiwēi Yòuyuán
+msgid "Supreme Palace Right Wall"
+msgstr ""
+
+# Chinese constellation, native: 太微左垣, pronounce: Tàiwēi Zuǒyuán
+msgid "Supreme Palace Left Wall"
+msgstr ""
+
+# Chinese constellation, native: 天市右垣, pronounce: Tiānshì Yòuyuán
+msgid "Heavenly Market Right Wall"
+msgstr ""
+
+# Chinese constellation, native: 天市左垣, pronounce: Tiānshì Zuǒyuán
+msgid "Heavenly Market Left Wall"
+msgstr ""
+
+# Chinese constellation, native: 危宿, pronounce: Wēixiù
+msgid "Rooftop"
+msgstr ""
+
+# Chinese constellation, native: 尾宿, pronounce: Wěixiù
+msgid "Tail"
+msgstr ""
+
+# Chinese constellation, native: 胃宿, pronounce: Wèixiù
+msgid "Stomach"
+msgstr ""
+
+# Chinese constellation, native: 心宿, pronounce: Xīnxiù
+msgid "Heart"
+msgstr ""
+
+# Chinese constellation, pronounce: Xing Xiu
+msgid "Star"
+msgstr ""
+
+# Chinese constellation, native: 虚宿, pronounce: Xūxiù
+msgid "Emptiness"
+msgstr ""
+
+# Chinese constellation, native: 翼宿, pronounce: Yìxiù
+msgid "Wings"
+msgstr ""
+
+# Chinese constellation, native: 张宿, pronounce: Zhāngxiù
+msgid "Extended Net"
+msgstr ""
+
+# Chinese constellation, native: 轸宿, pronounce: Zhěnxiù
+msgid "Chariot"
+msgstr ""
+
+# Chinese constellation, native: 紫微右垣, pronounce: Zǐwēi Yòuyuán
+msgid "Purple Forbidden Right Wall"
+msgstr ""
+
+# Chinese constellation, native: 紫微左垣, pronounce: Zǐwēi Zuǒyuán
+msgid "Purple Forbidden Left Wall"
+msgstr ""
+
+# Chinese constellation, native: 觜宿, pronounce: Zīxiù
+msgid "Turtle Beak"
+msgstr ""
+
+# Chinese constellation, native: 八谷, pronounce: Bāgǔ
+msgid "Eight Kinds of Crops"
+msgstr ""
+
+# Chinese constellation, native: 八魁, pronounce: Bākuí
+msgid "Net for Catching Birds"
+msgstr ""
+
+# Chinese constellation, native: 败瓜, pronounce: Bàiguā
+msgid "Rotten Gourd"
+msgstr ""
+
+# Chinese constellation, native: 败臼, pronounce: Bàijiù
+msgid "Decayed Mortar"
+msgstr ""
+
+# Chinese constellation, native: 北斗, pronounce: Běidǒu
+msgid "Northern Dipper"
+msgstr ""
+
+# Chinese constellation, native: 北河, pronounce: Běihé
+msgid "North River"
+msgstr ""
+
+# Chinese constellation, native: 北极, pronounce: Běijí
+msgid "Northern Pole"
+msgstr ""
+
+# Chinese constellation, native: 北落师门, pronounce: Běiluò Shīmén
+msgid "North Gate of the Military Camp"
+msgstr ""
+
+# Chinese constellation, native: 鳖, pronounce: Biē
+msgid "River Turtle"
+msgstr ""
+
+# Chinese constellation, native: 波斯, pronounce: Bōsī
+msgid "Persia"
+msgstr ""
+
+# Chinese constellation, native: 帛度, pronounce: Bódù
+msgid "Textile Ruler"
+msgstr ""
+
+# Chinese constellation, native: 参旗, pronounce: Shēnqí
+msgid "Banner of Three Stars"
+msgstr ""
+
+# Chinese constellation, native: 厕, pronounce: Cé
+msgid "Toilet"
+msgstr ""
+
+# Chinese constellation, native: 策, pronounce: Cè
+msgid "Whip"
+msgstr ""
+
+# Chinese constellation, native: 常陈, pronounce: Chángchén
+msgid "Royal Guards"
+msgstr ""
+
+# Chinese constellation, native: 车府, pronounce: Chēfǔ
+msgid "Big Yard for Chariots"
+msgstr ""
+
+# Chinese constellation, native: 车骑, pronounce: Chēqí
+msgid "Chariots and Cavalry"
+msgstr ""
+
+# Chinese constellation, native: 车肆, pronounce: Chēsì
+msgid "Commodity Market"
+msgstr ""
+
+# Chinese constellation, native: 刍藁, pronounce: Chúhāo
+msgid "Hay"
+msgstr ""
+
+# Chinese constellation, native: 杵 (箕宿), pronounce: Chǔ (Jīxiù)
+msgid "Pestle (In Winnowing Basket Mansion)"
+msgstr ""
+
+# Chinese constellation, native: 杵 (危宿), pronounce: Chǔ (Wēixiù)
+msgid "Pestle (In Rooftop Mansion)"
+msgstr ""
+
+# Chinese constellation, native: 长沙 (附轸宿), pronounce: Chángshā
+msgid "Changsha (Vassal of Chariot)"
+msgstr ""
+
+# Chinese constellation, native: 传舍, pronounce: Zhuànshè
+msgid "Guest House"
+msgstr ""
+
+# Chinese constellation, native: 从官 (房宿), pronounce: Cóngguān (Fángxiù)
+msgid "Retinue (In Room Mansion)"
+msgstr ""
+
+# Chinese constellation, native: 从官 (太微垣), pronounce: Cóngguān (Tàiwēiyuán)
+msgid "Retinue (In Supreme Palace Enclosure)"
+msgstr ""
+
+# Chinese constellation, native: 大角, pronounce: Dàjiǎo
+msgid "Great Horn"
+msgstr ""
+
+# Chinese constellation, native: 大理, pronounce: Dàlǐ
+msgid "Chief Judge"
+msgstr ""
+
+# Chinese constellation, native: 大陵, pronounce: Dàlíng
+msgid "Mausoleum"
+msgstr ""
+
+# Chinese constellation, native: 天庙, pronounce: Tiānmiào
+msgid "Celestial Temple"
+msgstr ""
+
+# Chinese constellation, native: 帝席, pronounce: Dìxí
+msgid "Mattress of the Emperor"
+msgstr ""
+
+# Chinese constellation, native: 帝座, pronounce: Dì zuò
+msgid "Emperor's Seat"
+msgstr ""
+
+# Chinese constellation, native: 东咸, pronounce: Dōngxián
+msgid "Eastern Door"
+msgstr ""
+
+# Chinese constellation, native: 斗, pronounce: Dǒu
+msgid "Dipper for Liquids"
+msgstr ""
+
+# Chinese constellation, native: 顿顽, pronounce: Dùnwán
+msgid "Trials"
+msgstr ""
+
+# Chinese constellation, native: 伐 (附参宿), pronounce: Fá
+msgid "Send Armed Forces To Suppress (Vassal of Three Stars)"
+msgstr ""
+
+# Chinese constellation, native: 罚, pronounce: Fá
+msgid "Punishment"
+msgstr ""
+
+# Chinese constellation, native: 飞鱼, pronounce: Fēiyú
+msgid "Flying Fish"
+msgstr ""
+
+# Chinese constellation, native: 坟墓 (附危宿), pronounce: Fénmù
+msgid "Tomb (Vassal of Rooftop)"
+msgstr ""
+
+# Chinese constellation, native: 鈇钺, pronounce: Fūyuè
+msgid "Axe"
+msgstr ""
+
+# Chinese constellation, native: 鈇锧, pronounce: Fūzhì
+msgid "Sickle"
+msgstr ""
+
+# Chinese constellation, native: 扶筐, pronounce: Fúkuāng
+msgid "Basket for Mulberry Leaves"
+msgstr ""
+
+# Chinese constellation, native: 附白, pronounce: Fùbái
+msgid "White Patched Nearby"
+msgstr ""
+
+# Chinese constellation, native: 附路, pronounce: Fùlù
+msgid "Auxiliary Road"
+msgstr ""
+
+# Chinese constellation, native: 傅说, pronounce: Fù Yuè
+msgid "Fu Yue"
+msgstr ""
+
+# Chinese constellation, native: 盖屋, pronounce: Gàiwū
+msgid "Roofing"
+msgstr ""
+
+# Chinese constellation, native: 杠 (附华盖), pronounce: Gàng
+msgid "Canopy Support (Vassal of Canopy of the Emperor)"
+msgstr ""
+
+# Chinese constellation, native: 阁道, pronounce: Gédào
+msgid "Flying Corridor"
+msgstr ""
+
+# Chinese constellation, native: 梗河, pronounce: Gěnghé
+msgid "Celestial Lance"
+msgstr ""
+
+# Chinese constellation, native: 勾陈, pronounce: Gōuchén
+msgid "Curved Array"
+msgstr ""
+
+# Chinese constellation, native: 钩钤 (附房宿), pronounce: Gōuqián
+msgid "Lock (Vassal of Room)"
+msgstr ""
+
+# Chinese constellation, native: 狗, pronounce: Gǒu
+msgid "Dog"
+msgstr ""
+
+# Chinese constellation, native: 狗国, pronounce: Gǒuguó
+msgid "Territory of Dog"
+msgstr ""
+
+# Chinese constellation, native: 贯索, pronounce: Guànsuǒ
+msgid "Coiled Thong"
+msgstr ""
+
+# Chinese constellation, native: 爟, pronounce: Guàn
+msgid "Beacon Fire"
+msgstr ""
+
+# Chinese constellation, pronounce: Gui
+msgid "Tortoise"
+msgstr ""
+
+# Chinese constellation, native: 海山, pronounce: Hǎishān
+msgid "Sea and Mountain"
+msgstr ""
+
+# Chinese constellation, native: 海石, pronounce: Hǎishí
+msgid "Sea Rock"
+msgstr ""
+
+# Chinese constellation, native: 军门, pronounce: Jūnmén
+msgid "Military Gate"
+msgstr ""
+
+# Chinese constellation, native: 河鼓, pronounce: Hégǔ
+msgid "Drum at the River"
+msgstr ""
+
+# Chinese constellation, native: 鹤, pronounce: Hè
+msgid "Crane"
+msgstr ""
+
+# Chinese constellation, native: 衡, pronounce: Héng
+msgid "Railings"
+msgstr ""
+
+# Chinese constellation, native: 候, pronounce: Hòu
+msgid "Astrologer"
+msgstr ""
+
+# Chinese constellation, native: 弧矢, pronounce: Húshǐ
+msgid "Bow and Arrow"
+msgstr ""
+
+# Chinese constellation, native: 斛, pronounce: Hú
+msgid "Dipper for Solids"
+msgstr ""
+
+# Chinese constellation, native: 虎贲, pronounce: Yézhě
+msgid "Emperor's Bodyguard"
+msgstr ""
+
+# Chinese constellation, native: 瓠瓜, pronounce: Hùguā
+msgid "Good Gourd"
+msgstr ""
+
+# Chinese constellation, native: 华盖, pronounce: Huágài
+msgid "Canopy of the Emperor"
+msgstr ""
+
+# Chinese constellation, native: 宦者, pronounce: Huàngzhě
+msgid "Eunuch Official"
+msgstr ""
+
+# Chinese constellation, native: 火鸟, pronounce: Huǒniǎo
+msgid "Firebird"
+msgstr ""
+
+# Chinese constellation, native: 积尸, pronounce: Jīshī
+msgid "Cumulative Corpses"
+msgstr ""
+
+# Chinese constellation, native: 积尸, pronounce: JīShī
+msgid "Heap of Corpses"
+msgstr ""
+
+# Chinese constellation, native: 积水, pronounce: Jīshuǐ
+msgid "Stored water"
+msgstr ""
+
+# Chinese constellation, native: 积薪, pronounce: Jīxīn
+msgid "Pile of Firewood"
+msgstr ""
+
+# Chinese constellation, native: 积卒, pronounce: Jīzú
+msgid "Group of Soldiers"
+msgstr ""
+
+# Chinese constellation, native: 夹白, pronounce: Jiābái
+msgid "White Patches Attached"
+msgstr ""
+
+# Chinese constellation, native: 建, pronounce: Jiàn
+msgid "Establishment"
+msgstr ""
+
+# Chinese constellation, native: 渐台, pronounce: Jiàntái
+msgid "Clepsydra Terrace"
+msgstr ""
+
+# Chinese constellation, native: 键闭, pronounce: Jiànbì
+msgid "Door Bolt"
+msgstr ""
+
+# Chinese constellation, native: 金鱼, pronounce: Jīnyú
+msgid "Goldfish"
+msgstr ""
+
+# Chinese constellation, native: 进贤, pronounce: Jìnxiǎn
+msgid "Recommending Virtuous Men"
+msgstr ""
+
+# Chinese constellation, native: 积水, pronounce: Jīshuǐ
+msgid "Accumulated Water"
+msgstr ""
+
+# Chinese constellation, native: 九坎, pronounce: Jiǔkǎn
+msgid "Nine Water Wells"
+msgstr ""
+
+# Chinese constellation, native: 九卿, pronounce: Jiǔqīng
+msgid "Nine Senior Officers"
+msgstr ""
+
+# Chinese constellation, native: 九斿, pronounce: Jiǔyoú
+msgid "Imperial Military Flag"
+msgstr ""
+
+# Chinese constellation, native: 九州殊口, pronounce: Jiǔzhōu Shūkǒu
+msgid "Interpreters of Nine Dialects"
+msgstr ""
+
+# Chinese constellation, native: 酒旗, pronounce: Jiǔqí
+msgid "Banner of Wine Shop"
+msgstr ""
+
+# Chinese constellation, native: 臼, pronounce: Jiù
+msgid "Mortar"
+msgstr ""
+
+# Chinese constellation, native: 卷舌, pronounce: Juǎnshé
+msgid "Rolled Tongue"
+msgstr ""
+
+# Chinese constellation, native: 军井, pronounce: Jūnjǐng
+msgid "Military Well"
+msgstr ""
+
+# Chinese constellation, native: 军南门, pronounce: Nánjūnmén
+msgid "Southern Military Gate"
+msgstr ""
+
+# Chinese constellation, native: 军市, pronounce: Jūnshì
+msgid "Market for Soldiers"
+msgstr ""
+
+# Chinese constellation, native: 糠, pronounce: Kāng
+msgid "Chaff"
+msgstr ""
+
+# Chinese constellation, native: 亢池, pronounce: Kàngchí
+msgid "Boats and Lake"
+msgstr ""
+
+# Chinese constellation, native: 孔雀, pronounce: Kǒngquè
+msgid "Peafowl"
+msgstr ""
+
+# Chinese constellation, native: 哭, pronounce: Kū
+msgid "Crying"
+msgstr ""
+
+# Chinese constellation, native: 库楼, pronounce: Kùlóu
+msgid "Arsenal"
+msgstr ""
+
+# Chinese constellation, native: 郎将, pronounce: Lángjiàng
+msgid "Captain of the Bodyguards"
+msgstr ""
+
+# Chinese constellation, native: 郎位, pronounce: Lángwèi
+msgid "Officers of the Imperial Guard"
+msgstr ""
+
+# Chinese constellation, native: 老人, pronounce: Lǎorén
+msgid "Old Man"
+msgstr ""
+
+# Chinese constellation, native: 雷电, pronounce: Léidiàn
+msgid "Thunder and Lightning"
+msgstr ""
+
+# Chinese constellation, native: 垒壁阵, pronounce: Lěibìzhèn
+msgid "Line of Ramparts"
+msgstr ""
+
+# Chinese constellation, native: 离宫 (附室宿), pronounce: Lígōng
+msgid "Resting Palace (Vassal of Encampment)"
+msgstr ""
+
+# Chinese constellation, native: 离瑜, pronounce: Líyù
+msgid "Jade Ornament on Ladies' Wear"
+msgstr ""
+
+# Chinese constellation, native: 离珠, pronounce: Lízhū
+msgid "Pearls on Ladies' Wear"
+msgstr ""
+
+# Chinese constellation, native: 砺石, pronounce: Lìshí
+msgid "Whetstone"
+msgstr ""
+
+# Chinese constellation, native: 列肆, pronounce: Lièsì
+msgid "Jewel Market"
+msgstr ""
+
+# Chinese constellation, native: 灵台, pronounce: Língtaí
+msgid "Astronomical Observatory"
+msgstr ""
+
+# Chinese constellation, native: 六甲, pronounce: Liùjiǎ
+msgid "Six Jia"
+msgstr ""
+
+# Chinese constellation, native: 罗堰, pronounce: Luóyàn
+msgid "Network of Dykes"
+msgstr ""
+
+# Chinese constellation, native: 马腹, pronounce: Mǎfù
+msgid "Horse's Abdomen"
+msgstr ""
+
+# Chinese constellation, native: 马尾, pronounce: Mǎwěi
+msgid "Horse's Tail"
+msgstr ""
+
+# Chinese constellation, native: 蜜蜂, pronounce: Mìfēng
+msgid "Bee"
+msgstr ""
+
+# Chinese constellation, native: 明堂, pronounce: Míngtáng
+msgid "The Hall of Glory"
+msgstr ""
+
+# Chinese constellation, native: 南船, pronounce: Nánchuán
+msgid "Southern Boat"
+msgstr ""
+
+# Chinese constellation, native: 南河, pronounce: Nánhé
+msgid "South River"
+msgstr ""
+
+# Chinese constellation, native: 东瓯, pronounce: Dōngōu
+msgid "Dongou"
+msgstr ""
+
+# Chinese constellation, native: 南门, pronounce: Nánmén
+msgid "Southern Gate"
+msgstr ""
+
+# Chinese constellation, native: 内厨, pronounce: Nèichú
+msgid "Inner Kitchen"
+msgstr ""
+
+# Chinese constellation, native: 内阶, pronounce: Nèijiē
+msgid "Inner Steps"
+msgstr ""
+
+# Chinese constellation, native: 内平, pronounce: Nèipíng
+msgid "High Judge"
+msgstr ""
+
+# Chinese constellation, native: 内屏, pronounce: Nèipíng
+msgid "Inner Screen"
+msgstr ""
+
+# Chinese constellation, native: 辇道, pronounce: Niǎndào
+msgid "Imperial Passageway"
+msgstr ""
+
+# Chinese constellation, native: 鸟喙, pronounce: Niǎohuì
+msgid "Bird's Beak"
+msgstr ""
+
+# Chinese constellation, native: 农丈人, pronounce: Nóngzhàngrén
+msgid "Peasant"
+msgstr ""
+
+# Chinese constellation, native: 女床, pronounce: Nǚchuáng
+msgid "Woman's Bed"
+msgstr ""
+
+# Chinese constellation, native: 女史, pronounce: Nǚshǐ
+msgid "Female Protocol"
+msgstr ""
+
+# Chinese constellation, native: 霹雳, pronounce: Pīlì
+msgid "Thunderbolt"
+msgstr ""
+
+# Chinese constellation, pronounce: Ping
+msgid "Judging"
+msgstr ""
+
+# Chinese constellation, native: 平道, pronounce: Píngdào
+msgid "Flat Road"
+msgstr ""
+
+# Chinese constellation, native: 屏, pronounce: Píng
+msgid "Screen"
+msgstr ""
+
+# Chinese constellation, native: 七公, pronounce: Qīgōng
+msgid "Seven Excellencies"
+msgstr ""
+
+# Chinese constellation, native: 器府, pronounce: Qìfǔ
+msgid "House for Musical Instruments"
+msgstr ""
+
+# Chinese constellation, native: 骑官, pronounce: Qíguān
+msgid "Imperial Guards"
+msgstr ""
+
+# Chinese constellation, native: 骑阵将军, pronounce: Qízhèn Jiāngjūn
+msgid "Chariots and Cavalry General"
+msgstr ""
+
+# Chinese constellation, native: 泣, pronounce: Qì
+msgid "Weeping"
+msgstr ""
+
+# Chinese constellation, native: 天稷, pronounce: Tiānjì
+msgid "Celestial Cereals"
+msgstr ""
+
+# Chinese constellation, native: 青丘, pronounce: Qīngqiū
+msgid "Green Hill"
+msgstr ""
+
+# Chinese constellation, native: 阙丘, pronounce: Quèqiū
+msgid "Palace Gate"
+msgstr ""
+
+# Chinese constellation, native: 人, pronounce: Rén
+msgid "Humans"
+msgstr ""
+
+# Chinese constellation, native: 日, pronounce: Rì
+msgid "Solar Star"
+msgstr ""
+
+# Chinese constellation, native: 三公 (太微垣), pronounce: Sāngōng(Tàiwēiyuán)
+msgid "Three Excellencies (In Supreme Palace Enclosure)"
+msgstr ""
+
+# Chinese constellation, native: 三公 (紫微垣), pronounce: Sāngōng(Zǐwēiyuán)
+msgid "Three Excellencies (In Purple Forbidden Enclosure)"
+msgstr ""
+
+# Chinese constellation, native: 三角形, pronounce: Sānjiǎoxíng
+msgid "Triangle"
+msgstr ""
+
+# Chinese constellation, native: 三师, pronounce: Sānshī
+msgid "Three Top Instructors"
+msgstr ""
+
+# Chinese constellation, native: 三台, pronounce: Sāntái
+msgid "Three Steps"
+msgstr ""
+
+# Chinese constellation, native: 尚书, pronounce: Shàngshū
+msgid "Royal Secretary"
+msgstr ""
+
+# Chinese constellation, native: 少微, pronounce: Shàowēi
+msgid "Junior Officers"
+msgstr ""
+
+# Chinese constellation, native: 蛇腹, pronounce: Shéfù
+msgid "Snake's Abdomen"
+msgstr ""
+
+# Chinese constellation, native: 蛇首, pronounce: Shéshǒu
+msgid "Snake's Head"
+msgstr ""
+
+# Chinese constellation, native: 蛇尾, pronounce: Shéwěi
+msgid "Snake's Tail"
+msgstr ""
+
+# Chinese constellation, native: 神宫 (附尾宿), pronounce: shéngōng
+msgid "Changing Room (Vassal of Tail)"
+msgstr ""
+
+# Chinese constellation, native: 十二国, pronounce: Shíèrguó
+msgid "Twelve States"
+msgstr ""
+
+# Chinese constellation, native: 十字架, pronounce: Shízìjià
+msgid "Cross"
+msgstr ""
+
+# Chinese constellation, native: 屎, pronounce: Shǐ
+msgid "Excrement"
+msgstr ""
+
+# Chinese constellation, native: 市楼, pronounce: Shìlóu
+msgid "Municipal Office"
+msgstr ""
+
+# Chinese constellation, native: 势, pronounce: Shì
+msgid "Eunuch"
+msgstr ""
+
+# Chinese constellation, native: 水府, pronounce: Shuǐfǔ
+msgid "Official for Irrigation"
+msgstr ""
+
+# Chinese constellation, native: 水委, pronounce: Shuǐweǐ
+msgid "Crooked Running Water"
+msgstr ""
+
+# Chinese constellation, native: 水位, pronounce: Shuǐweì
+msgid "Water Level"
+msgstr ""
+
+# Chinese constellation, native: 司非, pronounce: Sīfēi
+msgid "Deified Judge of Right and Wrong"
+msgstr ""
+
+# Chinese constellation, native: 司怪, pronounce: Sīguài
+msgid "Deity in Charge of Monsters"
+msgstr ""
+
+# Chinese constellation, native: 司禄, pronounce: Sīlù
+msgid "Deified Judge of Rank"
+msgstr ""
+
+# Chinese constellation, native: 司命, pronounce: Sīmìng
+msgid "Deified Judge of Life"
+msgstr ""
+
+# Chinese constellation, native: 司危, pronounce: Sīwēi
+msgid "Deified Judge of Disaster and Good Fortune"
+msgstr ""
+
+# Chinese constellation, native: 四渎, pronounce: Sìdú
+msgid "Four Channels"
+msgstr ""
+
+# Chinese constellation, native: 四辅, pronounce: Sìfǔ
+msgid "Four Advisors"
+msgstr ""
+
+# Chinese constellation, native: 孙, pronounce: Sūn
+msgid "Grandson"
+msgstr ""
+
+# Chinese constellation, native: 太阳守, pronounce: Tàiyángshǒu
+msgid "Guard of the Sun"
+msgstr ""
+
+# Chinese constellation, native: 太乙, pronounce: Tàiyǐ
+msgid "First Great One"
+msgstr ""
+
+# Chinese constellation, native: 太子, pronounce: Tàizǐ
+msgid "Crown Prince"
+msgstr ""
+
+# Chinese constellation, native: 太尊, pronounce: Tiānláo
+msgid "Royals"
+msgstr ""
+
+# Chinese constellation, native: 螣蛇, pronounce: Téngshé
+msgid "Flying Serpent"
+msgstr ""
+
+# Chinese constellation, native: 天阿, pronounce: Tiānē
+msgid "Celestial Concave"
+msgstr ""
+
+# Chinese constellation, native: 天棓, pronounce: Tiānbàng
+msgid "Celestial Flail"
+msgstr ""
+
+# Chinese constellation, native: 天弁, pronounce: Tiānbiàn
+msgid "Market Officer"
+msgstr ""
+
+# Chinese constellation, native: 天仓, pronounce: Tiāncāng
+msgid "Square Celestial Granary"
+msgstr ""
+
+# Chinese constellation, native: 天谗, pronounce: Tiānchán
+msgid "Celestial Slander"
+msgstr ""
+
+# Chinese constellation, native: 天厨, pronounce: Tiānchú
+msgid "Celestial Kitchen"
+msgstr ""
+
+# Chinese constellation, native: 天船, pronounce: Tiānchuán
+msgid "Celestial Boat"
+msgstr ""
+
+# Chinese constellation, native: 天床, pronounce: Tiānchuáng
+msgid "Celestial Bed"
+msgstr ""
+
+# Chinese constellation, native: 天大将军, pronounce: Tiāndàjiāngjūn
+msgid "Great General of Heaven"
+msgstr ""
+
+# Chinese constellation, native: 天桴, pronounce: Tiānfú
+msgid "Celestial Drumstick"
+msgstr ""
+
+# Chinese constellation, native: 天辐, pronounce: Tiānfú
+msgid "Celestial Spokes"
+msgstr ""
+
+# Chinese constellation, native: 天纲, pronounce: Tiāngāng
+msgid "Materials for Making Tents"
+msgstr ""
+
+# Chinese constellation, native: 天高, pronounce: Tiāngāo
+msgid "Celestial High Terrace"
+msgstr ""
+
+# Chinese constellation, native: 天钩, pronounce: Tiāngōu
+msgid "Celestial Hook"
+msgstr ""
+
+# Chinese constellation, native: 天狗, pronounce: Tiāngǒu
+msgid "Celestial Dog"
+msgstr ""
+
+# Chinese constellation, native: 天关, pronounce: Tiānguān
+msgid "Celestial Pass"
+msgstr ""
+
+# Chinese constellation, native: 天皇大帝, pronounce: Tiānhuángdàdì
+msgid "Great Emperor of Heaven"
+msgstr ""
+
+# Chinese constellation, native: 天潢, pronounce: Tiānhua8ng
+msgid "Celestial Pier"
+msgstr ""
+
+# Chinese constellation, native: 天溷, pronounce: Tiānhùn
+msgid "Celestial Pigsty"
+msgstr ""
+
+# Chinese constellation, native: 天鸡, pronounce: Tiānjī
+msgid "Celestial Cock"
+msgstr ""
+
+# Chinese constellation, native: 天记, pronounce: Tiānjì
+msgid "Judge for Estimating the Age of Animals"
+msgstr ""
+
+# Chinese constellation, native: 天纪, pronounce: Tiānjì
+msgid "Celestial Discipline"
+msgstr ""
+
+# Chinese constellation, native: 天江, pronounce: Tiānjiāng
+msgid "Celestial River"
+msgstr ""
+
+# Chinese constellation, native: 天街, pronounce: Tiānjiē
+msgid "Celestial Street"
+msgstr ""
+
+# Chinese constellation, native: 天节, pronounce: Tiānjié
+msgid "Celestial Tally"
+msgstr ""
+
+# Chinese constellation, native: 天津, pronounce: Tiānjīn
+msgid "Celestial Ford"
+msgstr ""
+
+# Chinese constellation, native: 天厩, pronounce: Tiānjiù
+msgid "Celestial Stable"
+msgstr ""
+
+# Chinese constellation, native: 天狼, pronounce: Tiānláng
+msgid "Celestial Wolf"
+msgstr ""
+
+# Chinese constellation, native: 天牢, pronounce: Tàizūn
+msgid "Celestial Prison"
+msgstr ""
+
+# Chinese constellation, native: 天垒城, pronounce: Tiānlěichéng
+msgid "Celestial Ramparts"
+msgstr ""
+
+# Chinese constellation, native: 天理, pronounce: Tiānlǐ
+msgid "Judge for Nobility"
+msgstr ""
+
+# Chinese constellation, native: 天廪, pronounce: Tiānlǐn
+msgid "Celestial Foodstuff"
+msgstr ""
+
+# Chinese constellation, native: 天门, pronounce: Tiānmén
+msgid "Celestial Gate"
+msgstr ""
+
+# Chinese constellation, native: 天钱, pronounce: Tiānqián
+msgid "Celestial Money"
+msgstr ""
+
+# Chinese constellation, native: 天枪, pronounce: Tiānqiāng
+msgid "Celestial Spear"
+msgstr ""
+
+# Chinese constellation, native: 天囷, pronounce: Tiānqūn
+msgid "Circular Celestial Granary"
+msgstr ""
+
+# Chinese constellation, native: 天乳, pronounce: Tiānrǔ
+msgid "Celestial Milk"
+msgstr ""
+
+# Chinese constellation, native: 天社, pronounce: Tiānshè
+msgid "Celestial Earth God's Temple"
+msgstr ""
+
+# Chinese constellation, native: 天田 (角宿), pronounce: Tiāntián (Jiǎoxiù)
+msgid "Celestial Farmland (In Horn Mansion)"
+msgstr ""
+
+# Chinese constellation, native: 天田 (牛宿), pronounce: Tiāntián (Niúxiù)
+msgid "Celestial Farmland (In Ox Mansion)"
+msgstr ""
+
+# Chinese constellation, native: 天相, pronounce: Tiānxiàng
+msgid "Celestial Premier"
+msgstr ""
+
+# Chinese constellation, native: 天乙, pronounce: Tiānyǐ
+msgid "Celestial Great One"
+msgstr ""
+
+# Chinese constellation, native: 天阴, pronounce: Tiānyīn
+msgid "Celestial Yin Force"
+msgstr ""
+
+# Chinese constellation, native: 天庾, pronounce: Tiānyǔ
+msgid "Ricks of Grain"
+msgstr ""
+
+# Chinese constellation, native: 天渊, pronounce: Tiānyuān
+msgid "Celestial Spring"
+msgstr ""
+
+# Chinese constellation, native: 天园, pronounce: Tiānyuán
+msgid "Celestial Orchard"
+msgstr ""
+
+# Chinese constellation, native: 天苑, pronounce: Tiānyuàn
+msgid "Celestial Meadows"
+msgstr ""
+
+# Chinese constellation, native: 天籥, pronounce: Tiānyuè
+msgid "Celestial Keyhole"
+msgstr ""
+
+# Chinese constellation, native: 天柱, pronounce: Tiānzhù
+msgid "Celestial Pillar"
+msgstr ""
+
+# Chinese constellation, native: 天樽, pronounce: Tiānzūn
+msgid "Celestial Wine Cup"
+msgstr ""
+
+# Chinese constellation, native: 屠肆, pronounce: Túsì
+msgid "Butcher's Shops"
+msgstr ""
+
+# Chinese constellation, native: 土公, pronounce: Tǔgōng
+msgid "Official for Earthworks and Buildings"
+msgstr ""
+
+# Chinese constellation, native: 土公吏, pronounce: Tǔgōnglì
+msgid "Official for Materials Supply"
+msgstr ""
+
+# Chinese constellation, native: 土司空, pronounce: Tǔsīkōng
+msgid "Master of Constructions"
+msgstr ""
+
+# Chinese constellation, native: 外厨, pronounce: Wàichú
+msgid "Outer Kitchen"
+msgstr ""
+
+# Chinese constellation, native: 外屏, pronounce: Wàipíng
+msgid "Outer Fence"
+msgstr ""
+
+# Chinese constellation, native: 王良, pronounce: Wáng Liáng
+msgid "Wang Liang"
+msgstr ""
+
+# Chinese constellation, native: 王良 (土司空), pronounce: Tǔsīkōng
+msgid "Master of Constructions (In Legs Mansion)"
+msgstr ""
+
+# Chinese constellation, native: 文昌, pronounce: Wénchāng
+msgid "Administrative Center"
+msgstr ""
+
+# Chinese constellation, native: 五车, pronounce: Wǔchē
+msgid "Five Chariots"
+msgstr ""
+
+# Chinese constellation, native: 五帝内座, pronounce: Wǔdì NèiZuò
+msgid "Interior Seats of the Five Emperors"
+msgstr ""
+
+# Chinese constellation, native: 五帝座, pronounce: Wǔdì Zuò
+msgid "Seats of the Five Emperors"
+msgstr ""
+
+# Chinese constellation, native: 五诸侯, pronounce: Wǔ Zhūhóu
+msgid "Five Feudal Kings"
+msgstr ""
+
+# Chinese constellation, native: 五诸侯, pronounce: Wǔ Zhūhóu
+msgid "Five Lords"
+msgstr ""
+
+# Chinese constellation, native: 西咸, pronounce: Xīxián
+msgid "Western Door"
+msgstr ""
+
+# Chinese constellation, native: 奚仲, pronounce: Xī Zhòng
+msgid "Xi Zhong"
+msgstr ""
+
+# Chinese constellation, native: 咸池, pronounce: Xiánchí
+msgid "Pool of Harmony"
+msgstr ""
+
+# Chinese constellation, native: 相, pronounce: Xiàng
+msgid "Prime Minister"
+msgstr ""
+
+# Chinese constellation, native: 小斗, pronounce: Xiǎodǒu
+msgid "Little Dipper"
+msgstr ""
+
+# Chinese constellation, native: 幸臣, pronounce: Xìngchén
+msgid "Officer of Honour"
+msgstr ""
+
+# Chinese constellation, native: 虚梁, pronounce: Xūliáng
+msgid "Temple"
+msgstr ""
+
+# Chinese constellation, native: 轩辕, pronounce: Xuānyuán
+msgid "Xuanyuan"
+msgstr ""
+
+# Chinese constellation, native: 玄戈, pronounce: Xuángē
+msgid "Sombre Lance"
+msgstr ""
+
+# Chinese constellation, native: 钺 (附井宿), pronounce: Yué
+msgid "Battle Axe (Vassal of Well)"
+msgstr ""
+
+# Chinese constellation, native: 阳门, pronounce: Yángmén
+msgid "Gate of Yang"
+msgstr ""
+
+# Chinese constellation, native: 野鸡, pronounce: Yějī
+msgid "Wild Cockerel"
+msgstr ""
+
+# Chinese constellation, native: 谒者, pronounce: Yézhě
+msgid "Usher to the Court"
+msgstr ""
+
+# Chinese constellation, native: 异雀, pronounce: Yìquè
+msgid "Exotic Bird"
+msgstr ""
+
+# Chinese constellation, native: 阴德, pronounce: Yīndé
+msgid "Hidden Virtue"
+msgstr ""
+
+# Chinese constellation, native: 右更, pronounce: Yòugēng
+msgid "Official in Charge of Pasturing"
+msgstr ""
+
+# Chinese constellation, native: 右旗, pronounce: Yòuqí
+msgid "Right Flag"
+msgstr ""
+
+# Chinese constellation, native: 右摄提, pronounce: Yòushètí
+msgid "Right Conductor"
+msgstr ""
+
+# Chinese constellation, native: 鱼, pronounce: Yú
+msgid "Fish"
+msgstr ""
+
+# Chinese constellation, native: 羽林军, pronounce: Yǔlínjūn
+msgid "Palace Guard"
+msgstr ""
+
+# Chinese constellation, native: 玉井, pronounce: Yùjǐng
+msgid "Jade Well"
+msgstr ""
+
+# Chinese constellation, native: 御女, pronounce: Yùnǚ
+msgid "Maids-in-waiting"
+msgstr ""
+
+# Chinese constellation, native: 月, pronounce: Yuè
+msgid "Lunar Star"
+msgstr ""
+
+# Chinese constellation, native: 附耳 (附毕宿), pronounce: Fùěr
+msgid "Whisper (Vassal of Net)"
+msgstr ""
+
+# Chinese constellation, native: 云雨, pronounce: Yúnyǔ
+msgid "Cloud and Rain"
+msgstr ""
+
+# Chinese constellation, native: 造父, pronounce: Zàofǔ
+msgid "Zaofu"
+msgstr ""
+
+# Chinese constellation, native: 长垣, pronounce: Chángyuán
+msgid "Long Wall"
+msgstr ""
+
+# Chinese constellation, native: 丈人, pronounce: Zhàngrén
+msgid "Grandfather"
+msgstr ""
+
+# Chinese constellation, native: 招摇, pronounce: Zhāoyáo
+msgid "Twinkling Indicator"
+msgstr ""
+
+# Chinese constellation, native: 辅 (附北斗), pronounce: Fǔ
+msgid "Assistant (Vassal of Northern Dipper)"
+msgstr ""
+
+# Chinese constellation, native: 折威, pronounce: Zhéwēi
+msgid "Executions"
+msgstr ""
+
+# Chinese constellation, native: 阵车, pronounce: Zhènchē
+msgid "Battle Chariots"
+msgstr ""
+
+# Chinese constellation, native: 右辖 (附轸宿), pronounce: Yoùxiá
+msgid "Right linchpin (Vassal of Chariot)"
+msgstr ""
+
+# Chinese constellation, native: 织女, pronounce: Zhinǚ
+msgid "Weaving Girl"
+msgstr ""
+
+# Chinese constellation, native: 左辖 (附轸宿), pronounce: Zuǒxiá
+msgid "Left linchpin (Vassal of Chariot)"
+msgstr ""
+
+# Chinese constellation, native: 周鼎, pronounce: Zhōudǐng
+msgid "Tripod of the Zhou"
+msgstr ""
+
+# Chinese constellation, native: 诸王, pronounce: Zhūwáng
+msgid "Feudal Kings"
+msgstr ""
+
+# Chinese constellation, native: 柱 (毕宿), pronounce: Zhù (Bìxiù)
+msgid "Pillars (In Net Mansion)"
+msgstr ""
+
+# Chinese constellation, native: 柱 (角宿), pronounce: Zhù (Jiǎoxiù)
+msgid "Pillars (In Horn Mansion)"
+msgstr ""
+
+# Chinese constellation, native: 柱史, pronounce: Zhùshǐ
+msgid "Official of Royal Archives"
+msgstr ""
+
+# Chinese constellation, native: 子, pronounce: Zǐ
+msgid "Son"
+msgstr ""
+
+# Chinese constellation, native: 宗, pronounce: Zōng
+msgid "Patriarchal Clan"
+msgstr ""
+
+# Chinese constellation, native: 宗人, pronounce: Zōngrén
+msgid "Official of Religious Ceremonies"
+msgstr ""
+
+# Chinese constellation, native: 宗正, pronounce: Zōngzhèng
+msgid "Official for the Royal Clan"
+msgstr ""
+
+# Chinese constellation, native: 左更, pronounce: Zuǒgēng
+msgid "Official in Charge of the Forest"
+msgstr ""
+
+# Chinese constellation, native: 左旗, pronounce: Zuǒqí
+msgid "Left Flag"
+msgstr ""
+
+# Chinese constellation, native: 左摄提, pronounce: Zuǒshètí
+msgid "Left Conductor"
+msgstr ""
+
+# Chinese constellation, native: 座旗, pronounce: Zuòqí
+msgid "Seat Flags"
+msgstr ""
+
+# Chinese star name for HIP 72607
+msgid "Emperor"
+msgstr ""
+
+# Chinese star name for HIP 70692
+msgid "Bastard"
+msgstr ""
+
+# Chinese star name for HIP 69112
+msgid "Harem"
+msgstr ""
+
+# Chinese star name for HIP 62572
+msgid "The Celestial Pivot"
+msgstr ""
+
+# Chinese star name for HIP 62572
+msgid "Ancient Star"
+msgstr ""
+
+# "Added" chinese star name
+msgid "Added"
+msgstr ""
+
+# Chinese star name for HIP 11767
+msgid "Northern Star"
+msgstr ""
+
+# Chinese star name for HIP 17959
+msgid "Canopy Support"
+msgstr ""
+
+# Chinese star name for HIP 68756
+msgid "Right Pivot"
+msgstr ""
+
+# Chinese star name for HIP 61281
+msgid "The Second Commandant"
+msgstr ""
+
+# Chinese star name for HIP 56211
+msgid "The Great Advisor"
+msgstr ""
+
+# Chinese star name for HIP 46977
+msgid "The Second Advisor"
+msgstr ""
+
+# Chinese star name for HIP 33104
+msgid "The Great Imperial Guard"
+msgstr ""
+
+# Chinese star name for HIP 22783
+msgid "The Second Imperial Guard"
+msgstr ""
+
+# Chinese star name for HIP 15520
+msgid "The Great Imperial Minister"
+msgstr ""
+
+# Chinese star name for HIP 75458
+msgid "Left Pivot"
+msgstr ""
+
+# Chinese star name for HIP 78527
+msgid "The Great Prime Minister"
+msgstr ""
+
+# Chinese star name for HIP 80331
+msgid "The Second Prime Minister"
+msgstr ""
+
+# Chinese star name for HIP 83895
+msgid "The Great Protector"
+msgstr ""
+
+# Chinese star name for HIP 92782
+msgid "The Second Protector"
+msgstr ""
+
+# Chinese star name for HIP 3721
+msgid "The Second Imperial Minister"
+msgstr ""
+
+# Chinese star name for HIP 53910
+msgid "The Celestial Rotating Jade"
+msgstr ""
+
+# Chinese star name for HIP 58001
+msgid "The Celestial Shining Pearl"
+msgstr ""
+
+# Chinese star name for HIP 59774
+msgid "The Celestial Balance"
+msgstr ""
+
+# Chinese star name for HIP 62956
+msgid "The Jade Sighting-Tube"
+msgstr ""
+
+# Chinese star name for HIP 65378
+msgid "The Opener of Heat"
+msgstr ""
+
+# Chinese star name for HIP 67301
+msgid "The Twinkling Brilliance"
+msgstr ""
+
+# Chinese star name for HIP 65477
+msgid "Assistant"
+msgstr ""
+
+# Chinese star name for HIP 57757
+msgid "Right Law Administrator"
+msgstr ""
+
+# Chinese star name for HIP 55434
+msgid "The Great Western General"
+msgstr ""
+
+# Chinese star name for HIP 55642
+msgid "The Second Western General"
+msgstr ""
+
+# Chinese star name for HIP 54879
+msgid "The Second Western Premier"
+msgstr ""
+
+# Chinese star name for HIP 54872
+msgid "The Great Western Premier"
+msgstr ""
+
+# Chinese star name for HIP 60129
+msgid "Left Law Administrator"
+msgstr ""
+
+# Chinese star name for HIP 61941
+msgid "The Great Eastern Premier"
+msgstr ""
+
+# Chinese star name for HIP 63090
+msgid "The Second Eastern Premier"
+msgstr ""
+
+# Chinese star name for HIP 63608
+msgid "The Second Eastern General"
+msgstr ""
+
+# Chinese star name for HIP 64241
+msgid "The Great Eastern General"
+msgstr ""
+
+# Chinese star name for HIP 44127
+msgid "Upper Steps"
+msgstr ""
+
+# Chinese star name for HIP 50372
+msgid "Middle Steps"
+msgstr ""
+
+# Chinese star name for HIP 55219
+msgid "Lower Steps"
+msgstr ""
+
+# Chinese star name for HIP 80816
+msgid "Hezhong"
+msgstr ""
+
+# Chinese star name for HIP 80170
+msgid "Hejian"
+msgstr ""
+
+# Chinese star name for HIP 79043
+msgid "Jin"
+msgstr ""
+
+# Chinese star name for HIP 78072
+msgid "Zheng"
+msgstr ""
+
+# Chinese star name for HIP 77233
+msgid "Zhou"
+msgstr ""
+
+# Chinese star name for HIP 76276
+msgid "Qin"
+msgstr ""
+
+# Chinese star name for HIP 77070
+msgid "Shu"
+msgstr ""
+
+# Chinese star name for HIP 77622
+msgid "Ba"
+msgstr ""
+
+# Chinese star name for HIP 79593
+msgid "Liang"
+msgstr ""
+
+# Chinese star name for HIP 79882
+msgid "Chu"
+msgstr ""
+
+# Chinese star name for HIP 81377
+msgid "Han"
+msgstr ""
+
+# Chinese star name for HIP 84379
+msgid "Wei"
+msgstr ""
+
+# Chinese star name for HIP 85693
+msgid "Zhao"
+msgstr ""
+
+# Chinese star name for HIP 86974
+msgid "Jiuhe"
+msgstr ""
+
+# Chinese star name for HIP 88794
+msgid "Zhongshan"
+msgstr ""
+
+# Chinese star name for HIP 92614
+msgid "Qi"
+msgstr ""
+
+# Chinese star name for HIP 93747
+msgid "Wuyue"
+msgstr ""
+
+# Chinese star name for HIP 92946
+msgid "Xu"
+msgstr ""
+
+# Chinese star name for HIP 89962
+msgid "Donghai"
+msgstr ""
+
+# Chinese star name for HIP 88048
+msgid "Yan"
+msgstr ""
+
+# Chinese star name for HIP 86263
+msgid "Nanhai"
+msgstr ""
+
+# Chinese star name for HIP 84012
+msgid "Song"
+msgstr ""
+
+# Chinese star name for HIP 78933
+msgid "Lock"
+msgstr ""
+
+# Chinese star name for HIP 80763
+msgid "Great Fire"
+msgstr ""
+
+# Chinese star name for HIP 97649
+msgid "Cowboy"
+msgstr ""
+
+# Chinese star name for HIP 104019
+msgid "Zhou State (In Twelve States)"
+msgstr ""
+
+# Chinese star name for HIP 104139
+msgid "Qin State (In Twelve States)"
+msgstr ""
+
+# Chinese star name for HIP 105515
+msgid "Dai State (In Twelve States)"
+msgstr ""
+
+# Chinese star name for HIP 104429
+msgid "Zhao State (In Twelve States)"
+msgstr ""
+
+# Chinese star name for HIP 103226
+msgid "Yue State (In Twelve States)"
+msgstr ""
+
+# Chinese star name for HIP 104365
+msgid "Qi State (In Twelve States)"
+msgstr ""
+
+# Chinese star name for HIP 104963
+msgid "Chu State (In Twelve States)"
+msgstr ""
+
+# Chinese star name for HIP 103616
+msgid "Zheng State (In Twelve States)"
+msgstr ""
+
+# Chinese star name for HIP 105665
+msgid "Wei State (In Twelve States)"
+msgstr ""
+
+# Chinese star name for HIP 105928
+msgid "Han State (In Twelve States)"
+msgstr ""
+
+# Chinese star name for HIP 106039
+msgid "Jin State (In Twelve States)"
+msgstr ""
+
+# Chinese star name for HIP 105881
+msgid "Yan State (In Twelve States)"
+msgstr ""
+
+# Chinese star name for HIP 104521
+msgid "Deified Judge of Right and Wrong "
+msgstr ""
+
+# Chinese star name for HIP 110960
+msgid "Tomb"
+msgstr ""
+
+# Chinese star name for HIP 112440
+msgid "Resting Palace"
+msgstr ""
+
+# Chinese star name for HIP 19167
+msgid "Stored Water"
+msgstr ""
+
+# Chinese star name for HIP 21683
+msgid "Whisper"
+msgstr ""
+
+# Chinese star name for HIP 26237
+msgid "Send Armed Forces To Suppress"
+msgstr ""
+
+# Chinese star name for HIP 29655
+msgid "Battle Axe"
+msgstr ""
+
+# Chinese star name for HIP 59199
+msgid "Right linchpin"
+msgstr ""
+
+# Chinese star name for HIP 61174
+msgid "Left linchpin"
+msgstr ""
+
+# Chinese star name for HIP 60189
+msgid "Changsha"
+msgstr ""
+
+# Chinese star name for HIP 104382
+msgid "Southern Star"
+msgstr ""
+
+# Chinese star name for C 76
+msgid "God's Palace"
+msgstr ""
+
+# Chinese star name for NAME Andromeda Galaxy
+msgid "Legs Mansion"
+msgstr ""
+
+# Chinese star name for HIP 70890
+msgid "Proxima"
+msgstr ""
+
+# Egyptian constellation
+msgid "Bull's Foreleg"
+msgstr ""
+
+# Egyptian constellation
+msgid "Two Poles"
+msgstr ""
+
+# Egyptian constellation
+msgid "Lion"
+msgstr ""
+
+# Egyptian constellation
+msgid "Two Jaws"
+msgstr ""
+
+# Egyptian constellation
+msgid "Sah"
+msgstr ""
+
+# Egyptian constellation
+msgid "Bird"
+msgstr ""
+
+# Egyptian constellation
+msgid "Sek"
+msgstr ""
+
+# Egyptian constellation
+msgid "Ferry Boat"
+msgstr ""
+
+# Egyptian constellation
+msgid "Boat"
+msgstr ""
+
+# Egyptian constellation
+msgid "Crocodile"
+msgstr ""
+
+# Egyptian constellation
+msgid "Selkis"
+msgstr ""
+
+# Egyptian constellation
+msgid "Prow"
+msgstr ""
+
+# Egyptian constellation
+msgid "Horus"
+msgstr ""
+
+# Egyptian constellation
+msgid "Sheepfold"
+msgstr ""
+
+# Egyptian constellation
+msgid "Giant"
+msgstr ""
+
+# Egyptian constellation
+msgid "Hippopotamus"
+msgstr ""
+
+# Egyptian constellation
+msgid "Flock"
+msgstr ""
+
+# Egyptian constellation
+msgid "Pair of Stars"
+msgstr ""
+
+# Egyptian constellation
+msgid "Khanuwy Fish"
+msgstr ""
+
+# Egyptian constellation
+msgid "Jaw"
+msgstr ""
+
+# Egyptian constellation
+msgid "Mooring Post"
+msgstr ""
+
+# Egyptian constellation
+msgid "Kenemet"
+msgstr ""
+
+# Egyptian constellation
+msgid "Chematy"
+msgstr ""
+
+# Egyptian constellation
+msgid "Waty Bekety"
+msgstr ""
+
+# Egyptian constellation
+msgid "Sheep"
+msgstr ""
+
+# Egyptian constellation
+msgid "Stars of Water"
+msgstr ""
+
+# Name for NAME Jupiter
+msgid "Horus Who Limits the Two Lands"
+msgstr ""
+
+# Name for NAME Mars
+msgid "Horus of the Horizon"
+msgstr ""
+
+# Name for NAME Mercury
+msgid "Associated with Set"
+msgstr ""
+
+# Name for NAME Saturn
+msgid "Horus the Bull of the Sky"
+msgstr ""
+
+# Name for NAME Venus
+msgid "God of the Morning"
+msgstr ""
+
+msgid "Pleiades"
+msgstr "Plejade"
+
+msgid "Perseus"
+msgstr ""
+
+msgid "The nebulous star to the rear of the sting"
+msgstr ""
+
+msgid "The nebulous mass on the right hand"
+msgstr ""
+
+msgid "The star on the place where the back joins [the horse's body]"
+msgstr ""
+
+msgid "The middle of the nebulous mass in the chest, called Praesepe"
+msgstr ""
+
+msgid "Crab"
+msgstr ""
+
+msgid "Horse"
+msgstr ""
+
+msgid "Arrow"
+msgstr ""
+
+msgid "Raven"
+msgstr ""
+
+msgid "Eagle"
+msgstr ""
+
+msgid "Scorpion"
+msgstr ""
+
+msgid "Twins"
+msgstr ""
+
+msgid "Beast"
+msgstr ""
+
+msgid "Dragon"
+msgstr ""
+
+msgid "King Kepheus"
+msgstr ""
+
+msgid "Ploughman"
+msgstr ""
+
+msgid "Crown"
+msgstr ""
+
+msgid "Kneeler"
+msgstr ""
+
+msgid "Lyre"
+msgstr ""
+
+msgid "Queen Kassiepeia"
+msgstr ""
+
+msgid "Charioteer"
+msgstr ""
+
+msgid "Serpent Bearer"
+msgstr ""
+
+msgid "Snake"
+msgstr ""
+
+msgid "Dolphin"
+msgstr ""
+
+msgid "Princess Andromeda"
+msgstr ""
+
+msgid "Ram"
+msgstr ""
+
+msgid "Bull"
+msgstr ""
+
+msgid "Maiden"
+msgstr ""
+
+msgid "Claws [of Scorpion]"
+msgstr ""
+
+msgid "Archer"
+msgstr ""
+
+msgid "The One with the Goat's Horn"
+msgstr ""
+
+msgid "Water-carrier"
+msgstr ""
+
+msgid "Fishes"
+msgstr ""
+
+msgid "Sea Monster"
+msgstr ""
+
+msgid "Hero Orion"
+msgstr ""
+
+msgid "Hare"
+msgstr ""
+
+msgid "The Ship Argo"
+msgstr ""
+
+msgid "Water Snake"
+msgstr ""
+
+msgid "Vessel"
+msgstr ""
+
+msgid "Kentaur"
+msgstr ""
+
+msgid "Altar"
+msgstr ""
+
+msgid "Southern Crown"
+msgstr ""
+
+msgid "Southern Fish"
+msgstr ""
+
+msgid "The Lock [in Leo]"
+msgstr ""
+
+msgid "φάτνη (Manger)"
+msgstr ""
+
+msgid "Πλειάδες (Pleiades)"
+msgstr ""
+
+msgid "Tau 30-33"
+msgstr ""
+
+msgid "ʿΥάδες (Hyades)"
+msgstr ""
+
+msgid "Tau 11-15"
+msgstr ""
+
+msgid "πλόκαμος (Coma)"
+msgstr ""
+
+msgid "Leo 33"
+msgstr ""
+
+msgid "sco 22"
+msgstr ""
+
+msgid "Small She-Bear"
+msgstr ""
+
+msgid "Great She-Bear"
+msgstr ""
+
+msgid "God Eridanus (River)"
+msgstr ""
+
+msgid "Procyon/ Little Dog"
+msgstr ""
+
+# Hawaiian constellation, native: Ke Ka o Makali’i
+msgid "The Canoe Bailer of Makali`i"
+msgstr ""
+
+# Description of Hawaiian constellation The Canoe Bailer of Makali`i
+msgid ""
+"The direct translation means the “Canoe Bailer of Makali’i”. The lines are\n"
+"shaped as a canoe bailer which scoops _Ka Hei-Hei o Na Keiki_ (Orion) and\n"
+"_Makali’i_ (Pleiades) up into the night sky. In voyaging a bailer is used to\n"
+"scoop up water out of the hulls.\n"
+"\n"
+"The main stars of _Ke Ka o Makali’i_ from North to South are _Hokulei_\n"
+"(Capella), _Nanamua_ (Castor), _Nanahope_ (Pollux), _Puana_ (Procyon), and\n"
+"_‘A’a_ (Sirius). These stars connect together to create the bailer in the sky.\n"
+"Mintaka in Orion is an important star in this line because it rises/sets\n"
+"directly east or west giving the navigator an easy pointer star for direction.\n"
+"Mirzim (next to _‘A’a_ (Sirius)) and _Ke Ali’i Kona i Ka Lewa_ (Canopus)\n"
+"connect together to create a southern pointer. _‘Ekekeuehuehu_ (θ Aur, Mahasim)\n"
+"and _‘Ekekeu’ena’ena_ (β Aur, Menkalinan) connect to create a northern pointer.\n"
+"Different north/south pointers are found in the star lines and used heavily by\n"
+"navigators."
+msgstr ""
+
+# Hawaiian constellation, native: Ka Hei-Hei o Na Keiki
+msgid "The Cat's Cradle"
+msgstr ""
+
+# Hawaiian constellation, native: Makali`i
+msgid "The Chief's Eyes"
+msgstr ""
+
+# Hawaiian constellation, native: Me`e
+msgid "Voice of Joy"
+msgstr ""
+
+# Hawaiian constellation, native: Na Hiku
+msgid "The Seven"
+msgstr ""
+
+# Hawaiian constellation, native: Ka Iwikuamo’o
+msgid "The Backbone"
+msgstr ""
+
+# Description of Hawaiian constellation The Backbone
+msgid ""
+"_Ka Iwikuamo’o_ translates to the backbone (directly: Bone back-lizard). This\n"
+"star line is depicted as the backbone of a lizard or _mo’o_ in this sky\n"
+"culture. It can also be representing a genealogical backbone, each star\n"
+"representing a generation.\n"
+"\n"
+"The star line itself starts with _Hokupa’a_ (North Star), the ultimate northern\n"
+"pointer due to the star never moving in the sky, always above north. _Hokupa’a_\n"
+"connects down to _Na Hiku_ (Big Dipper). _Na Hiku_ translates to “The Seven” as\n"
+"there is seven stars in the Big Dipper. _Hokule’a_ (Arcturus) and _Hikianalia_\n"
+"(Spica) are the two stars in the middle of the star line. The two PVS canoes\n"
+"are named after these two stars. _Hokule’a_ is the “zenith” star of Hawai’i,\n"
+"meaning it will be directly overhead when you are at the latitude of the\n"
+"Hawaiian Islands. _Hokule’a_ is very important to navigators on finding their\n"
+"way back to Hawai’i. The meaning of _Hokule’a_ is “the star of gladness”\n"
+"because it is the star used to find home bringing joy. Next to _Hikianalia_ is\n"
+"_Me’e_, a combination of four stars that create a box. _Me’e_ connects down to\n"
+"_Hanaiakamalama_ (Southern Cross) which is the southern pointer for _Ka\n"
+"Iwikuamo’o_."
+msgstr ""
+
+# Hawaiian constellation, native: Manaiakalani
+msgid "The Chief's Fishline"
+msgstr ""
+
+# Description of Hawaiian constellation The Chief's Fishline
+msgid ""
+"_Manaiakalani_ translates to “The Chief's Fishline”. This refers to the legend\n"
+"of the demi god Maui and his fish hook. Maui is credited for pulling up the\n"
+"islands with his magical fish hook.\n"
+"\n"
+"This star line consists of two constellations. The Navigator’s Triangle on the\n"
+"north and Maui’s fish hook on the south. The Navigator’s Triangle is made of\n"
+"three stars _Hawaiki_ (Deneb), _Keoe_ (Vega), and _Humu_ (Altair). (It is the\n"
+"same figure as the Summer Triangle for modern amateur astronomers.) These stars\n"
+"also represent the Polynesian triangle: Hawai’i (_Hawaiki_), Rapanui (_Keoe_),\n"
+"and Aotearoa (_Humu_). These three islands are pulled by the fish hook of Maui\n"
+"(Scorpius).\n"
+"\n"
+"The northern pointer is found in the Navigator’s Triangle when you connect\n"
+"_Hawaiki_ (Deneb) and _Momonapikowalu_ (γ Cyg, Sadr). Southern pointers are in\n"
+"the fish hook when you connect _Mili’opu_ (δ Sco, Dschubba) and _Kahe_ (π Sco,\n"
+"Nur), the stars on the top of the hook."
+msgstr ""
+
+# Hawaiian constellation
+msgid "Navigator's Triangle"
+msgstr ""
+
+# Hawaiian constellation, native: Ka Lupe o Kawelo
+msgid "Kite of Kawelo"
+msgstr ""
+
+# Description of Hawaiian constellation Kite of Kawelo
+msgid ""
+"_Ka Lupe o Kawelo_ translates to “The Kite of Kawelo”. Kawelo was a great chief\n"
+"of Kaua’i and O’ahu and this star line represents the kite which was lost as a\n"
+"child.\n"
+"\n"
+"The star line starts with _‘Iwakeli’i_, meaning Chief Frigate Bird (_Fregata\n"
+"Minor_). The shape of this constellation (which is Cassiopeia's W in the West)\n"
+"resembles the _‘iwa_ bird that is known for leading voyagers to land. The\n"
+"center of the star line is the Kite of Kawelo (equal to the Great Square of\n"
+"Pegasus). The four stars that make the kite are named after Kawelo’s greatest\n"
+"ancestors: _Manokalanipo_ (δ Peg, Alpheratz), _Kakuhihewa_ (β Peg, Scheat),\n"
+"_Pi’ilani_ (γ Peg, Algenib), and _Keawe_ (α Peg, Markab). All four were famous\n"
+"chiefs of their time. The star line then connects south to two stars _Pi’ikea_\n"
+"(β Cet, Deneb Kaitos) and _Kukaniloko_ (α PsA, Fomalhaut).\n"
+"\n"
+"The northern pointer is found in _Manokalanipo_ (δ Peg, Alpheratz) and\n"
+"_Kealohalani-po-keao_ (β Cas, Caph) of _‘Iwakeli’i_. The southern pointer is\n"
+"connected with _Keawe_ (α Peg, Markab) and _Kukaniloko_ (α PsA, Fomalhaut)."
+msgstr ""
+
+# Hawaiian constellation, native: `Iwa Keli`i
+msgid "Chief Frigate Bird"
+msgstr ""
+
+# Hawaiian constellation, native: Hanaiakamalama
+msgid "Cared for by Moon"
+msgstr ""
+
+# Hawaiian constellation, native: Nakuhikuhi
+msgid "The Pointers"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Aśvinī
+msgid "Twin physicians of Gods"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Bharanī
+msgid "She who bears"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Kṛittikā
+msgid "Nurses of kartiikeya"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Rohiṇī
+msgid "The spirited one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Mṛgaśirā
+msgid "The deer's head"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Ārdrā
+msgid "The moist one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Punarvasu
+msgid "The restorers of goods"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Puṣyā
+msgid "The nourisher"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Aśleṣā
+msgid "The embrace"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Maghā
+msgid "The bountiful one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Pūrba phālgunī
+msgid "The former red one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Uttara phālgunī
+msgid "The latter red one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Hasta
+msgid "The hand"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Chitrā
+msgid "The bright one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Svātī
+msgid "The honest one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Viśākhā
+msgid "The gifted one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Anurādhā
+msgid "Followers of Radha"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Jyeṣṭhā
+msgid "The eldest one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Mulā
+msgid "The root"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Pūrba āṣāṛā
+msgid "The former undefeated one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Uttara āṣāṛā
+msgid "The latter undefeated one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Śrabaṇā
+msgid "The Ear"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Dhaniṣṭhā
+msgid "The most famous one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Śatabhiṣā
+msgid "hundred cures"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Pūrba bhādrapada
+msgid "The first of the blessed feet"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Uttara bhādrapada
+msgid "The second of the blessed feet"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Revatī
+msgid "The prosperous one"
+msgstr ""
+
+# Indian Vedic constellation, pronounce: Abhijit
+msgid "The invincible one"
+msgstr ""
+
+# Inuit constellation, native: Aagjuuk
+msgid "Two Sunbeams"
+msgstr ""
+
+# Description of Inuit constellation Two Sunbeams
+msgid "An important constellation for timekeeping."
+msgstr ""
+
+# Inuit constellation, native: Akkuttujuuk
+msgid "Two Placed Far Apart"
+msgstr ""
+
+# Description of Inuit constellation Two Placed Far Apart
+msgid "Two stars signaling the return of sunlight to the arctic"
+msgstr ""
+
+# Inuit constellation, native: Qimmiitt
+msgid "Dogs"
+msgstr ""
+
+# Description of Inuit constellation Dogs
+msgid "Five dogs harassing Nanook, or Nanurjuk, the polar bear."
+msgstr ""
+
+# Inuit constellation, native: Quturjuuk
+msgid "Collarbones"
+msgstr ""
+
+# Inuit constellation, native: Pituaq
+msgid "Lamp Stand"
+msgstr ""
+
+# Description of Inuit constellation Lamp Stand
+msgid "Stand containing the burning fuel providing light"
+msgstr ""
+
+# Inuit constellation, native: Tukturjuit
+msgid "Caribou"
+msgstr ""
+
+# Description of Inuit constellation Caribou
+msgid "The big dipper is Tukturjuit, the caribou."
+msgstr ""
+
+# Inuit constellation, native: Sivulliik
+msgid "Two in Front"
+msgstr ""
+
+# Description of Inuit constellation Two in Front
+msgid ""
+"\"The first ones\", Little Orphan Boy being chased by an angry grandfather."
+msgstr ""
+
+# Inuit constellation, native: Sakiattiak
+msgid "Breastbone"
+msgstr ""
+
+# Description of Inuit constellation Breastbone
+msgid "The Pleiades, are seen as a breast bone."
+msgstr ""
+
+# Inuit constellation, native: Ullaktut
+msgid "Runners"
+msgstr ""
+
+# Description of Inuit constellation Runners
+msgid ""
+"Orion's Belt is Ullaktut, three hunters lost on a hunting trip for Nanuk, "
+"the polar bear."
+msgstr ""
+
+# Inuit constellation, native: Uqsuutaattiaq
+msgid "Blubber Container"
+msgstr ""
+
+# Description of Inuit constellation Blubber Container
+msgid "A seal flipper skin sewn shut, contains fuel for lamps."
+msgstr ""
+
+# Inuit constellation, native: Kingulliq
+msgid "The One Behind"
+msgstr ""
+
+# Description of Inuit constellation The One Behind
+msgid "The grandmother chasing the Two in Front"
+msgstr ""
+
+# Name for HIP 91262
+msgid "The Old Woman"
+msgstr ""
+
+# Name for HIP 21421
+msgid "Spirit of a Polar Bear"
+msgstr ""
+
+# Name for HIP 11767
+msgid "Never Moves"
+msgstr ""
+
+# Name for HIP 37279
+msgid "Name of a Murdered Man"
+msgstr ""
+
+# Name for HIP 32349
+msgid "Flickering"
+msgstr ""
+
+# Name for HIP 26241
+msgid "Nephews"
+msgstr ""
+
+# Name for HIP 69673
+msgid "The Old Man"
+msgstr ""
+
+# Name for HIP 67927
+msgid "The Little Orphan Boy"
+msgstr ""
+
+# Name for NAME Orion Nebula
+msgid "Nephews or Nieces"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: HotohoriBoshi
+msgid "Stars"
+msgstr "Zvijezde"
+
+# Japanese Lunar Stations constellation, pronounce: SoiBoshi
+msgid "Chamber"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: MiBoshi
+msgid "Basket"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: InamiBoshi
+msgid "Cow"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: UrukiBoshi
+msgid "Woman"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: UmiyameBoshi
+msgid "Roof Top"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: TokakiBoshi
+msgid "Stride"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: TataraBoshi
+msgid "Hill"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: SubaruBoshi
+msgid "Stopping Place"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: TorokiBoshi
+msgid "Turtle Snout"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: KagasukiBoshi
+msgid "Investigator"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: TamahomeBoshi
+msgid "Ogre"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: ChirikoBoshi
+msgid "Stretched Net"
+msgstr ""
+
+# Japanese Lunar Stations constellation, pronounce: MitsukakeBoshi
+msgid "Chariot Cross-Board"
+msgstr ""
+
+# Kamilaroi/Euahlayi constellation
+msgid "Gawaargay"
+msgstr ""
+
+# Description of Kamilaroi/Euahlayi constellation Gawaargay
+msgid ""
+"Gawaargay is the spirit Emu in the Sky, located with its head in the Coal Sack,\n"
+"and its neck and body stretching out through the dust lanes of the Milky Way\n"
+"(Warrambul) past Scorpius. The Euahlayi and the Kamilaroi see it with legs in\n"
+"April and May, when it is female and chasing the males. From June to August it\n"
+"is male and sitting on its nest without legs (the males brood the chicks), and\n"
+"this is a signal to collect the eggs. In the evening in late August it is\n"
+"vertical in the sky, and the head and body form two \"eggs\", meaning the eggs\n"
+"should not be collected. Later in the year, it appears on the horizon, so it is\n"
+"believed to be sitting in a waterhole, meaning the waterholes are full. When it\n"
+"is below the horizon, then it is on Earth as the Black Emu, which is rarely\n"
+"seen."
+msgstr ""
+
+# Kamilaroi/Euahlayi constellation
+msgid "Birray Birray"
+msgstr ""
+
+# Description of Kamilaroi/Euahlayi constellation Birray Birray
+msgid ""
+"The Birray Birray are a group of uninitiated boys who are in love with the\n"
+"seven young women (sisters), Miyay Miyay, who make up the Pleiades star\n"
+"cluster. They chased the Miyay Miyay, who ended up in the sky, and for this\n"
+"they were placed in Orion, as the three stars that make up the belt of Orion.\n"
+"Rigel is their fire, and the sword of Orion is their fire poker. They are kept\n"
+"from the Miyay Miyay by the Wiringin, Old Dthillar, who is Aldebaran."
+msgstr ""
+
+# Kamilaroi/Euahlayi constellation
+msgid "Birringoloo"
+msgstr ""
+
+# Description of Kamilaroi/Euahlayi constellation Birringoloo
+msgid ""
+"Birringoloo is the second wife of Byaame, the creator/culture hero. She sits by\n"
+"the campfire of Byaame's camp (the star Alpha Muscae), and all women with girl\n"
+"children who die come to this camp before going on to Bulimah (Heaven behind\n"
+"Warrambul). They wait at this camp until all their girl children have died and\n"
+"come to the camp, and then they can proceed to Bulimah."
+msgstr ""
+
+# Kamilaroi/Euahlayi constellation
+msgid "Yarran"
+msgstr ""
+
+# Description of Kamilaroi/Euahlayi constellation Yarran
+msgid ""
+"Yarran (also called mingga) is the roots of the Yarran tree, an Acacia, which\n"
+"is the tree that Byaame took up to the Warrambul with the first man to die (and\n"
+"the Cockatoos). It is actually centred on the Coal Sack, and the dark nebula is\n"
+"the hollow of the tree seen from below, with the roots spreading around. When\n"
+"someone dies and goes to Bulimah, they go through the hollow of the Yarran."
+msgstr ""
+
+# Kamilaroi/Euahlayi constellation
+msgid "Old Wiringin"
+msgstr ""
+
+# Description of Kamilaroi/Euahlayi constellation Old Wiringin
+msgid ""
+"A Wiringin is a \"Clever Man\" or Aboriginal doctor. This Wiringin located in the\n"
+"Small Magellanic Cloud is there because he controls who can go on to Bulimah.\n"
+"If the person who died is not initiated, they are not allowed, because they\n"
+"don't know the rules, so he sends them to Wadhaagudjaaylwan in the Large\n"
+"Magellanic Cloud. This birth spirit will send the unitiated back to Earth as a\n"
+"new baby, so they can be initiated. This Wiringin is represented in every\n"
+"Aboriginal cemetary as the Wilga tree (Native Willow)."
+msgstr ""
+
+# Kamilaroi/Euahlayi constellation
+msgid "Old Dthillar and gunya"
+msgstr ""
+
+# Description of Kamilaroi/Euahlayi constellation Old Dthillar and gunya
+msgid ""
+"Old Dthillar is a Wiringin, in this case the Wiringin of the Birray Birray, the\n"
+"unitiated boys in Orion who pine for the Miyaay Miyaay (Seven Sisters) in the\n"
+"Pleiades. Old Dthillar is the star Aldebaran, which is also Alpha Tauri, and he\n"
+"stands there to protect the Miyaay Miyaay from the Birray Birray. The inverted\n"
+"\"V\" shape made up by Alpha, Epsilon, and Gamma Tauri is Old Dthillar's gunya\n"
+"(hut)."
+msgstr ""
+
+# Kamilaroi/Euahlayi constellation
+msgid "Wamba Wamba"
+msgstr ""
+
+# Description of Kamilaroi/Euahlayi constellation Wamba Wamba
+msgid ""
+"\"Wamba\" means \"crazy\" or \"mad\". In this case, the star Canopus is called Wamba\n"
+"Wamba because of various reasons, depending on whose story is told. The planet\n"
+"Venus is also called Wamba. One speculation is that both Canopus and Venus are\n"
+"seen close to the horizon in the summer, and due to atmospheric defraction, can\n"
+"\"scintillate\" (twinkle srongly), which results in rapid changes in colour. This\n"
+"might be interpreted as madness."
+msgstr ""
+
+# Kamilaroi/Euahlayi constellation
+msgid "Miyay Miyay"
+msgstr ""
+
+# Description of Kamilaroi/Euahlayi constellation Miyay Miyay
+msgid ""
+"The Miyay Miyay are the seven young women (sisters) who were chased into the\n"
+"sky, depending on the story, by the Birray Birray, or by various Wiringins or\n"
+"other bad persons. They form the Pleiades star cluster, and as one sister is\n"
+"shy, normally we only see six stars. They are protected from the Birray Birray\n"
+"in Orion by the Wiringin, Old Dthillar, who is Aldebaran."
+msgstr ""
+
+# Kamilaroi/Euahlayi constellation
+msgid "Wadhaagudjaaylwan"
+msgstr ""
+
+# Description of Kamilaroi/Euahlayi constellation Wadhaagudjaaylwan
+msgid ""
+"Wadhaagudjaaylwan is Byaame's third wife, who is in the Large Magellanic Cloud,\n"
+"and sings to women who are going to have babies. She \"sings\" the babies to the\n"
+"women on Earth, and she takes the persons that the Old Wiringin in the Small\n"
+"Magellanic Cloud sends to her, and sends them back to Earth as babies."
+msgstr ""
+
+# Kamilaroi/Euahlayi constellation
+msgid "Bandaarr"
+msgstr ""
+
+# Description of Kamilaroi/Euahlayi constellation Bandaarr
+msgid ""
+"Bandaarr is Kamilaroi/Euahlayi for Kangaroo, and this kangaroo is located under\n"
+"the belly of the Emu in the Milky Way, looking away from the Emu. Bandaarr is\n"
+"either a grey or red kangaroo, depending on the culture, and has significance\n"
+"in ceremony."
+msgstr ""
+
+# Kamilaroi/Euahlayi constellation
+msgid "Muraay Muyaay"
+msgstr ""
+
+# Description of Kamilaroi/Euahlayi constellation Muraay Muyaay
+msgid ""
+"Muraay is Kamilaroi, and Muyaay is Euahlayi for the sulfur-crested cockatoo,\n"
+"who are the Pointer stars (Alpha Centauri and Hadar/Beta Centauri). They ended\n"
+"up in the constellation Crux when their tree, the Yarran, was dragged into the\n"
+"sky with the first man to die, and they are always chasing Yarran."
+msgstr ""
+
+# Kamilaroi/Euahlayi constellation
+msgid "Warrawilbaarru"
+msgstr ""
+
+# Description of Kamilaroi/Euahlayi constellation Warrawilbaarru
+msgid ""
+"Warrawilbaarru is the whirlwind spirit who lives in the constellation Scorpius.\n"
+"Byaame normally keeps him from coming to Earth, but in September he comes out\n"
+"of one of three holes (dark nebulae) in Scorpius during September, and doesn't\n"
+"go back until around March. During this time he is on earth as the \"willy\n"
+"willy\" or whirlwind, and can be dangerous to children and uninitiated men."
+msgstr ""
+
+msgid "Sirius"
+msgstr "Sirius"
+
+msgid "Achernar"
+msgstr "Achernar"
+
+msgid "Aldebaran"
+msgstr "Aldebaran"
+
+msgid "Rigel"
+msgstr "Rigel"
+
+msgid "Capella"
+msgstr "Capella"
+
+msgid "Betelgeuse"
+msgstr "Betelgeuse"
+
+msgid "Canopus"
+msgstr "Canopus"
+
+msgid "Acrux"
+msgstr "Acrux"
+
+msgid "Hadar"
+msgstr "Hadar"
+
+msgid "Antares"
+msgstr "Antares"
+
+msgid "Vega"
+msgstr "Vega"
+
+msgid "Stars' Road"
+msgstr ""
+
+msgid "Hunter and his wives"
+msgstr ""
+
+msgid "The Lion stalking Zebra"
+msgstr ""
+
+msgid "The Ant-egg Star"
+msgstr ""
+
+msgid "Male Steenbok"
+msgstr ""
+
+msgid "The Eyes of the Beast"
+msgstr ""
+
+msgid "Rigil Kent"
+msgstr ""
+
+# Korean constellation, pronounce: JuJeong
+msgid "Holy Kettle"
+msgstr ""
+
+# Korean constellation, pronounce: CheonJeon
+msgid "Farm of Capital City"
+msgstr ""
+
+# Korean constellation, pronounce: JwaGak
+msgid "Dignity of King"
+msgstr ""
+
+# Korean constellation, pronounce: JinHyeon
+msgid "Nomination"
+msgstr ""
+
+# Korean constellation, pronounce: CheonMun
+msgid "Gate of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: Pyeong
+msgid "Equality"
+msgstr ""
+
+# Korean constellation, pronounce: SeopJae
+msgid "Helper"
+msgstr ""
+
+# Korean constellation, pronounce: DaeGaak
+msgid "Position of Holy King"
+msgstr ""
+
+# Korean constellation, pronounce: Hang
+msgid "Neck of Dragon"
+msgstr ""
+
+# Korean constellation, pronounce: JeolWii
+msgid "Beheading"
+msgstr ""
+
+# Korean constellation, pronounce: DuunWaan
+msgid "Judge"
+msgstr ""
+
+# Korean constellation, pronounce: ChoYo
+msgid "Flutting Flag"
+msgstr ""
+
+# Korean constellation, pronounce: GyeongHaa
+msgid "Javelin of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: JaeSeok
+msgid "Seat for Longevity"
+msgstr ""
+
+# Korean constellation, pronounce: HangJii
+msgid "Oar for visitor"
+msgstr ""
+
+# Korean constellation, pronounce: CheonYuu
+msgid "Milk of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: Jeo
+msgid "House of Queen"
+msgstr ""
+
+# Korean constellation, pronounce: JinGeo
+msgid "Ancient Chariot"
+msgstr ""
+
+# Korean constellation, pronounce: CheonPouk
+msgid "Carriage for King"
+msgstr ""
+
+# Korean constellation, pronounce: GiJinJangGuun
+msgid "General of Cavalry"
+msgstr ""
+
+# Korean constellation, pronounce: GiGwan
+msgid "Cavalry of Emperor"
+msgstr ""
+
+# Korean constellation, pronounce: GeoGii
+msgid "General of Mobile Troops"
+msgstr ""
+
+# Korean constellation, pronounce: DongHaam
+msgid "East Road"
+msgstr ""
+
+# Korean constellation, pronounce: GeonPae
+msgid "Gate Bolt"
+msgstr ""
+
+# Korean constellation, pronounce: GuGeom
+msgid "Door Lock and Key"
+msgstr ""
+
+# Korean constellation, pronounce: Beol
+msgid "Penalty"
+msgstr ""
+
+# Korean constellation, pronounce: Baang
+msgid "Royal Hall"
+msgstr ""
+
+# Korean constellation, pronounce: JongGwan
+msgid "Chamberlain"
+msgstr ""
+
+# Korean constellation, pronounce: SeoHaam
+msgid "West Road"
+msgstr ""
+
+# Korean constellation, pronounce: Shim
+msgid "Seat of Emperor"
+msgstr ""
+
+# Korean constellation, pronounce: JeokJol
+msgid "Five Troops"
+msgstr ""
+
+# Korean constellation, pronounce: CheonGang
+msgid "River of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: BuYeol
+msgid "Prayer for Progeny"
+msgstr ""
+
+# Korean constellation, pronounce: Ku
+msgid "Forcast"
+msgstr ""
+
+# Korean constellation, pronounce: Mii
+msgid "Yard for Empresses"
+msgstr ""
+
+# Korean constellation, pronounce: ShinGuung
+msgid "Holy Palace"
+msgstr ""
+
+# Korean constellation, pronounce: Kii
+msgid "Winnow"
+msgstr ""
+
+# Korean constellation, pronounce: WaeJeo
+msgid "Outer Pestle"
+msgstr ""
+
+# Korean constellation, pronounce: CheonByeon
+msgid "Head of Town"
+msgstr ""
+
+# Korean constellation, pronounce: Geon
+msgid "Build"
+msgstr ""
+
+# Korean constellation, pronounce: CheonGae
+msgid "Fowl of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: NaamDoo
+msgid "Shrine of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: GuuGuuk
+msgid "Northeastern Nations"
+msgstr ""
+
+# Korean constellation, pronounce: NongJaang_iin
+msgid "Old Farmer"
+msgstr ""
+
+# Korean constellation, pronounce: Byeol
+msgid "Snapping Turtle"
+msgstr ""
+
+# Korean constellation, pronounce: YeonDo
+msgid "Road for Emperor"
+msgstr ""
+
+# Korean constellation, pronounce: JikNyeo
+msgid "The Weaver"
+msgstr ""
+
+# Korean constellation, pronounce: JaamDae
+msgid "River adjoining Tower"
+msgstr ""
+
+# Korean constellation, pronounce: HaGo
+msgid "Drum of River"
+msgstr ""
+
+# Korean constellation, pronounce: CheonBu
+msgid "Drumstick of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: GyeonUu
+msgid "Cow leading Man"
+msgstr ""
+
+# Korean constellation, pronounce: NaaEon
+msgid "Bank Spread"
+msgstr ""
+
+# Korean constellation, pronounce: BuuGwang
+msgid "Basket for Silkworm"
+msgstr ""
+
+# Korean constellation, pronounce: HaeJuung
+msgid "Officer for Cart"
+msgstr ""
+
+# Korean constellation, pronounce: CheonJin
+msgid "Ferry of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: Gwa
+msgid "Fruit"
+msgstr ""
+
+# Korean constellation, pronounce: PaeGwa
+msgid "Seed"
+msgstr ""
+
+# Korean constellation, pronounce: iiJuu
+msgid "Storage for Lady"
+msgstr ""
+
+# Korean constellation, pronounce: SuuNyeo
+msgid "Court Lady"
+msgstr ""
+
+# Korean constellation, pronounce: SaaBii
+msgid "Judge Fault"
+msgstr ""
+
+# Korean constellation, pronounce: SaaWii
+msgid "Amend Fault"
+msgstr ""
+
+# Korean constellation, pronounce: SaaRok
+msgid "Grant Life"
+msgstr ""
+
+# Korean constellation, pronounce: SaaMyeong
+msgid "Punish"
+msgstr ""
+
+# Korean constellation, pronounce: Heo
+msgid "Empty House"
+msgstr ""
+
+# Korean constellation, pronounce: Gok
+msgid "Weep"
+msgstr ""
+
+# Korean constellation, pronounce: Eup
+msgid "Sob"
+msgstr ""
+
+# Korean constellation, pronounce: CheonRuSeong
+msgid "Castle with Rampart"
+msgstr ""
+
+# Korean constellation, pronounce: Guu
+msgid "Hook for Dress"
+msgstr ""
+
+# Korean constellation, pronounce: ChoBo
+msgid "Groom"
+msgstr ""
+
+# Korean constellation, pronounce: iinSeong
+msgid "Human"
+msgstr ""
+
+# Korean constellation, pronounce: NaeJeo
+msgid "Inner Pestle"
+msgstr ""
+
+# Korean constellation, pronounce: Wii
+msgid "Warehouse of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: GaeOok
+msgid "Cover of House"
+msgstr ""
+
+# Korean constellation, pronounce: PaeGuu
+msgid "Broken Mortar"
+msgstr ""
+
+# Korean constellation, pronounce: DeungSaa
+msgid "Climbing Serpent"
+msgstr ""
+
+# Korean constellation, pronounce: Shil
+msgid "Palace of Emperor"
+msgstr ""
+
+# Korean constellation, pronounce: iiGuung
+msgid "Detached Palace"
+msgstr ""
+
+# Korean constellation, pronounce: JeonNwoe
+msgid "Lightening"
+msgstr ""
+
+# Korean constellation, pronounce: NuByeokJin
+msgid "Rampart"
+msgstr ""
+
+# Korean constellation, pronounce: URimGuun
+msgid "Troops of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: BukRakSaMuun
+msgid "Village for Patrol"
+msgstr ""
+
+# Korean constellation, pronounce: CheonMang
+msgid "Net of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: CheonGu
+msgid "Stable of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: DongByeok
+msgid "Eastern Wall"
+msgstr ""
+
+# Korean constellation, pronounce: TouGong
+msgid "Civil Engineer"
+msgstr ""
+
+# Korean constellation, pronounce: ByeokRyeok
+msgid "Thunderbolts"
+msgstr ""
+
+# Korean constellation, pronounce: UunUu
+msgid "Clouds and Rain"
+msgstr ""
+
+# Korean constellation, pronounce: GaakDo
+msgid "Highway"
+msgstr ""
+
+# Korean constellation, pronounce: WaangRaang
+msgid "Officer for Chariot of"
+msgstr ""
+
+# Korean constellation, pronounce: BuRo
+msgid "Side Road"
+msgstr ""
+
+# Korean constellation, pronounce: Gyu
+msgid "Armory"
+msgstr ""
+
+# Korean constellation, pronounce: GuunNaamMun
+msgid "Southern Gate of Emperator"
+msgstr ""
+
+# Korean constellation, pronounce: WaeByeong
+msgid "Outer Folding Screen"
+msgstr ""
+
+# Korean constellation, pronounce: CheonHoun
+msgid "Toilet of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: SaaGong
+msgid "Architect"
+msgstr ""
+
+# Korean constellation, pronounce: CheonJaangGuun
+msgid "Emperator"
+msgstr ""
+
+# Korean constellation, pronounce: Ruu
+msgid "Watchtower"
+msgstr ""
+
+# Korean constellation, pronounce: JwaGyeong
+msgid "Left Elm"
+msgstr ""
+
+# Korean constellation, pronounce: UuGyeong
+msgid "Right Elm"
+msgstr ""
+
+# Korean constellation, pronounce: CheonChang
+msgid "Storehouse of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: CheonYu
+msgid "Stack of Cereals"
+msgstr ""
+
+# Korean constellation, pronounce: CheonSeon
+msgid "Ship of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: JeokSuu
+msgid "Store of Water"
+msgstr ""
+
+# Korean constellation, pronounce: Wii
+msgid "Stomach of Tiger"
+msgstr ""
+
+# Korean constellation, pronounce: CheonReum
+msgid "Store of Millet for"
+msgstr ""
+
+# Korean constellation, pronounce: CheonGyun
+msgid "Storehouse for Cereals"
+msgstr ""
+
+# Korean constellation, pronounce: CheonCham
+msgid "Shaman of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: Myo
+msgid "Ear and Eye of"
+msgstr ""
+
+# Korean constellation, pronounce: CheonAa
+msgid "Hill of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: CheonEum
+msgid "Conspiracy of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: ChuuGo
+msgid "Fodder"
+msgstr ""
+
+# Korean constellation, pronounce: OoGeo
+msgid "Garage for Chariot"
+msgstr ""
+
+# Korean constellation, pronounce: HaamJii
+msgid "Pond for Fish"
+msgstr ""
+
+# Korean constellation, pronounce: Ju
+msgid "Pillar"
+msgstr ""
+
+# Korean constellation, pronounce: CheonHwang
+msgid "Puddle of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: JaeWaang
+msgid "Kings"
+msgstr ""
+
+# Korean constellation, pronounce: CheonGwan
+msgid "Gateway of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: SaamGii
+msgid "Flage of Saam"
+msgstr ""
+
+# Korean constellation, pronounce: CheonGa
+msgid "Village of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: CheonGo
+msgid "Belvedere of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: Piil
+msgid "General of Border"
+msgstr ""
+
+# Korean constellation, pronounce: CheonJeol
+msgid "Celebration of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: GuuYuu
+msgid "Flag of Emperor"
+msgstr ""
+
+# Korean constellation, pronounce: GuJuJuGu
+msgid "Nine Territory"
+msgstr ""
+
+# Korean constellation, pronounce: CheonWon
+msgid "Garden of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: JwaGii
+msgid "Settled Flag"
+msgstr ""
+
+# Korean constellation, pronounce: SaaGwae
+msgid "Forcast Calamity"
+msgstr ""
+
+# Korean constellation, pronounce: Zaa
+msgid "Scout of Three Troups"
+msgstr ""
+
+# Korean constellation
+msgid "Saam"
+msgstr ""
+
+# Korean constellation, pronounce: Beol
+msgid "Expeditionary Force"
+msgstr ""
+
+# Korean constellation, pronounce: GuunJeong
+msgid "Well for Millitary"
+msgstr ""
+
+# Korean constellation, pronounce: OkJeong
+msgid "Well of Jade"
+msgstr ""
+
+# Korean constellation, pronounce: Byeong
+msgid "Folding Screen"
+msgstr ""
+
+# Korean constellation, pronounce: JeokShin
+msgid "Piled Brushwood"
+msgstr ""
+
+# Korean constellation, pronounce: BuukHa
+msgid "Northern River"
+msgstr ""
+
+# Korean constellation, pronounce: CheonJuun
+msgid "Wine Glass of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: DongJeong
+msgid "Eastern Well"
+msgstr ""
+
+# Korean constellation, pronounce: SuuBuu
+msgid "Flood control"
+msgstr ""
+
+# Korean constellation, pronounce: SuuWii
+msgid "Balance of Water"
+msgstr ""
+
+# Korean constellation, pronounce: SaaDok
+msgid "Four Spirit of River"
+msgstr ""
+
+# Korean constellation, pronounce: NamHa
+msgid "Southern River"
+msgstr ""
+
+# Korean constellation, pronounce: GwolGu
+msgid "Twin Gate"
+msgstr ""
+
+# Korean constellation, pronounce: Ho
+msgid "Bow"
+msgstr ""
+
+# Korean constellation, pronounce: RangSeong
+msgid "Star of Wolf"
+msgstr ""
+
+# Korean constellation, pronounce: YaGae
+msgid "Wild Fowls"
+msgstr ""
+
+# Korean constellation, pronounce: GuunShii
+msgid "Market for Army"
+msgstr ""
+
+# Korean constellation, pronounce: Soun
+msgid "Grandchildren"
+msgstr ""
+
+# Korean constellation, pronounce: Zaang_iin
+msgid "Grown-up"
+msgstr ""
+
+# Korean constellation, pronounce: Noin
+msgid "Oldman"
+msgstr ""
+
+# Korean constellation, pronounce: Gwan
+msgid "Beacon"
+msgstr ""
+
+# Korean constellation, pronounce: Kwii
+msgid "Eye of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: JeokShii
+msgid "Pile of Dead"
+msgstr ""
+
+# Korean constellation, pronounce: CheonGu
+msgid "Green Ridge"
+msgstr ""
+
+# Korean constellation, pronounce: CheonGu
+msgid "Dog of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: CheonSa
+msgid "Spirit of GuRyoung"
+msgstr ""
+
+# Korean constellation, pronounce: JuuGii
+msgid "Flag of Wine Officer"
+msgstr ""
+
+# Korean constellation, pronounce: Ryu
+msgid "Officer of Kitchen"
+msgstr ""
+
+# Korean constellation, pronounce: NaePyeong
+msgid "Equality and Fair"
+msgstr ""
+
+# Korean constellation, pronounce: HeonWon
+msgid "Emperor HeonWon"
+msgstr ""
+
+# Korean constellation, pronounce: Seong
+msgid "Capital of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: Jiik
+msgid "Chief of Farming"
+msgstr ""
+
+# Korean constellation, pronounce: Jaang
+msgid "Officer of Tomb"
+msgstr ""
+
+# Korean constellation, pronounce: CheonMyo
+msgid "Tomb of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: iik
+msgid "Wing of Red Bird"
+msgstr ""
+
+# Korean constellation, pronounce: DonGu
+msgid "Eastern Pottery"
+msgstr ""
+
+# Korean constellation, pronounce: Jin
+msgid "Chariot of Emperor"
+msgstr ""
+
+# Korean constellation, pronounce: JangSaa
+msgid "Sand for Life"
+msgstr ""
+
+# Korean constellation, pronounce: GuunMuun
+msgid "Gateway for Troops"
+msgstr ""
+
+# Korean constellation, pronounce: NangJaang
+msgid "Guardian Knight"
+msgstr ""
+
+# Korean constellation, pronounce: OZehu
+msgid "Five Feudal Lords"
+msgstr ""
+
+# Korean constellation
+msgid "SangJiin"
+msgstr ""
+
+# Korean constellation, pronounce: SoMii
+msgid "Low Fence"
+msgstr ""
+
+# Korean constellation, pronounce: TaeMi
+msgid "Tall Fence"
+msgstr ""
+
+# Korean constellation, pronounce: GuGyeong
+msgid "Nine Lords"
+msgstr ""
+
+# Korean constellation, pronounce: HoBuun
+msgid "Dung of Tiger"
+msgstr ""
+
+# Korean constellation, pronounce: OJe
+msgid "Five Emperor"
+msgstr ""
+
+# Korean constellation, pronounce: SaamGongNaeJwa
+msgid "Three Minister"
+msgstr ""
+
+# Korean constellation, pronounce: AlZaa
+msgid "Officer for Audience"
+msgstr ""
+
+# Korean constellation, pronounce: MyeongDang
+msgid "Grave Front"
+msgstr ""
+
+# Korean constellation, pronounce: YeongDae
+msgid "Observatory"
+msgstr ""
+
+# Korean constellation, pronounce: YeoEoGwan
+msgid "Female Officer"
+msgstr ""
+
+# Korean constellation, pronounce: JeonSaa
+msgid "Wide Lodging Area"
+msgstr ""
+
+# Korean constellation, pronounce: PalGok
+msgid "Eight Cereals"
+msgstr ""
+
+# Korean constellation, pronounce: CheonBae
+msgid "Advance Guard"
+msgstr ""
+
+# Korean constellation, pronounce: SamGong
+msgid "Three Ministers"
+msgstr ""
+
+# Korean constellation, pronounce: EumDeok
+msgid "Virtue"
+msgstr ""
+
+# Korean constellation, pronounce: Cheon_iil
+msgid "Emperor's God of War"
+msgstr ""
+
+# Korean constellation, pronounce: Tae_iil
+msgid "Emperor's God of Weather"
+msgstr ""
+
+# Korean constellation, pronounce: HyeonGwa
+msgid "Flap of Flag"
+msgstr ""
+
+# Korean constellation, pronounce: Saang
+msgid "Minister"
+msgstr ""
+
+# Korean constellation, pronounce: TaeYaangSuu
+msgid "General and Minister"
+msgstr ""
+
+# Korean constellation, pronounce: CheonRyoe
+msgid "Jail of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: MunChang
+msgid "Six Department"
+msgstr ""
+
+# Korean constellation, pronounce: NaeGae
+msgid "Inner Stairway"
+msgstr ""
+
+# Korean constellation, pronounce: CheonChang
+msgid "Spear of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: HwaGae
+msgid "Cover for Emperor"
+msgstr ""
+
+# Korean constellation, pronounce: OJeJwa
+msgid "Place for Five Emperor"
+msgstr ""
+
+# Korean constellation, pronounce: YuukGaap
+msgid "60 Years"
+msgstr ""
+
+# Korean constellation, pronounce: CheonJu
+msgid "Kitchen of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: BukGeuk
+msgid "North Pole"
+msgstr ""
+
+# Korean constellation, pronounce: GuJiin
+msgid "Wound Lodge"
+msgstr ""
+
+# Korean constellation, pronounce: Gaang
+msgid "Single-log Bridge"
+msgstr ""
+
+# Korean constellation, pronounce: CheonHwangTaeJae
+msgid "Great Emperor"
+msgstr ""
+
+# Korean constellation, pronounce: SaangSeo
+msgid "Officer for Opinion"
+msgstr ""
+
+# Korean constellation, pronounce: CheonJu
+msgid "Pillar of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: JuHaSa
+msgid "Secretary"
+msgstr ""
+
+# Korean constellation, pronounce: YeoSa
+msgid "Maid"
+msgstr ""
+
+# Korean constellation, pronounce: YeoSaang
+msgid "Desk of Woman"
+msgstr ""
+
+# Korean constellation, pronounce: DaeRii
+msgid "Judge Prison"
+msgstr ""
+
+# Korean constellation, pronounce: JaMi
+msgid "Purple Fence"
+msgstr ""
+
+# Korean constellation, pronounce: CheonGii
+msgid "Order of Sky"
+msgstr ""
+
+# Korean constellation, pronounce: ChilGong
+msgid "Seven Minister"
+msgstr ""
+
+# Korean constellation, pronounce: GwanSak
+msgid "Thread Straw"
+msgstr ""
+
+# Korean constellation, pronounce: CheonShi
+msgid "Market Fence"
+msgstr ""
+
+# Korean constellation, pronounce: Huu
+msgid "Feudal Lord"
+msgstr ""
+
+# Korean constellation, pronounce: JaeJwa
+msgid "Seat for Emperor"
+msgstr ""
+
+# Korean constellation, pronounce: JongSeong
+msgid "Royal Family"
+msgstr ""
+
+# Korean constellation, pronounce: JongJeong
+msgid "Head of Family"
+msgstr ""
+
+# Korean constellation, pronounce: Jong_iin
+msgid "Record of Family"
+msgstr ""
+
+# Korean constellation, pronounce: JongDaeBuu
+msgid "Officer for Family"
+msgstr ""
+
+# Korean constellation, pronounce: ShiRuu
+msgid "Tower in Market"
+msgstr ""
+
+# Korean constellation, pronounce: Gok
+msgid "Measure Cereal"
+msgstr ""
+
+# Korean constellation, pronounce: Duu
+msgid "Cereal Measure Regulation"
+msgstr ""
+
+# Korean constellation, pronounce: GeoSaa
+msgid "Officer for Chariots"
+msgstr ""
+
+# Korean constellation, pronounce: BaekTaak
+msgid "Measure Amount"
+msgstr ""
+
+# Korean constellation, pronounce: DoSaa
+msgid "Butchery"
+msgstr ""
+
+# Korean constellation, pronounce: YeolSaa
+msgid "Officer for Jewel"
+msgstr ""
+
+# Korean constellation, pronounce: JwaHaal
+msgid "Royal"
+msgstr ""
+
+# Korean constellation, pronounce: UuHaal
+msgid "Lord"
+msgstr ""
+
+# Korean constellation, pronounce: JwaJipBeop
+msgid "Left Executor"
+msgstr ""
+
+# Korean constellation, pronounce: UuJipBeop
+msgid "Right Executor"
+msgstr ""
+
+# Korean constellation, pronounce: HeoRyang
+msgid "Crossbeam for Heo"
+msgstr ""
+
+# Korean constellation, pronounce: CheonJeon
+msgid "Threading Coins"
+msgstr ""
+
+# Name for NAME Pleiades
+msgid "Heap of Corpse"
+msgstr ""
+
+# Lokono constellation, native: Hithikoya
+msgid "Spirit of the black curassow"
+msgstr ""
+
+# Description of Lokono constellation Spirit of the black curassow
+msgid ""
+"The constellation _Hithikoya_ is the ‘Spirit of the black curassow’ (_Crax\n"
+"alector_), a commonly hunted bird, often kept as a pet for its feathers and\n"
+"eggs. According to a Lokono myth, _Hithikoya_ lived on earth, but the Lokono\n"
+"kept shooting him.[#11] As a result, he ascended to the sky to warn black\n"
+"curassows about the approaching hunter (see _Yokhârhin_) and his companion with\n"
+"a torch (see _Alêti_). The Lokono identify _Hithikoya_ as the Western\n"
+"constellation Crux. When it appears just above the trees in January, the\n"
+"curassows roam on the ground and are easy to catch. Over the following months,\n"
+"the higher _Hithikoya_ rises in the morning, the higher the birds climb up the\n"
+"trees. By March, it appears high in the sky and the birds are found in the tops\n"
+"of the trees. _Hithikoya_ thus informs the Lokono where to search for the birds\n"
+"at a given time of the year. The Lokono even make hunting charms (_bina_) from\n"
+"a plant, whose leaves resemble the bird, rubbed into the lips of the hunter so\n"
+"that he can imitate the calls of the bird, increasing his chances of catching\n"
+"one [#10][#17]."
+msgstr ""
+
+# Lokono constellation, native: Yorhada
+msgid "Grill"
+msgstr ""
+
+# Description of Lokono constellation Grill
+msgid ""
+"The constellation _Yorhada_ ‘Grill’, or _Wiwa yorhadale_ ‘Star’s grill’,\n"
+"represents a wooden grill, on which meat is roasted [#4][#11][#21]. Its origin\n"
+"is explained in a myth related by Walter Roth about a man who killed his wife,\n"
+"roasted her, and fed her liver to his mother-in-law because she called him a\n"
+"worthless hunter [#10]. In revenge, the mother asked her brother, _Kamodo_ to\n"
+"kill the man when he went hunting. The man suspected the woman set a trap and\n"
+"escaped death by sending his brother instead. The grill on which the wife was\n"
+"roasted became the Western constellation Pegasus, according to contemporary\n"
+"Lokono, marking the beginning of the small dry season (April), the time when\n"
+"the Lokono roast a lot of fish. The myth is similar to that of _Yôkoro wiwa_\n"
+"and the twins, in which the older brother is responsible for roasting his wife\n"
+"and may be the same as the man who roasted his wife in the _Yorhada_ myth. In\n"
+"both myths, the younger brother killed by the anaconda becomes _Yôkoro wiwa_,\n"
+"while the grill becomes _Yorhada_. Claudius de Goeje suggested that _Yorhada_\n"
+"is the Western constellation Corvus, but Corvus does not appear at beginning of\n"
+"the small dry season [#11]. The neighboring Warao also know Pegasus as the\n"
+"grill, and are familiar with the myth [#10]."
+msgstr ""
+
+# Lokono constellation, native: Yôkoro wiwa
+msgid "Scores of stars"
+msgstr ""
+
+# Description of Lokono constellation Scores of stars
+msgid ""
+"The constellation _Yôkoro wiwa_ or _Wiwa yôkoro_, literally ‘Score of stars’,\n"
+"refers to the Pleiades and is easily recognized by the contemporary Lokono.\n"
+"This is likely because _Yôkoro wiwa_ is described as the most important of\n"
+"Lokono constellations, since it announce the beginning of the Lokono year [#17].\n"
+"After it comes out first in June in the east, it is followed by the numerous\n"
+"_koya_-constellations referring to the spirits of animals and plants that\n"
+"constitute the Lokono calendar. At that time of the year, the Lokono say\n"
+"_Yôkoro wiwa kayaran_ ‘the birth of _Yôkoro wiwa_’. It is said that if _Yôkoro\n"
+"wiwa_ shines strong when it appears for the first time, many people will die in\n"
+"the coming year [#5]. Cornelius van Coll also warns that young people should not\n"
+"look at it, or else they will not grow [#7]. These omens and warnings are\n"
+"related to a Lokono myth. According to the story, there were once twin\n"
+"brothers, one of which had a wife, and said that death would come when their\n"
+"star, _Yôkoro Wiwa_, rises [#7]. Death came indeed, killing even his wife,\n"
+"roasting her on the fire, and the Lokono became angry and brought a giant green\n"
+"anaconda to swallow the twins. The snake ate one of the brothers, but because\n"
+"it was already 5 am and the day broke, the snake could not eat the other\n"
+"brother. The snake is now the constellation _Kamodokoya_ ‘Spirit of the green\n"
+"anaconda’, in the belly of which _Yôkoro Wiwa_ is said to be located (see also\n"
+"the _Yorhada_ myth). In another narrative, the Lokono explain that the _Yôkoro\n"
+"Wiwa_ represents seven brothers lost in a savannah on their way back home, a\n"
+"motif also known from a Kari'na story [#20]."
+msgstr ""
+
+# Lokono constellation, native: Mabukuli
+msgid "Man without a thigh"
+msgstr ""
+
+# Description of Lokono constellation Man without a thigh
+msgid ""
+"The constellation _Mabukuli_ ‘Man without a thigh’ is well known among the\n"
+"Lokono and appears in a few myths. According to Charles Dance, an unsuccessful\n"
+"huntsman cut off his own leg, wrapped it up in a leaf, and gave to his step\n"
+"mother so that she had something to eat, and ascended to sky.[#16] Similarly,\n"
+"the Penard brothers speak of an unsuccessful hunter who cut off his leg and\n"
+"gave it to his wife and mother-in-law, telling them it was tapir meat.[#17] He\n"
+"then asked other people to follow his traces to help him bring the rest of the\n"
+"tapir, but when they arrived at the place they only found the _akalali_ plant\n"
+"with which he treated his wounds. His body turned into the _Kama tâla_\n"
+"constellation and his spirit into _Mabukuli_. Claudius de Goeje relates a\n"
+"strikingly different myth.[#11] The Sun, once a man called _Arawidi_ (see the\n"
+"myth about _Hadali_ 'Sun'), took a woman as his wife, who followed him with\n"
+"unborn twins inside her. One day, she lost the way and ended up being eaten by\n"
+"vulture spirits, but her twins were brought up by an old woman, whom they later\n"
+"killed and ran away. While hiding in a treetop, they saw a woman catching fish\n"
+"with a sifter. She saw their reflection in the water and tried to catch it, at\n"
+"which they laughed. She then realized they were up in the tree, and sent ants\n"
+"up the tree to make them come down. When they came down, she killed one of them\n"
+"and took the other home. One of her daughters fell in love with the man and\n"
+"married him. Now the husband had to catch a lot of fish every day for the\n"
+"mother-in-law. One day, tired of his demanding mother-in-law, he tricked her\n"
+"into getting into the water to help him unload a boat full of fish, where she\n"
+"was eaten by a shark. When her other daughter arrived, the liver of her mother\n"
+"was still floating on the water and told her that the man killed her. The\n"
+"daughter wanted to kill him but he flew away on wings of cotton that his wife\n"
+"made for him, so she only cut his thigh off, which is why he is now the\n"
+"constellation _Mabukuli_. It appears the Orion's belt represents the cut-off\n"
+"leg, not the man himself."
+msgstr ""
+
+# Lokono constellation, native: Kama tâla
+msgid "Jaw of the tapir"
+msgstr ""
+
+# Description of Lokono constellation Jaw of the tapir
+msgid ""
+"The constellation _Kama tâla_ ‘Jaw of the tapir’ is one of the few\n"
+"constellations identified easily by the contemporary Lokono, just like\n"
+"_Mabukuli_, to which it is related in a myth.[#8],[#15] The Penard brothers\n"
+"recount the story of an unsuccessful hunter, who cuts meat off his leg and\n"
+"gives it to his wife and mother-in-law, telling them it is tapir meat (_Tapirus\n"
+"terrestris_).[#17] He then asks his fellow people to follow him and help bring\n"
+"the rest of the tapir, but when they arrive at the place they only find the\n"
+"_akalali_ plant with which he treated his wounds. His body turned into _Kama\n"
+"tâla_ and his spirit into _Mabukuli_. In a Kari’na story, on the other hand,\n"
+"_Kama tâla_ was the remains of a tapir that the mythical twins were hunting,\n"
+"one of whom accidentally gets his leg severed and becomes the constellation of\n"
+"man without a thigh."
+msgstr ""
+
+# Lokono constellation, native: Awarhakoya
+msgid "Spirit of the awara palm"
+msgstr ""
+
+# Description of Lokono constellation Spirit of the awara palm
+msgid ""
+"The constellation _Awarhakoya_ ‘Spirit of the awara palm’ has the shape of an\n"
+"awara palm (_Astrocaryum vulgare_). Its appearance high in the sky in January\n"
+"means that awara fruits are ripening. In the following months, _Awarhakoya_\n"
+"moves closer to the horizon, meaning that the fruits will soon fall to the\n"
+"ground to be picked. This occurs in the small dry season (mid-February to\n"
+"April), known as _awarhadlithe_, a term derived from the name of the\n"
+"palm.[#7],[#17] There are no myths about _Awarhakoya _but it is said that the\n"
+"constellation is followed by that of the _Hadorhikoya_ ‘Spirit of the red\n"
+"acouchi’ and _Hokorherokoya_ ‘Spirit of the red-rumped agouti’. Their\n"
+"appearance signals that the rodents are gathering by the palms to eat the\n"
+"fallen fruit. _Awarhakoya_ is recognized today in stars close to the Western\n"
+"constellation Coma Berenices, but older sources suggest it is near Sirius.[#11]\n"
+"It is the only constellation named after a plant, which speaks to the\n"
+"importance of the awara palm to the Lokono. The Kari'na also have a\n"
+"constellation of the awara, sometimes recognized in the same stars [#17],[#20]."
+msgstr ""
+
+# Lokono constellation, native: Kwakoya
+msgid "Spirit of the blue crab"
+msgstr ""
+
+# Description of Lokono constellation Spirit of the blue crab
+msgid ""
+"The constellation _Kwakoya_ ‘Spirit of the blue crab’ is still known in the\n"
+"Lokono communities closer to the coast, which practice the annual crab feats.\n"
+"The crab species is likely the same as that represented by the Kari’na\n"
+"constellation _Kusa yumï_ ‘Father of the blue crab’ (_Ucides cordatus_). The\n"
+"constellation appears in the east in the middle of July. By the beginning of\n"
+"August, it is high in the sky, signaling that the crabs arrive at the beaches\n"
+"to lay their eggs. At this time, the Lokono and other indigenous groups of the\n"
+"area congregate to the shore of the Atlantic to catch the marching crabs. The\n"
+"crabs are considered a delicacy and when the villagers return to the\n"
+"communities with the catch, large feasts are organized during which the crabs\n"
+"are eaten. The Penard brothers write that _Kwakoya_ appears when the crabs come\n"
+"to lay their eggs in May and June but this appears to be incorrect, both given\n"
+"that crabs march later and that the constellation recognized by the modern\n"
+"Lokono is not visible in May and June from the Guianas.[#17]"
+msgstr ""
+
+# Lokono constellation, native: Anorhâkoya
+msgid "Spirit of the cocoi heron"
+msgstr ""
+
+# Description of Lokono constellation Spirit of the cocoi heron
+msgid ""
+"The constellation _Anorhâkoya_ represents the spirit of the cocoi heron (_Ardea\n"
+"cocoi_). It is recognized by contemporary Lokono as Ursa Major, in keeping with\n"
+"earlier identifications.[#11],[#15] Claudius de Geoje reports that when it\n"
+"shines strong, the Lokono believe that strong winds will come, bringing dust\n"
+"into peoples’ eyes and consequently diseases: the heron picks their eyes with\n"
+"its beak, it is said.[#11] Similarly, according to Cornelius van Coll,\n"
+"_Anorhâkoya_ is a heron whose beak is upside down. Should its beak be turned\n"
+"downwards, people would get all kinds of eye diseases.[#7] This can still\n"
+"happen when strong winds blow and carry the light from the beak into peoples’\n"
+"eyes, since the light of _Anorhâkoya_ (and other stars) travels with the wind\n"
+"according to the Lokono. The constellation is associated with the big dry\n"
+"season (August to December) and the storms and winds that are typical of this\n"
+"time. It appears in the morning in mid-November in the northeast with its beak\n"
+"down."
+msgstr ""
+
+# Lokono constellation, native: Kasarhowakoya
+msgid "Spirit of the four-eyed fish"
+msgstr ""
+
+# Lokono constellation, native: Katarhokoya
+msgid "Spirit of green sea turtle"
+msgstr ""
+
+# Description of Lokono constellation Spirit of green sea turtle
+msgid ""
+"The constellation _Katarhokoya_ ‘Spirit of the green sea turtle’ is still known\n"
+"on the Pomeroon River in Guyana. It represents the _katarho_ turtle (_Chelonia\n"
+"mydas_), swimming towards the shore, represented in turn by the Milky Way. When\n"
+"the constellation appears in the morning high in the sky, it is a signal that\n"
+"turtles are arriving on the beaches to lay eggs. The constellation was\n"
+"identified in earlier sources as _Corona Borealis_ and _Orion's belt._\n"
+"[#8],[#11] While the former overlaps with the stars indicated by the Lokono on\n"
+"the Pomeroon, the latter is likely a mistake as _Orion’s belt_ is consistently\n"
+"recognized as _Mabukuli_ ‘Man without a thigh’. The constellation _Katarhokoya_\n"
+"rises early in the year, but it appears upside down most of the time from the\n"
+"vistas of the Lokono in the Guianas. Only by mid-March, a time when several\n"
+"species of turtles indeed lay their eggs on the Atlantic coast of the Guianas,\n"
+"does it look like a turtle swimming to the shore (Milky Way)."
+msgstr ""
+
+# Lokono constellation, native: Ifakoya
+msgid "Spirit of the Muscovy duck"
+msgstr ""
+
+# Description of Lokono constellation Spirit of the Muscovy duck
+msgid ""
+"The constellation _Ifakoya_ ‘Spirit of the Muscovy duck’ (_Cairina moschata_)\n"
+"was mentioned by the Penard brothers and Claudius de Goeje but remained\n"
+"unidentified until now.[#11],[#17] The contemporary Lokono on the Pomeroon\n"
+"River in Guyana recognize it in parts of the Western constellation Corona\n"
+"Australis. There are no myths related to this constellation but the Lokono say\n"
+"that when the head of the duck points toward the ground, looking as if the duck\n"
+"has its head under the water, the ducks are busy feeding on plants. The\n"
+"constellation assumes this position from mid-May. At this time, it is said that\n"
+"the birds are easier to catch. The Muscovy duck is considered a delicacy and is\n"
+"also often kept around the house like chickens. The Kari'na and the Warao also\n"
+"recognize the constellation of the Muscovy duck, and at least the Warao one\n"
+"corresponds to the same stars.[#17]"
+msgstr ""
+
+# Macedonian constellation, native: арамии, pronounce: Aramii
+msgid "Thieves"
+msgstr ""
+
+# Description of Macedonian constellation Thieves
+msgid ""
+"The famous constellation Ursa Major among the people is described as a group of\n"
+"thieves (_Aramii_). The seven bright stars of Ursa Major are said to be thieves\n"
+"„because during the entire night they circle on the sky same as thieves that\n"
+"circle around houses“"
+msgstr ""
+
+# Macedonian constellation, native: квачка, pronounce: Kvachka
+msgid "Mother Hen"
+msgstr ""
+
+# Description of Macedonian constellation Mother Hen
+msgid ""
+"Mother Hen (_Kvachka_) is the best-known constellation, which is recognized by\n"
+"all elderly people in Macedonian villages, without any exception. This name\n"
+"people use for the star cluster Pleiades."
+msgstr ""
+
+# Macedonian constellation, native: рало
+msgid "Plough"
+msgstr ""
+
+# Description of Macedonian constellation Plough
+msgid ""
+"The constellation Orion with its numerous bright stars and distinctive pattern\n"
+"dominates the winter sky and can be easily found. People from Macedonian\n"
+"villages usually point at the region around Orion’s belt saying that three\n"
+"bright stars and surrounding less bright stars create an image of a wooden\n"
+"Plough with two yoked oxen (_Ralo so Volovi_)."
+msgstr ""
+
+# Macedonian constellation, native: волови
+msgid "Oxen"
+msgstr ""
+
+# Macedonian constellation, native: јарем
+msgid "Yoke"
+msgstr ""
+
+# Description of Macedonian constellation Yoke
+msgid ""
+"Yoke (_Jarem_). People under this name recognize group of stars in the\n"
+"constellation Perseus. Yokes for the oxen usually is found in village yards so\n"
+"that is why, like the previous constellation, it is an evidence of the general\n"
+"image of people and purpose given to this part of the sky."
+msgstr ""
+
+# Macedonian constellation, native: волци
+msgid "Wolves"
+msgstr ""
+
+# Description of Macedonian constellation Wolves
+msgid ""
+"Near to the plough with oxen, which is left on a field, people see two wolves\n"
+"(_Volci_) as well. They are the bright stars Sirius in the constellation Canis\n"
+"Major and Procyon in Canis Minor."
+msgstr ""
+
+# Macedonian constellation, native: гумно
+msgid "Threshing Floor"
+msgstr ""
+
+# Macedonian constellation, native: јастреб
+msgid "Hawk"
+msgstr ""
+
+# Description of Macedonian constellation Hawk
+msgid ""
+"The Hawk (_Јastreb_), as one of the most famous enemies of the Mother Hen and\n"
+"the Rooster, is right above them in an attacking position. Bright star Capella\n"
+"(_Kapela_) from the constellation Auriga is actually known among people as\n"
+"Hawk."
+msgstr ""
+
+# Description of Macedonian constellation Cross
+msgid ""
+"Complement with the people’s belief, when the Priest-thief saw God’s might he\n"
+"started running in panic and lost his cross on the way. So next to the Priest’s\n"
+"Straw there is the Cross (_Krst_)."
+msgstr ""
+
+# Macedonian constellation, native: лисица
+msgid "Fox"
+msgstr ""
+
+# Description of Macedonian constellation Fox
+msgid ""
+"Fox (_Lisica_) is the second by importance natural enemy of the Mother Hen and\n"
+"the Rooster so it is obvious why people also “see” it on the sky. The red color\n"
+"of the bright star Aldebaran from the constellation of the Bull is the reason\n"
+"why people perceive it as a Fox ready to attack the Mother Hen and the Rooster."
+msgstr ""
+
+# Macedonian constellation, native: маши
+msgid "Tongs"
+msgstr ""
+
+# Description of Macedonian constellation Tongs
+msgid ""
+"The Tongs (_Mashi_) were used for the fire where the trivet is. Thus, the\n"
+"people’s constellation Tongs is very close to the constellation Trivet."
+msgstr ""
+
+# Description of Macedonian constellation Ploughman
+msgid ""
+"The Ploughman (_Orach_) is one of the three main characters in the sky. It is\n"
+"the name people gave to the bright star Betelgeuse in the constellation of\n"
+"Orion. Besides Betelgeuse, in building the image of this folk constellation,\n"
+"some weaker and less bright stars from the surrounding are also taken into\n"
+"account, because people say that the Ploughman is an image of a person with a\n"
+"goad as he returns home."
+msgstr ""
+
+# Macedonian constellation, native: петел
+msgid "Cock"
+msgstr ""
+
+# Macedonian constellation, native: пирустија
+msgid "Trivet"
+msgstr ""
+
+# Description of Macedonian constellation Trivet
+msgid ""
+"The trivet (_Pirustija_) is a metal device with three legs (tripod) which fits\n"
+"over the fireplace to support pans and kettles while preparing food."
+msgstr ""
+
+# Macedonian constellation, native: софра
+msgid "Sofra"
+msgstr ""
+
+# Description of Macedonian constellation Sofra
+msgid ""
+"The typical semi-circular shape of the constellation Corona Borealis evoked the\n"
+"image of a wooden round table called _Sofra_."
+msgstr ""
+
+# Macedonian constellation, native: свињи
+msgid "Pigs"
+msgstr ""
+
+# Description of Macedonian constellation Pigs
+msgid ""
+"Near to the Mother Hen, people on the sky noticed the star cluster Hyades.\n"
+"Scattered appearance of the stars of this cluster associated people to the\n"
+"image of pigs in a village yard, and so it’s called Pigs (_Svinji_)."
+msgstr ""
+
+# Macedonian constellation, native: сврдел
+msgid "Auger"
+msgstr ""
+
+# Description of Macedonian constellation Auger
+msgid ""
+"Auger (_Svrdel_). People say that this is a very big drill used for\n"
+"construction of houses and is found inside the Priest’s Straw."
+msgstr ""
+
+# Macedonian constellation, native: уши, pronounce: Ushi
+msgid "Ears"
+msgstr ""
+
+# Description of Macedonian constellation Ears
+msgid ""
+"Ears (_Ushi_). By this common word used as a jargon, Macedonian villagers mark\n"
+"the part of the wooden plough that goes into the soil, used for plowing."
+msgstr ""
+
+# Name for HIP 11767
+msgid "Mediterranean star"
+msgstr ""
+
+# Name for HIP 25428
+msgid "Rooster"
+msgstr ""
+
+# Name for NAME Andromeda Galaxy
+msgid "Threshing floor"
+msgstr ""
+
+# Name for NAME Milky Way
+msgid "Priest’s Straw"
+msgstr ""
+
+# Maori constellation
+msgid "Taki-o-Autahi"
+msgstr ""
+
+# Maori constellation
+msgid "Te Taura-o-te-waka-o-tamarereti"
+msgstr ""
+
+# Maori constellation
+msgid "Tau-toro"
+msgstr ""
+
+# Maori constellation, pronounce: Te-Waka-o-Tama-Rereti
+msgid "The Great Boat of Tama Rereti"
+msgstr ""
+
+# Maori constellation
+msgid "Matakarehu"
+msgstr ""
+
+# Maori constellation, pronounce: Te-Ra-o-Tainui
+msgid "The Sail of Tainui"
+msgstr ""
+
+# Mongolian constellation, pronounce: Num Sum
+msgid "The Bow and the Arrow"
+msgstr ""
+
+# Mongolian constellation, pronounce: Hun Tavan Od
+msgid "The Five Stars Woman"
+msgstr ""
+
+# Mongolian constellation, pronounce: Doloon Burkhan
+msgid "The Seven Buddhas"
+msgstr ""
+
+# Mongolian constellation, pronounce: Gurvan Maral Od
+msgid "The Three Stags"
+msgstr ""
+
+# Name for HIP 11767
+msgid "Golden Stake"
+msgstr ""
+
+# Name for HIP 65477
+msgid "Recovery Star"
+msgstr ""
+
+# Name for HIP 67301
+msgid "7.Horse"
+msgstr ""
+
+# Name for HIP 65378
+msgid "6.Snake"
+msgstr ""
+
+# Name for HIP 62956
+msgid "5.Dragon / 12.Pig"
+msgstr ""
+
+# Name for HIP 59774
+msgid "4.Rabbit / 11.Dog"
+msgstr ""
+
+# Name for HIP 58001
+msgid "3.Tiger / 10.Rooster"
+msgstr ""
+
+# Name for HIP 53910
+msgid "2.Ox / 9.Monkey"
+msgstr ""
+
+# Name for HIP 54061
+msgid "1.Rat / 8.Sheep/Goat"
+msgstr ""
+
+# Navajo constellation
+msgid "Revolving Male"
+msgstr ""
+
+# Navajo constellation
+msgid "Revolving Female"
+msgstr ""
+
+# Navajo constellation
+msgid "Man with Feet Apart"
+msgstr ""
+
+# Navajo constellation
+msgid "Lizard"
+msgstr ""
+
+# Navajo constellation
+msgid "Dilyehe"
+msgstr ""
+
+# Navajo constellation
+msgid "First Big One"
+msgstr ""
+
+# Navajo constellation
+msgid "Rabbit Tracks"
+msgstr ""
+
+# Navajo constellation
+msgid "First Slim One"
+msgstr ""
+
+# Norse constellation
+msgid "Aurvandil's Toe"
+msgstr ""
+
+# Norse constellation
+msgid "Wolf's Mouth"
+msgstr ""
+
+# Norse constellation
+msgid "The Fishermen"
+msgstr ""
+
+# Norse constellation
+msgid "Woman's Cart"
+msgstr ""
+
+# Norse constellation
+msgid "Man's Cart"
+msgstr ""
+
+# Norse constellation
+msgid "The Asar Battlefield"
+msgstr ""
+
+# Name for HIP 11767
+msgid "Guide Star"
+msgstr ""
+
+# Name for HIP 69673
+msgid "Day Star"
+msgstr ""
+
+# Name for HIP 91262
+msgid "South Star"
+msgstr ""
+
+# Northern Andes constellation
+msgid "The Jaguar"
+msgstr ""
+
+# Northern Andes constellation
+msgid "The Monkey"
+msgstr ""
+
+# Northern Andes constellation
+msgid "The Warrior"
+msgstr ""
+
+# Northern Andes constellation
+msgid "The Frog"
+msgstr ""
+
+# Northern Andes constellation
+msgid "The Arrow"
+msgstr ""
+
+# Romanian constellation, native: Taurul
+msgid "The Bull"
+msgstr "Bik"
+
+# Name for HIP 112029
+msgid "Homan"
+msgstr "Homan"
+
+# Romanian constellation, native: Carul Mare
+msgid "The Great Chariot"
+msgstr ""
+
+# Romanian constellation, native: Capra
+msgid "The She-Goat with Three She-Goat’s Kids"
+msgstr ""
+
+# Romanian constellation, native: Coasa
+msgid "The Scythe"
+msgstr ""
+
+# Romanian constellation, native: Ciobanul cu oile
+msgid "The Shepherd with His Sheep"
+msgstr ""
+
+# Romanian constellation, native: Hora
+msgid "The Ring Dance"
+msgstr ""
+
+# Romanian constellation, native: Jgheabul si putul
+msgid "The Wall with a Drain"
+msgstr ""
+
+# Romanian constellation, native: Tronul
+msgid "God’s Chair"
+msgstr ""
+
+# Romanian constellation, native: Fata de imparat
+msgid "The Emperor’s Daughter with a Yoke"
+msgstr ""
+
+# Romanian constellation, native: Closca cu pui
+msgid "The Hatching Hen with Her Chicks"
+msgstr ""
+
+# Romanian constellation, native: Carul mic
+msgid "The Little Chariot"
+msgstr ""
+
+# Romanian constellation, native: Fratii
+msgid "The Brothers"
+msgstr ""
+
+# Romanian constellation, native: Crucea mare
+msgid "The Great Cross"
+msgstr ""
+
+# Romanian constellation, native: Crucea mica
+msgid "The Little Cross"
+msgstr ""
+
+# Romanian constellation, native: Tapul
+msgid "The He-Goat"
+msgstr ""
+
+# Romanian constellation, native: Racul
+msgid "The Crayfish"
+msgstr ""
+
+# Romanian constellation, native: Calul
+msgid "The Horse"
+msgstr ""
+
+# Romanian constellation, native: Balaurul
+msgid "The Dragon"
+msgstr ""
+
+# Romanian constellation, native: Corbul
+msgid "The Raven"
+msgstr ""
+
+# Romanian constellation, native: Cantarul
+msgid "The Scales"
+msgstr ""
+
+# Romanian constellation, native: Fecioara
+msgid "The Virgin"
+msgstr ""
+
+# Romanian constellation, native: Crapii
+msgid "The Carp"
+msgstr ""
+
+# Romanian constellation, native: Dulaul
+msgid "The Mastiff"
+msgstr ""
+
+# Romanian constellation, native: Catelul
+msgid "The Little Dog"
+msgstr ""
+
+# Romanian constellation, native: Vacarul
+msgid "The Herdsman"
+msgstr ""
+
+# Romanian constellation, native: Porumbita
+msgid "The Turtle Dove"
+msgstr ""
+
+# Romanian constellation, native: Varsatorul
+msgid "He Who Pours Out the Water"
+msgstr ""
+
+# Romanian constellation, native: Chitul
+msgid "The Whale"
+msgstr ""
+
+# Romanian constellation, native: Rarita
+msgid "The Little Plough"
+msgstr ""
+
+# Romanian constellation, native: Secera
+msgid "The Sickle"
+msgstr ""
+
+# Romanian constellation, native: Sfredelul mare
+msgid "The Great Auger"
+msgstr ""
+
+# Romanian constellation, native: Omul
+msgid "The Man"
+msgstr ""
+
+# Romanian constellation, native: Scorpia
+msgid "The Scorpion"
+msgstr ""
+
+# Romanian constellation, native: Barda
+msgid "The Axe"
+msgstr ""
+
+# Romanian constellation, native: Arcasul
+msgid "The Archer"
+msgstr ""
+
+# Romanian constellation, native: Trisfetitele
+msgid "The Three Saints"
+msgstr ""
+
+# Romanian constellation, native: Vierii
+msgid "The Boars"
+msgstr ""
+
+# Name for HIP 11767
+msgid "The Sky's Votive Light"
+msgstr ""
+
+# Name for HIP 21421
+msgid "The Bright Star of the Pig"
+msgstr ""
+
+# Name for HIP 21421
+msgid "The Alarm Clock"
+msgstr ""
+
+# Name for HIP 32349
+msgid "Morning Star"
+msgstr ""
+
+# Name for HIP 36850
+msgid "Romulus"
+msgstr ""
+
+# Name for HIP 37826
+msgid "Remus"
+msgstr ""
+
+# Name for HIP 65477
+msgid "The Little Bitch"
+msgstr ""
+
+# Name for HIP 91262
+msgid "The Shepherd"
+msgstr ""
+
+# Name for HIP 91262
+msgid "The Stars Queen"
+msgstr ""
+
+# Sami constellation
+msgid "Sarva the Elk"
+msgstr ""
+
+# Sami constellation
+msgid "Favdna's Bow and Arrow"
+msgstr ""
+
+# Sami constellation
+msgid "Galla's Sons"
+msgstr ""
+
+# Sami constellation
+msgid "Sky Support"
+msgstr ""
+
+# Sami constellation
+msgid "Favdna"
+msgstr ""
+
+# Sami constellation
+msgid "The Runner"
+msgstr ""
+
+# Sami constellation
+msgid "Pack of Dogs"
+msgstr ""
+
+# Sami constellation
+msgid "Galla"
+msgstr ""
+
+# Sami constellation
+msgid "The Ski Runners"
+msgstr ""
+
+msgid "Sun"
+msgstr "Zvijezda"
+
+msgid "Moon"
+msgstr "Mjesec"
+
+msgid "Triggerfish"
+msgstr ""
+
+msgid "Two men"
+msgstr ""
+
+msgid "Triad of moons"
+msgstr ""
+
+msgid "Wild duck"
+msgstr ""
+
+msgid "Fishhook lure"
+msgstr ""
+
+msgid "Pigeon Perch"
+msgstr ""
+
+msgid "Kingfisher"
+msgstr ""
+
+msgid "Grasshopper"
+msgstr ""
+
+msgid "Carrying pole"
+msgstr ""
+
+msgid "Candlenut torch"
+msgstr ""
+
+msgid "Sea monster"
+msgstr ""
+
+msgid "Heirloom Warclub"
+msgstr ""
+
+msgid "Great Adze"
+msgstr ""
+
+msgid "Gliding Star"
+msgstr ""
+
+msgid "Mea"
+msgstr ""
+
+msgid "Filo"
+msgstr ""
+
+#. TRANSLATORS: Native name of Mercury in Samoan
+msgid "Brownish"
+msgstr ""
+
+#. TRANSLATORS: Native name of Venus in Samoan
+msgid "Morning Star / Forbidden Radiance"
+msgstr ""
+
+msgid "Earth"
+msgstr ""
+
+#. TRANSLATORS: Native name of Mars in Samoan
+msgid "Reddish Face/Surface"
+msgstr ""
+
+#. TRANSLATORS: Native name of Jupiter in Samoan
+msgid "Undying Mystery"
+msgstr ""
+
+#. TRANSLATORS: Native name of Saturn in Samoan
+msgid "Garland Star"
+msgstr ""
+
+msgid "Face of Liʻi"
+msgstr ""
+
+msgid "Pale Cloud"
+msgstr ""
+
+msgid "Flying Cloud"
+msgstr ""
+
+#. TRANSLATORS: Samoan Name
+msgid "Suga"
+msgstr ""
+
+#. TRANSLATORS: Samoan Name
+msgid "Pae"
+msgstr ""
+
+# Sardinian constellation, native: Su Pinnetu
+msgid "The Hut"
+msgstr ""
+
+# Sardinian constellation, native: S'Udrone
+msgid "The Bunch"
+msgstr ""
+
+# Sardinian constellation, native: Sos Sette Frades
+msgid "The Seven Brothers"
+msgstr ""
+
+# Sardinian constellation, native: Sos Bacheddos
+msgid "The Sticks"
+msgstr ""
+
+# Sardinian constellation, native: Sa Mandra
+msgid "The Fence for Sheep"
+msgstr ""
+
+# Sardinian constellation, native: Su Ballu de sas Fiuda
+msgid "The Dance of Widows"
+msgstr ""
+
+# Sardinian constellation, native: Su Corru 'e Chervu
+msgid "The Deer Horn"
+msgstr ""
+
+# Sardinian constellation, native: Sa Rughe de Santu Antinu
+msgid "The Cross of St. Constantine"
+msgstr ""
+
+# Sardinian constellation, native: Sa Tona
+msgid "The Throne"
+msgstr ""
+
+# Sardinian constellation, native: Sas Tres Marias
+msgid "Three Marias"
+msgstr ""
+
+# Name for HIP 32349
+msgid "Steel Star"
+msgstr ""
+
+# Name for HIP 65378
+msgid "Twin Stars"
+msgstr ""
+
+# Name for HIP 67301
+msgid "The Seven Brother's Driver"
+msgstr ""
+
+# Name for HIP 11767
+msgid "Polar Star"
+msgstr ""
+
+# Name for HIP 21421
+msgid "The Bunch's Driver"
+msgstr ""
+
+# Siberian constellation, pronounce: Los'
+msgid "Elk"
+msgstr ""
+
+# Siberian constellation, pronounce: Kichigi
+msgid "Threshers"
+msgstr ""
+
+# Siberian constellation, pronounce: Utinoe gnezdo
+msgid "Duck Nest"
+msgstr ""
+
+# Name for HIP 11767
+msgid "Golden stake"
+msgstr ""
+
+# Name for NAME Milky Way
+msgid "Goose Road"
+msgstr ""
+
+# Name for NAME Milky Way
+msgid "Mamay Road"
+msgstr ""
+
+# Tongan constellation, native: Toloatonga
+msgid "Southern Wild Duck"
+msgstr ""
+
+# Tongan constellation, native: Lua tangata
+msgid "Two Men"
+msgstr ""
+
+# Tongan constellation, native: Toloa
+msgid "Wild Duck"
+msgstr ""
+
+# Tongan constellation, native: Toloalahi
+msgid "Big Wild Duck"
+msgstr ""
+
+# Tongan constellation, native: Fungasia
+msgid "Mound Top"
+msgstr ""
+
+# Tongan constellation, native: Tuinga ika
+msgid "String of fishes"
+msgstr ""
+
+# Tongan constellation, native: Houmatoloa
+msgid "Wild Duck's Point of Land"
+msgstr ""
+
+# Tongan constellation, native: Fatanalua
+msgid "Two Carriers"
+msgstr ""
+
+# Tongan constellation, native: ʻAo ʻo ʻUvea
+msgid "Cloud of 'Uvea"
+msgstr ""
+
+# Tongan constellation, native: Kapakau'o'tafahi
+msgid "Wing of Tafahi"
+msgstr ""
+
+# Tukano constellation, native: Aña
+msgid "Jararaca"
+msgstr ""
+
+# Description of Tukano constellation Jararaca
+msgid ""
+"A big snake that is found in part of our Scorpius, Sagittarius and Corona\n"
+"Australis constellations. Its setting with the sunset correspond of the\n"
+"beginning of the year to this group of Tukanos."
+msgstr ""
+
+# Tukano constellation, native: Pamõ
+msgid "Armadillo"
+msgstr ""
+
+# Description of Tukano constellation Armadillo
+msgid ""
+"This constellation is found in the modern constellations of the Dolphin and\n"
+"parts of Aquila constellation. This group of faint stars is placed inside a\n"
+"poor stellar field with exception of the bright Altair (Alfa Aquilae)."
+msgstr ""
+
+# Tukano constellation, native: Dahsiaw
+msgid "Caridean Shrimp"
+msgstr ""
+
+# Tukano constellation, native: Mhua
+msgid "Crenicichla"
+msgstr ""
+
+# Description of Tukano constellation Crenicichla
+msgid ""
+"Both constellations are joined together in a few bright stars of the Aquarius\n"
+"and Pisces area. As they are faint, it is a wonderful challenge to try to see\n"
+"it during the night."
+msgstr ""
+
+# Tukano constellation, native: Yai
+msgid "Jaguar"
+msgstr ""
+
+# Description of Tukano constellation Jaguar
+msgid ""
+"It is a big constellation – one of the biggest – inside the north portions of\n"
+"night skies. All night long near the horizon, the big puma is described inside\n"
+"our Cepheus, Cassiopeia and Perseus constellations."
+msgstr ""
+
+# Tukano constellation, native: Nhorkoatero
+msgid "Group of Stars"
+msgstr ""
+
+# Description of Tukano constellation Group of Stars
+msgid ""
+"The translation of _nhorkoatero_ is literally 'group of stars'. Identified as\n"
+"our Pleiades this is very significant as a time keeper within a complex\n"
+"calendar to Tukano people. It is also used as a harbinger of the rainy period."
+msgstr ""
+
+# Tukano constellation, native: Waikhasa
+msgid "Moquém"
+msgstr ""
+
+# Description of Tukano constellation Moquém
+msgid ""
+"A _Waikase_ (Moquém) in portuguese is a kind of grill to cook fish. It is\n"
+"identified with the Hyades open cluster of stars in Taurus and with the bright\n"
+"star Aldebaran which follows the Pleiades. This is an asterism easy to be seen\n"
+"all over the sky."
+msgstr ""
+
+# Tukano constellation, native: Sioyahpu
+msgid "Adze Handle"
+msgstr ""
+
+# Description of Tukano constellation Adze Handle
+msgid ""
+"As a part of Orion belt and two of the others brightest stars of this\n"
+"constellation – our Betelgeuse and Bellatrix – this constellation represents a\n"
+"part of a tool which is used to carve wood.\n"
+"\n"
+"### Sipé Phairo\n"
+"\n"
+"This snake corresponds to the brightest stars of the Big Dipper. In a legend\n"
+"when this constellation touches the horizon after the sunset almost all fishes\n"
+"in the main river are swallowed by it."
+msgstr ""
+
+# Tukano constellation, native: Yhé
+msgid "Egret"
+msgstr ""
+
+# Description of Tukano constellation Egret
+msgid ""
+"The real position of this constellation is still in discussion: are those stars\n"
+"in the Berenices' hair region or inside the Corvus? We choose the first\n"
+"region because it was present as the real one by the Tukanos of São José II\n"
+"tribe."
+msgstr ""
+
+# Description of Tukano constellation Tortoise
+msgid ""
+"This constellation is described as the occidental Southern Cross constellation.\n"
+"Sometimes this traditional occidental constellation also meant an Otter or a\n"
+"turtle for the Tukano people."
+msgstr ""
+
+# Tupi-Guarani constellation, native: Guirá Nhandu
+msgid "White Ostrich"
+msgstr ""
+
+# Description of Tupi-Guarani constellation White Ostrich
+msgid ""
+"The Tupi name for this constellation is _Iandutim_ (_Guirá Nhandu_ in Guarani),\n"
+"which literally translates to _White Ostrich_. The constellation depicts a\n"
+"large bird.\n"
+"\n"
+"In the first two weeks of June this constellation is fully visible in the\n"
+"Eastern sky in the evening, indicating the beginning of Winter in the South of\n"
+"Brazil, and the start of the dry season in the North."
+msgstr ""
+
+# Description of Tupi-Guarani constellation Old Man
+msgid ""
+"This constellation depicts an old man holding a stick.\n"
+"\n"
+"In the second half of December, the constellation is fully visible in the\n"
+"Eastern evening sky. This marks the beginning of summer in the southern parts\n"
+"of Brazil and the start of the rainy season in the North."
+msgstr ""
+
+# Tupi-Guarani constellation, native: Tapi'i
+msgid "Northern Tapir"
+msgstr ""
+
+# Tupi-Guarani constellation
+msgid "Deer"
+msgstr ""
+
+# Tupi-Guarani constellation
+msgid "Joykexo"
+msgstr ""
+
+# Tupi-Guarani constellation, native: Eixu
+msgid "Hornet"
+msgstr ""
+
+# Tupi-Guarani constellation, native: Tapi'i rainhyka
+msgid "Tapir's Jaw"
+msgstr ""
+
+# Western (H.A.Rey) constellation, pronounce: BIG DIPPER
+msgid "Big Dipper"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "Pointers"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "Guardians"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "feet"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "head"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "tail"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "paws"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "body"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "pipe"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "wing"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "outstretched neck"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "club"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "Keystone"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "the chain"
+msgstr ""
+
+# Western (H.A.Rey) constellation, pronounce: GREAT SQUARE
+msgid "Great Square"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "horn"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "belt"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "shield"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "Hydra's head"
+msgstr ""
+
+# Western (H.A.Rey) constellation, pronounce: HYDRA's tail
+msgid "Hydra's tail"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "bill"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "foot"
+msgstr ""
+
+# Western (H.A.Rey) constellation, pronounce: SERPENT'S TAIL
+msgid "Serpens Cauda"
+msgstr ""
+
+# Western (H.A.Rey) constellation, pronounce: SERPENT'S HEAD
+msgid "Serpens Caput"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "arm"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "claws"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "cat's eyes"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "skirt"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "the bow"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "vessel"
+msgstr ""
+
+# Western (H.A.Rey) constellation, pronounce: N.FISH
+msgid "Northern Fish"
+msgstr ""
+
+# Western (H.A.Rey) constellation, pronounce: Circlet or W. FISH
+msgid "Circlet"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "False Cross"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "figurehead"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "transom"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "ears"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "front legs"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "hind legs"
+msgstr ""
+
+# Western (H.A.Rey) constellation, pronounce: FLY
+msgid "Fly"
+msgstr ""
+
+# Western (H.A.Rey) constellation
+msgid "eyes"
+msgstr ""
+
+# Name for HIP 11767
+msgid "Pole Star"
+msgstr ""
+
+# Name for HIP 9487
+msgid "Knot"
+msgstr ""
+
+msgid "Digging Stars"
+msgstr ""
+
+msgid "Long-stemmed flower"
+msgstr ""
+
+msgid "Journey to new grazing lands"
+msgstr ""
+
+msgid "Stream of spears"
+msgstr ""
+
+msgid "Crossing"
+msgstr ""
