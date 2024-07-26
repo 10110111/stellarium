@@ -92,6 +92,7 @@ Vec3f Planet::orbitSaturnColor = Vec3f(1.0f,0.6f,1.0f);
 Vec3f Planet::orbitUranusColor = Vec3f(1.0f,0.6f,1.0f);
 Vec3f Planet::orbitNeptuneColor = Vec3f(1.0f,0.6f,1.0f);
 StelTextureSP Planet::hintCircleTex;
+StelTextureSP Planet::markerCircleTex;
 StelTextureSP Planet::texEarthShadow;
 
 bool Planet::drawMoonHalo = true;
@@ -2855,7 +2856,7 @@ void Planet::draw(StelCore* core, float maxMagLabels, const QFont& planetNameFon
 	// If asteroid is too faint to be seen, don't bother rendering. (Massive speedup if people have hundreds of orbital elements!)
 	// AW: Added a special case for educational purpose to drawing orbits for the Solar System Observer
 	// Details: https://sourceforge.net/p/stellarium/discussion/278769/thread/4828ebe4/
-	if (((getVMagnitude(core)-5.0f) > core->getSkyDrawer()->getLimitMagnitude()) && pType>=Planet::isAsteroid && !core->getCurrentLocation().planetName.contains("Observer", Qt::CaseInsensitive))
+	if (!markerFader && ((getVMagnitude(core)-5.0f) > core->getSkyDrawer()->getLimitMagnitude()) && pType>=Planet::isAsteroid && !core->getCurrentLocation().planetName.contains("Observer", Qt::CaseInsensitive))
 	{
 		return;
 	}
@@ -2919,6 +2920,12 @@ void Planet::draw(StelCore* core, float maxMagLabels, const QFont& planetNameFon
 		else
 			labelsFader=false;
 		drawHints(core, planetNameFont);
+		// TODO: Decide whether isComet should be moved up in the enum list to allow exclusion!
+		if (getPlanetType()>=Planet::isAsteroid)
+		{
+			//qDebug() << getEnglishName();
+			drawMarker(core);
+		}
 
 		draw3dModel(core,transfo,static_cast<float>(screenRd));
 	}
@@ -4677,14 +4684,32 @@ void Planet::drawHints(const StelCore* core, const QFont& planetNameFont)
 	// hint disappears smoothly on close view
 	if (hintFader.getInterstate()<=0)
 		return;
-	tmp -= 10.f;
-	if (tmp<1) tmp=1;
+	tmp = qMax(1.0f, tmp - 10.f);
 	sPainter.setColor(labelColor,labelsFader.getInterstate()*hintFader.getInterstate()/tmp*0.7f);
 
 	// Draw the 2D small circle
 	sPainter.setBlending(true);
 	Planet::hintCircleTex->bind();
 	sPainter.drawSprite2dMode(static_cast<float>(screenPos[0]), static_cast<float>(screenPos[1]), 11);
+}
+
+// Draw a little marker. Useful for minor bodies to just show "something out there".
+void Planet::drawMarker(const StelCore* core)
+{
+	// TODO: Consider smoothing out the marker when zooming in far enough to make object "naturally" visible.
+	if (markerFader.getInterstate()<=0)
+		return;
+
+	const StelProjectorP prj = core->getProjection(StelCore::FrameJ2000);
+	StelPainter sPainter(prj);
+
+	sPainter.setColor(labelColor,markerFader.getInterstate());
+
+	// Draw the 2D small circle
+	sPainter.setBlending(true);
+	Planet::markerCircleTex->bind();
+	//Planet::hintCircleTex->bind();
+	sPainter.drawSprite2dMode(static_cast<float>(screenPos[0]), static_cast<float>(screenPos[1]), 3);
 }
 
 Ring::Ring(float radiusMin, float radiusMax, const QString &texname)
@@ -4890,6 +4915,7 @@ Vec2d Planet::getValidPositionalDataRange(const PositionQuality purpose) const
 void Planet::update(int deltaTime)
 {
 	hintFader.update(deltaTime);
+	markerFader.update(deltaTime);
 	labelsFader.update(deltaTime);
 	orbitFader.update(deltaTime);
 }
