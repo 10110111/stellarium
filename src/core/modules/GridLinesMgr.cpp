@@ -400,10 +400,10 @@ void viewportEdgeIntersectCallback(const Vec3d& screenPos, const Vec3d& directio
 //! Draw the sky grid in the current frame
 void SkyGrid::draw(const StelCore* core) const
 {
-	const StelProjectorP prj = core->getProjection(frameType, (frameType!=StelCore::FrameAltAz && frameType!=StelCore::FrameFixedEquatorial) ? StelCore::RefractionAuto : StelCore::RefractionOff);
 	if (fader.getInterstate() <= 0.f)
 		return;
 
+	const StelProjectorP prj = core->getProjection(frameType, (frameType!=StelCore::FrameAltAz && frameType!=StelCore::FrameFixedEquatorial) ? StelCore::RefractionAuto : StelCore::RefractionOff);
 	const bool withDecimalDegree = StelApp::getInstance().getFlagShowDecimalDegrees();
 
 	// Look for all meridians and parallels intersecting with the disk bounding the viewport
@@ -688,7 +688,7 @@ void SkyLine::init()
 
 void SkyLine::computeEclipticDatePartitions(int year)
 {
-	GridLinesMgr* gMgr=GETSTELMODULE_SILENT(GridLinesMgr);
+	static GridLinesMgr* gMgr=GETSTELMODULE_SILENT(GridLinesMgr);
 	if (gMgr && (! gMgr->getFlagEclipticDatesLabeled()))
 		return;
 
@@ -862,6 +862,8 @@ void SkyLine::draw(StelCore *core) const
 	if (fader.getInterstate() <= 0.f)
 		return;
 
+	static StelMovementMgr *sMvMgr=GETSTELMODULE(StelMovementMgr);
+	Q_ASSERT(sMvMgr);
 	StelProjectorP prj = core->getProjection(frameType, (frameType!=StelCore::FrameAltAz && frameType!=StelCore::FrameFixedEquatorial) ? StelCore::RefractionAuto : StelCore::RefractionOff);
 
 	// Get the bounding halfspace
@@ -912,14 +914,15 @@ void SkyLine::draw(StelCore *core) const
 		{
 			// resizing the shadow together with the Moon would require considerable trickery.
 			// It seems better to just switch it off.
-			if (GETSTELMODULE(SolarSystem)->getFlagMoonScale()) return;
+			static SolarSystem *sSystem=GETSTELMODULE(SolarSystem);
+			if (sSystem->getFlagMoonScale()) return;
 
 			// We compute the shadow circle attached to the geocenter, but must point it in the opposite direction of the sun's aberrated position.
 			const Vec3d pos=earth->getEclipticPos();
 			const Vec3d dir= - sun->getAberrationPush() + pos;
 			double lambda, beta;
 			StelUtils::rectToSphe(&lambda, &beta, dir);
-			const QPair<Vec3d, Vec3d> radii=GETSTELMODULE(SolarSystem)->getEarthShadowRadiiAtLunarDistance();
+			const QPair<Vec3d, Vec3d> radii=sSystem->getEarthShadowRadiiAtLunarDistance();
 			const double radius=(line_type==EARTH_UMBRA ? radii.first[1] : radii.second[1]);
 			const double dist=moon->getEclipticPos().norm();  // geocentric Lunar distance [AU]
 			const Mat4d rot=Mat4d::zrotation(lambda)*Mat4d::yrotation(-beta);
@@ -1122,7 +1125,7 @@ void SkyLine::draw(StelCore *core) const
 	}
 	else if (line_type==CURRENT_VERTICAL)
 	{
-		Vec3d coordJ2000=GETSTELMODULE(StelMovementMgr)->getViewDirectionJ2000();
+		Vec3d coordJ2000=sMvMgr->getViewDirectionJ2000();
 		Vec3d coordAltAz=core->j2000ToAltAz(coordJ2000, StelCore::RefractionAuto);
 		StelUtils::rectToSphe(&az, &alt, coordAltAz);
 		sphericalCap.n.set(sin(-az), cos(-az), 0.);
@@ -1210,7 +1213,7 @@ void SkyLine::draw(StelCore *core) const
 		// Limit altitude marks to the displayed range
 		int i_min= 0;
 		int i_max=(line_type==CURRENT_VERTICAL ? 181 : 360);
-		if ((line_type==CURRENT_VERTICAL) && (GETSTELMODULE(StelMovementMgr)->getMountMode()==StelMovementMgr::MountAltAzimuthal) &&
+		if ((line_type==CURRENT_VERTICAL) && (sMvMgr->getMountMode()==StelMovementMgr::MountAltAzimuthal) &&
 		    (core->getCurrentProjectionType()!=StelCore::ProjectionEqualArea) && (core->getCurrentProjectionType()!=StelCore::ProjectionStereographic) && (core->getCurrentProjectionType()!=StelCore::ProjectionFisheye))
 		{
 			// Avoid marks creeping sideways
@@ -1406,7 +1409,7 @@ void SkyLine::draw(StelCore *core) const
 		p2.set(0.,0.,-1.);
 		Vec3d pHori;
 		StelUtils::spheToRect(az, 0., pHori);
-		if (GETSTELMODULE(StelMovementMgr)->getMountMode()==StelMovementMgr::MountAltAzimuthal)
+		if (sMvMgr->getMountMode()==StelMovementMgr::MountAltAzimuthal)
 		{
 			switch (core->getCurrentProjectionType())
 			{
@@ -1726,11 +1729,12 @@ void SkyPoint::draw(StelCore *core) const
 		case EARTH_UMBRA_CENTER:
 		{
 			// We compute the shadow center attached to the geocenter, but must point it in the opposite direction of the sun's aberrated position.
+			static PlanetP moon=GETSTELMODULE(SolarSystem)->getMoon();
 			const Vec3d pos=earth->getEclipticPos();
 			const Vec3d dir= - sun->getAberrationPush() + pos;
 			double lambda, beta;
 			StelUtils::rectToSphe(&lambda, &beta, dir);
-			const double dist=GETSTELMODULE(SolarSystem)->getMoon()->getEclipticPos().norm();
+			const double dist=moon->getEclipticPos().norm();
 			const Mat4d rot=Mat4d::zrotation(lambda)*Mat4d::yrotation(-beta);
 
 			Vec3d point(dist, 0.0, 0.0);
