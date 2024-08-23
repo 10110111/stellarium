@@ -1069,8 +1069,9 @@ void AstroCalcDialog::currentCelestialPositions()
 	const bool withDecimalDegree = StelApp::getInstance().getFlagShowDecimalDegrees();
 
 	const double JD = core->getJD();
-	const double utcShift = core->getUTCOffset(core->getJD()) / 24.; // Fix DST shift...
-	ui->celestialPositionsTimeLabel->setText(q_("Positions on %1").arg(QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD), localeMgr->getPrintableTimeLocal(JD))));
+	const double utcOffsetHrs = core->getUTCOffset(JD);
+	const double utcShift = utcOffsetHrs / 24.; // Fix DST shift...
+	ui->celestialPositionsTimeLabel->setText(q_("Positions on %1").arg(QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD, utcOffsetHrs), localeMgr->getPrintableTimeLocal(JD,utcOffsetHrs))));
 	Vec4d rts;
 	Vec3d observerHelioPos;
 	double angularDistance;
@@ -1513,7 +1514,8 @@ void AstroCalcDialog::currentHECPositions()
 
 	HECPosition object;
 	const double JD = core->getJD();
-	ui->hecPositionsTimeLabel->setText(q_("Positions on %1").arg(QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD), localeMgr->getPrintableTimeLocal(JD))));
+	const double utcOffsetHrs = core->getUTCOffset(JD);
+	ui->hecPositionsTimeLabel->setText(q_("Positions on %1").arg(QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD, utcOffsetHrs), localeMgr->getPrintableTimeLocal(JD,utcOffsetHrs))));
 
 	QList<PlanetP> planets;
 	QList<PlanetP> allplanets = solarSystem->getAllPlanets();
@@ -1938,7 +1940,7 @@ void AstroCalcDialog::generateEphemeris()
 		for (int i = 0; i <= elements; i++)
 		{
 			Vec3d pos, sunPos;
-			double JD = firstJD + i * currentStep;
+			const double JD = firstJD + i * currentStep;
 			core->setJD(JD);
 			core->update(0); // force update to get new coordinates
 
@@ -1980,9 +1982,10 @@ void AstroCalcDialog::generateEphemeris()
 			}
 
 			ACEphemTreeWidgetItem* treeItem = new ACEphemTreeWidgetItem(ui->ephemerisTreeWidget);
+			const double utcOffsetHrs = core->getUTCOffset(JD);
 			treeItem->setText(EphemerisCOName, nameI18n);
 			treeItem->setData(EphemerisCOName, Qt::UserRole, englishName);
-			treeItem->setText(EphemerisDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD), localeMgr->getPrintableTimeLocal(JD))); // local date and time
+			treeItem->setText(EphemerisDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD, utcOffsetHrs), localeMgr->getPrintableTimeLocal(JD, utcOffsetHrs))); // local date and time
 			treeItem->setData(EphemerisDate, Qt::UserRole, JD);
 			treeItem->setText(EphemerisRA, coordStrings.first);
 			treeItem->setData(EphemerisRA, Qt::UserRole, idxRow);
@@ -2197,18 +2200,25 @@ void AstroCalcDialog::generateRTS()
 				}
 				else
 				{
-					transitStr = QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD), localeMgr->getPrintableTimeLocal(JD));
+					const double utcOffsetHrs = core->getUTCOffset(JD);
+					transitStr = QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD, utcOffsetHrs), localeMgr->getPrintableTimeLocal(JD, utcOffsetHrs));
 				}
 
 				if (rts[3]==30 || rts[3]<0 || rts[3]>50) // no rise time
 					riseStr = dash;
 				else
-					riseStr = QString("%1 %2").arg(localeMgr->getPrintableDateLocal(rts[0]), localeMgr->getPrintableTimeLocal(rts[0]));
+				{
+					const double utcOffsetHrs = core->getUTCOffset(rts[0]);
+					riseStr = QString("%1 %2").arg(localeMgr->getPrintableDateLocal(rts[0], utcOffsetHrs), localeMgr->getPrintableTimeLocal(rts[0], utcOffsetHrs));
+				}
 
 				if (rts[3]==40 || rts[3]<0 || rts[3]>50) // no set time
 					setStr = dash;
 				else
-					setStr = QString("%1 %2").arg(localeMgr->getPrintableDateLocal(rts[2]), localeMgr->getPrintableTimeLocal(rts[2]));
+				{
+					const double utcOffsetHrs = core->getUTCOffset(rts[2]);
+					setStr = QString("%1 %2").arg(localeMgr->getPrintableDateLocal(rts[2], utcOffsetHrs), localeMgr->getPrintableTimeLocal(rts[2], utcOffsetHrs));
+				}
 
 				ACRTSTreeWidgetItem* treeItem = new ACRTSTreeWidgetItem(ui->rtsTreeWidget);
 				treeItem->setText(RTSCOName, name);
@@ -2637,8 +2647,10 @@ void AstroCalcDialog::generateLunarEclipses()
 					else
 						uMagStr = QString("%1").arg(QString::number(uMag, 'f', 3));
 
+
 					ACLunarEclipseTreeWidgetItem* treeItem = new ACLunarEclipseTreeWidgetItem(ui->lunareclipseTreeWidget);
-					treeItem->setText(LunarEclipseDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD), localeMgr->getPrintableTimeLocal(JD))); // local date and time
+					const double utcOffsetHrs = core->getUTCOffset(JD);
+					treeItem->setText(LunarEclipseDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD, utcOffsetHrs), localeMgr->getPrintableTimeLocal(JD, utcOffsetHrs))); // local date and time
 					treeItem->setData(LunarEclipseDate, Qt::UserRole, JD);
 					treeItem->setText(LunarEclipseSaros, sarosStr);
 					treeItem->setToolTip(LunarEclipseSaros, q_("Saros series number of eclipse (each eclipse in a Saros is separated by an interval of 18 years 11.3 days)"));
@@ -2801,7 +2813,8 @@ void AstroCalcDialog::selectCurrentLunarEclipse(const QModelIndex& modelIndex)
 				q_("Moon leaves umbra"),
 				q_("Moon leaves penumbra")};
 			treeItem->setText(LunarEclipseContact, events.at(i));
-			treeItem->setText(LunarEclipseContactDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD), localeMgr->getPrintableTimeLocal(JD)));
+			const double utcOffsetHrs = core->getUTCOffset(JD);
+			treeItem->setText(LunarEclipseContactDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD, utcOffsetHrs), localeMgr->getPrintableTimeLocal(JD, utcOffsetHrs)));
 			treeItem->setData(LunarEclipseContactDate, Qt::UserRole, JD);
 			core->setJD(JD);
 			core->setUseTopocentricCoordinates(saveTopocentric);
@@ -3181,7 +3194,8 @@ void AstroCalcDialog::generateSolarEclipses()
 					longitudeStr = StelUtils::decDegToLongitudeStr(eclipseLongitude, true, false, !withDecimalDegree);
 
 					ACSolarEclipseTreeWidgetItem* treeItem = new ACSolarEclipseTreeWidgetItem(ui->solareclipseTreeWidget);
-					treeItem->setText(SolarEclipseDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD), localeMgr->getPrintableTimeLocal(JD))); // local date and time
+					const double utcOffsetHrs = core->getUTCOffset(JD);
+					treeItem->setText(SolarEclipseDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD, utcOffsetHrs), localeMgr->getPrintableTimeLocal(JD, utcOffsetHrs))); // local date and time
 					treeItem->setData(SolarEclipseDate, Qt::UserRole, JD);
 					treeItem->setText(SolarEclipseSaros, sarosStr);
 					treeItem->setToolTip(SolarEclipseSaros, q_("Saros series number of eclipse (each eclipse in a Saros is separated by an interval of 18 years 11.3 days)"));
@@ -3475,28 +3489,28 @@ void AstroCalcDialog::generateSolarEclipsesLocal()
 							}
 
 							ACSolarEclipseLocalTreeWidgetItem* treeItem = new ACSolarEclipseLocalTreeWidgetItem(ui->solareclipselocalTreeWidget);
-							treeItem->setText(SolarEclipseLocalDate, QString("%1").arg(localeMgr->getPrintableDateLocal(JDmax))); // local date
+							treeItem->setText(SolarEclipseLocalDate, QString("%1").arg(localeMgr->getPrintableDateLocal(JDmax, core->getUTCOffset(JDmax)))); // local date
 							treeItem->setData(SolarEclipseLocalDate, Qt::UserRole, JDmax);
 							treeItem->setText(SolarEclipseLocalType, eclipseTypeStr);
-							treeItem->setText(SolarEclipseLocalFirstContact, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD1)));
+							treeItem->setText(SolarEclipseLocalFirstContact, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD1, core->getUTCOffset(JD1))));
 							if (centraleclipse && JD2<JD1) // central eclipse  in progress at Sunrise
 								treeItem->setText(SolarEclipseLocalFirstContact, dash);
 							treeItem->setToolTip(SolarEclipseLocalFirstContact, q_("The time of first contact"));
 							
 							if (centraleclipse)
-								treeItem->setText(SolarEclipseLocal2ndContact, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD2)));
+								treeItem->setText(SolarEclipseLocal2ndContact, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD2, core->getUTCOffset(JD2))));
 							else
 								treeItem->setText(SolarEclipseLocal2ndContact, dash);
 							treeItem->setToolTip(SolarEclipseLocal2ndContact, q_("The time of second contact"));
-							treeItem->setText(SolarEclipseLocalMaximum, QString("%1").arg(localeMgr->getPrintableTimeLocal(JDmax)));
+							treeItem->setText(SolarEclipseLocalMaximum, QString("%1").arg(localeMgr->getPrintableTimeLocal(JDmax, core->getUTCOffset(JDmax))));
 							treeItem->setToolTip(SolarEclipseLocalMaximum, q_("The time of greatest eclipse"));
 							treeItem->setText(SolarEclipseLocalMagnitude, magStr);
 							if (centraleclipse)
-								treeItem->setText(SolarEclipseLocal3rdContact, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD3)));
+								treeItem->setText(SolarEclipseLocal3rdContact, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD3, core->getUTCOffset(JD3))));
 							else
 								treeItem->setText(SolarEclipseLocal3rdContact, dash);
 							treeItem->setToolTip(SolarEclipseLocal3rdContact, q_("The time of third contact"));
-							treeItem->setText(SolarEclipseLocalLastContact, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD4)));
+							treeItem->setText(SolarEclipseLocalLastContact, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD4, core->getUTCOffset(JD4))));
 							if (centraleclipse && JD3>JD4) // central eclipse in progress at Sunset
 								treeItem->setText(SolarEclipseLocalLastContact, dash);
 							treeItem->setToolTip(SolarEclipseLocalLastContact, q_("The time of fourth contact"));
@@ -3672,7 +3686,8 @@ void AstroCalcDialog::selectCurrentSolarEclipse(const QModelIndex& modelIndex)
 					treeItem->setData(SolarEclipseContact, Qt::UserRole, false);
 					break;
 			}
-			treeItem->setText(SolarEclipseContactDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD), localeMgr->getPrintableTimeLocal(JD)));
+			const double utcOffsetHrs = core->getUTCOffset(JD);
+			treeItem->setText(SolarEclipseContactDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD, utcOffsetHrs), localeMgr->getPrintableTimeLocal(JD, utcOffsetHrs)));
 			treeItem->setData(SolarEclipseContactDate, Qt::UserRole, JD);
 			treeItem->setText(SolarEclipseContactLatitude, StelUtils::decDegToLatitudeStr(latDeg, !withDecimalDegree));
 			treeItem->setData(SolarEclipseContactLatitude, Qt::UserRole, latDeg);
@@ -3833,7 +3848,7 @@ void AstroCalcDialog::saveSolarEclipseMap()
 	core->update(0);
 
 	// Use year-month-day in the file name
-	const auto eclipseDateStr = localeMgr->getPrintableDateLocal(JDMid);
+	const auto eclipseDateStr = localeMgr->getPrintableDateLocal(JDMid, core->getUTCOffset(JDMid));
 	const auto fileBaseName = q_("Solar Eclipse") + " " + eclipseDateStr;
 	QString selectedFilter("(*.kml)");
 	QString filePath = QFileDialog::getSaveFileName(&StelMainView::getInstance(),
@@ -4336,9 +4351,10 @@ void AstroCalcDialog::generateTransits()
 								}
 							}
 						}
-						const double shift = core->getUTCOffset(JDMid)/24.;
+						const double utcOffsetHrs = core->getUTCOffset(JDMid);
+						const double shift = utcOffsetHrs/24.;
 						ACTransitTreeWidgetItem* treeItem = new ACTransitTreeWidgetItem(ui->transitTreeWidget);
-						treeItem->setText(TransitDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JDMid), localeMgr->getPrintableTimeLocal(JDMid))); // local date and time
+						treeItem->setText(TransitDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JDMid, utcOffsetHrs), localeMgr->getPrintableTimeLocal(JDMid, utcOffsetHrs))); // local date and time
 						treeItem->setData(TransitDate, Qt::UserRole, JDMid);
 						treeItem->setText(TransitPlanet, planetStr);
 						treeItem->setData(TransitPlanet, Qt::UserRole, planetStr);
@@ -4347,7 +4363,7 @@ void AstroCalcDialog::generateTransits()
 						{
 							if (saveTopocentric && altitudeContact1 < 0.)
 								{
-									treeItem->setText(TransitContact1, QString("(%1)").arg(localeMgr->getPrintableTimeLocal(JD1)));
+									treeItem->setText(TransitContact1, QString("(%1)").arg(localeMgr->getPrintableTimeLocal(JD1, core->getUTCOffset(JD1))));
 #if (QT_VERSION>=QT_VERSION_CHECK(5,15,0))
 									treeItem->setForeground(TransitContact1, Qt::gray);
 #else
@@ -4355,7 +4371,7 @@ void AstroCalcDialog::generateTransits()
 #endif
 								}
 							else
-								treeItem->setText(TransitContact1, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD1)));
+								treeItem->setText(TransitContact1, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD1, core->getUTCOffset(JD1))));
 						}
 						else
 							treeItem->setText(TransitContact1, dash);
@@ -4365,7 +4381,7 @@ void AstroCalcDialog::generateTransits()
 								treeItem->setText(TransitContact2, dash);
 						else if (saveTopocentric && altitudeContact2 < 0.)
 						{
-							treeItem->setText(TransitContact2, QString("(%1)").arg(localeMgr->getPrintableTimeLocal(JD2)));
+							treeItem->setText(TransitContact2, QString("(%1)").arg(localeMgr->getPrintableTimeLocal(JD2, core->getUTCOffset(JD2))));
 #if (QT_VERSION>=QT_VERSION_CHECK(5,15,0))
 							treeItem->setForeground(TransitContact2, Qt::gray);
 #else
@@ -4373,14 +4389,14 @@ void AstroCalcDialog::generateTransits()
 #endif
 						}
 						else
-							treeItem->setText(TransitContact2, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD2)));
+							treeItem->setText(TransitContact2, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD2, core->getUTCOffset(JD2))));
 						treeItem->setData(TransitContact2, Qt::UserRole, StelUtils::getHoursFromJulianDay(JD2 + shift));
 						treeItem->setToolTip(TransitContact2, q_("The time of second contact, the entire disk of the planet is internally tangent to the Sun"));
 						if (transitMagnitude > 0.)
 						{
 							if (saveTopocentric && altitudeMidtransit < 0.)
 								{
-									treeItem->setText(TransitMid, QString("(%1)").arg(localeMgr->getPrintableTimeLocal(JDMid)));
+									treeItem->setText(TransitMid, QString("(%1)").arg(localeMgr->getPrintableTimeLocal(JDMid, utcOffsetHrs)));
 #if (QT_VERSION>=QT_VERSION_CHECK(5,15,0))
 									treeItem->setForeground(TransitMid, Qt::gray);
 #else
@@ -4388,7 +4404,7 @@ void AstroCalcDialog::generateTransits()
 #endif
 								}
 							else
-								treeItem->setText(TransitMid, QString("%1").arg(localeMgr->getPrintableTimeLocal(JDMid)));
+								treeItem->setText(TransitMid, QString("%1").arg(localeMgr->getPrintableTimeLocal(JDMid, utcOffsetHrs)));
 						}
 						else
 							treeItem->setText(TransitMid, dash);
@@ -4415,7 +4431,7 @@ void AstroCalcDialog::generateTransits()
 								treeItem->setText(TransitContact3, dash);
 						else if (saveTopocentric && altitudeContact3 < 0.)
 						{
-							treeItem->setText(TransitContact3, QString("(%1)").arg(localeMgr->getPrintableTimeLocal(JD3)));
+							treeItem->setText(TransitContact3, QString("(%1)").arg(localeMgr->getPrintableTimeLocal(JD3, core->getUTCOffset(JD3))));
 #if (QT_VERSION>=QT_VERSION_CHECK(5,15,0))
 							treeItem->setForeground(TransitContact3, Qt::gray);
 #else
@@ -4423,14 +4439,14 @@ void AstroCalcDialog::generateTransits()
 #endif
 						}
 						else
-							treeItem->setText(TransitContact3, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD3)));
+							treeItem->setText(TransitContact3, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD3, core->getUTCOffset(JD3))));
 						treeItem->setData(TransitContact3, Qt::UserRole, StelUtils::getHoursFromJulianDay(JD3 + shift));
 						treeItem->setToolTip(TransitContact3, q_("The time of third contact, the planet reaches the opposite limb and is once again internally tangent to the Sun"));
 						if (transitMagnitude > 0.)
 						{
 							if (saveTopocentric && altitudeContact4 < 0.)
 							{
-								treeItem->setText(TransitContact4, QString("(%1)").arg(localeMgr->getPrintableTimeLocal(JD4)));
+								treeItem->setText(TransitContact4, QString("(%1)").arg(localeMgr->getPrintableTimeLocal(JD4, core->getUTCOffset(JD4))));
 #if (QT_VERSION>=QT_VERSION_CHECK(5,15,0))
 								treeItem->setForeground(TransitContact4, Qt::gray);
 #else
@@ -4438,7 +4454,7 @@ void AstroCalcDialog::generateTransits()
 #endif
 							}
 							else
-								treeItem->setText(TransitContact4, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD4)));
+								treeItem->setText(TransitContact4, QString("%1").arg(localeMgr->getPrintableTimeLocal(JD4, core->getUTCOffset(JD4))));
 						}
 						else
 							treeItem->setText(TransitContact4, dash);
@@ -5891,7 +5907,8 @@ void AstroCalcDialog::fillPhenomenaTableVis(const QString &phenomenType, double 
 	ACPhenTreeWidgetItem* treeItem = new ACPhenTreeWidgetItem(ui->phenomenaTreeWidget);
 	treeItem->setText(PhenomenaType, phenomenType);
 	// local date and time
-	treeItem->setText(PhenomenaDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD), localeMgr->getPrintableTimeLocal(JD)));
+	const double utcOffsetHrs = core->getUTCOffset(JD);
+	treeItem->setText(PhenomenaDate, QString("%1 %2").arg(localeMgr->getPrintableDateLocal(JD, utcOffsetHrs), localeMgr->getPrintableTimeLocal(JD, utcOffsetHrs)));
 	treeItem->setData(PhenomenaDate, Qt::UserRole, JD);
 	treeItem->setText(PhenomenaObject1, firstObjectName);
 	treeItem->setText(PhenomenaMagnitude1, (firstObjectMagnitude > 90.f ? dash : QString::number(firstObjectMagnitude, 'f', 2)));
