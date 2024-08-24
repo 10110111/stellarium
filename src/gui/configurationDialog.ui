@@ -2260,7 +2260,7 @@
                   <string>A few additional threads may improve speed with many solar system objects. Observe what works best on your multicore system.</string>
                  </property>
                  <property name="maximum">
-                  <number>16</number>
+                  <number>31</number>
                  </property>
                 </widget>
                </item>
