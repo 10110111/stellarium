@@ -2327,7 +2327,7 @@ float Planet::getMeanOppositionMagnitude() const
 		if (orbitPtr)
 			semimajorAxis=static_cast<KeplerOrbit*>(orbitPtr)->getSemimajorAxis();
 		else
-			qDebug() << "WARNING: No orbitPtr for " << englishName;
+			qWarning() << "WARNING: No orbitPtr for " << englishName;
 	}
 
 	if (semimajorAxis>0.)
