@@ -752,7 +752,7 @@ void AstroCalcDialog::drawAziVsTimeDiagram()
 #ifdef USE_STATIC_PLUGIN_SATELLITES
 			if (isSatellite)
 			{
-				sat->update(core, JD, 0.0);
+				sat->update(core, JD);
 			}
 			else
 #endif
@@ -5030,7 +5030,7 @@ void AstroCalcDialog::drawAltVsTimeDiagram()
 			if (isSatellite)
 			{
 				// update data for that single satellite only
-				sat->update(core, JD, 0.0);
+				sat->update(core, JD);
 			}
 #endif
 			StelUtils::rectToSphe(&az, &alt, selectedObject->getAltAzPosAuto(core));
