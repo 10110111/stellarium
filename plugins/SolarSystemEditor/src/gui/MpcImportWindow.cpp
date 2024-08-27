@@ -1054,7 +1054,7 @@ void MpcImportWindow::loadBookmarks()
 	bookmarks[MpcMinorPlanets].insert("MPCAT: Distant minor planets (Centaurs and transneptunians)", 	"https://www.minorplanetcenter.net/iau/ECS/MPCAT/distant.txt");
 
 	const int start = 0;
-	const int finish = 61;
+	const int finish = 72;
 	const int nsize = 6;
 	const QChar dash = QChar(0x2014);
 
@@ -1062,8 +1062,8 @@ void MpcImportWindow::loadBookmarks()
 
 	for (int i=start; i<=finish; i++)
 	{
-		leftLimit = (i==start) ? QString::number(1).rightJustified(nsize) : QString::number(i*10000).rightJustified(nsize);
-		rightLimit = (i==finish) ? "..." : QString::number(i*10000 + 9999).rightJustified(nsize);
+		leftLimit = (i==start) ? QString::number(1).rightJustified(nsize, '0') : QString::number(i*10000).rightJustified(nsize, '0');
+		rightLimit = (i==finish) ? "..." : QString::number(i*10000 + 9999).rightJustified(nsize, '0');
 		limits = QString("%1%2%3").arg(leftLimit, dash, rightLimit);
 		idx = QString::number(i+1).rightJustified(2, '0');
 		bookmarks[MpcMinorPlanets].insert(
