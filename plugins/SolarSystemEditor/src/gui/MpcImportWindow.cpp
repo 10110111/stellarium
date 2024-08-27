@@ -1031,7 +1031,7 @@ void MpcImportWindow::loadBookmarks()
 	while (it.hasNext())
 	{
 		it.next();
-		if (it.value().contains("dss.stellarium.org") || it.value().contains("2018/Soft00Bright.txt"))
+		if (it.value().contains("dss.stellarium.org") || it.value().contains("2018/Soft00Bright.txt") || it.value().contains("iau/ECS/MPCAT/mpn.txt"))
 			bookmarks[MpcMinorPlanets].remove(it.key());
 	}
 
