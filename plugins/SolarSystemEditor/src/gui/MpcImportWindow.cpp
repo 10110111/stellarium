@@ -375,6 +375,8 @@ void MpcImportWindow::populateCandidateObjects(QList<SsoElements> objects)
 	model->clear();
 	model->setColumnCount(1);
 
+	ui->labelNumberOfObjects->setText(QString("%1: %2").arg(q_("Total objects in selected source"), QString::number(objects.count())));
+
 	for (auto object : objects)
 	{
 		QString name = object.value("name").toString();
