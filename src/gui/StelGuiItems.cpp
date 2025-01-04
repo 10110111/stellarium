@@ -1131,31 +1131,100 @@ void BottomStelBar::enableTopoCentricUpdate(bool enable)
 		qCritical() << "BottomStelBar: enableTopoCentricUpdate failed.";
 }
 
-StelBarsFrame::StelBarsFrame(QGraphicsItem* parent) : QGraphicsPathItem(parent), roundSize(6)
+StelBarsFrame::StelBarsFrame(QGraphicsItem* parent)
+	: QGraphicsWidget(parent)
+	, bgPath(new QGraphicsPathItem(this))
+	, straightLinesPath(new QGraphicsPathItem(this))
+	, cornerPixmapLeft(new QGraphicsPixmapItem(this))
+	, cornerPixmapBottom(new QGraphicsPixmapItem(this))
+	, roundSize(6)
 {
-	setBrush(QBrush(QColor::fromRgbF(0.22, 0.22, 0.23, 0.2))); // background color
-	QPen aPen(QColor::fromRgbF(0.7,0.7,0.7,0.5));              // perimeter line color
-	// aPen.setWidthF(1.); // 1=default!
-	setPen(aPen);
+	const auto bgColor = QColor::fromRgbF(0.22, 0.22, 0.23, 0.2);
+	const auto lineColor = QColor::fromRgbF(0.7,0.7,0.7,0.5);
+
+	bgPath->setPen(QPen(Qt::transparent));
+	straightLinesPath->setBrush(Qt::NoBrush);
+	setBrush(bgColor);
+	setPen(QPen(lineColor));
+}
+
+void StelBarsFrame::setPen(const QPen& pen)
+{
+	straightLinesPath->setPen(pen);
+	cornerPixmap = {};
+}
+
+void StelBarsFrame::setBrush(const QBrush& brush)
+{
+	bgPath->setBrush(brush);
 }
 
 void StelBarsFrame::updatePath(BottomStelBar* bottom, LeftStelBar* left)
 {
-	const QPointF l = left->pos() + QPointF(-0.5,0.5);   // pos() is the top-left point in the parent's coordinate system.
+	const QPointF l = left->pos();   // pos() is the top-left point in the parent's coordinate system.
 	const QRectF lB = left->boundingRectNoHelpLabel();
-	const QPointF b = bottom->pos() + QPointF(-0.5,0.5);
+	const QPointF b = bottom->pos();
 	const QRectF bB = bottom->boundingRectNoHelpLabel();
 
-	QPainterPath path(QPointF(l.x()-roundSize, l.y()-roundSize));                                 // top left point
-	//path.lineTo(l.x()+lB.width()-roundSize,l.y()-roundSize);                                    // top edge. Not needed because the arc connects anyhow!
-	path.arcTo(l.x()+lB.width()-roundSize, l.y()-roundSize, 2.*roundSize, 2.*roundSize, 90, -90); // top-right curve of left bar
-	path.lineTo(l.x()+lB.width()+roundSize, b.y()-roundSize);                                     // vertical to inside sharp edge
-	//path.lineTo(b.x()+bB.width(),b.y()-roundSize);                                              // Top edge of bottom bar. Not needed because the arc connects anyhow!
-	path.arcTo(b.x()+bB.width()-roundSize, b.y()-roundSize, 2.*roundSize, 2.*roundSize, 90, -90); // top right curved edge of bottom bar (just connects.)
-	path.lineTo(b.x()+bB.width()+roundSize, b.y()+bB.height()+roundSize);
-	path.lineTo(l.x()-roundSize, b.y()+bB.height()+roundSize);                                    // bottom line (outside screen area!)
-	path.closeSubpath();                                                                          // vertical line up left outside screen
-	setPath(path);
+	for (const bool isBG : {true, false})
+	{
+		// Starting from top left point
+		QPainterPath path(QPointF(l.x()-roundSize, l.y()-roundSize));
+		// Top edge of the top bar
+		path.lineTo(l.x()+lB.width(),l.y()-roundSize);
+		// Either we draw the top-right curve of the left bar (for the background),
+		// or skip it to leave space for antialiased pixmap bgPixmap.
+		if (isBG)
+			path.arcTo(l.x()+lB.width()-roundSize, l.y()-roundSize, 2.*roundSize, 2.*roundSize, 90, -90);
+		else
+			path.moveTo(l.x()+lB.width()+roundSize, l.y());
+		// Vertical line to the inside sharp edge
+		path.lineTo(l.x()+lB.width()+roundSize, b.y()-roundSize);
+		// Top edge of bottom bar
+		path.lineTo(b.x()+bB.width(), b.y()-roundSize);
+		// Either we draw the top right curved edge of the bottom bar,
+		// or skip it to leave space for antialiased pixmap bgPixmap.
+		if (isBG)
+			path.arcTo(b.x()+bB.width()-roundSize, b.y()-roundSize, 2.*roundSize, 2.*roundSize, 90, -90);
+		else
+			path.moveTo(b.x()+bB.width()+roundSize, b.y());
+		// Vertical line on the right edge
+		path.lineTo(b.x()+bB.width()+roundSize, b.y()+bB.height()+roundSize);
+		if (isBG)
+		{
+			// Bottom line (outside screen area!)
+			path.lineTo(l.x()-roundSize, b.y()+bB.height()+roundSize);
+			// Vertical line up left outside screen
+			path.closeSubpath();
+			bgPath->setPath(path);
+		}
+		else
+		{
+			straightLinesPath->setPath(path);
+		}
+	}
+
+	cornerPixmapLeft->setPos(l.x()+lB.width(), l.y()-roundSize);
+	cornerPixmapBottom->setPos(b.x()+bB.width(), b.y()-roundSize);
+
+	const int pixSize = roundSize;
+	if (cornerPixmap.width() != pixSize || cornerPixmap.height() != pixSize)
+	{
+		cornerPixmap = QPixmap(pixSize, pixSize);
+		cornerPixmap.fill(Qt::transparent);
+		{
+			QPainter p(&cornerPixmap);
+			p.setRenderHint(QPainter::Antialiasing);
+			p.setPen(straightLinesPath->pen());
+			p.setBrush(Qt::transparent);
+			QPainterPath path;
+			path.arcTo(-roundSize, 0, 2*roundSize, 2*roundSize, 90, -90);
+			p.translate(QPointF(-0.5,0.5));
+			p.drawPath(path);
+		}
+		cornerPixmapLeft->setPixmap(cornerPixmap);
+		cornerPixmapBottom->setPixmap(cornerPixmap);
+	}
 }
 
 void StelBarsFrame::setBackgroundOpacity(double opacity)

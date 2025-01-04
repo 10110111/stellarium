@@ -21,6 +21,9 @@ Foundation, Inc., 51 Franklin Street, Suite 500, Boston, MA  02110-1335, USA.
 #define OCULARSGUIPANEL_HPP
 
 #include <QGraphicsWidget>
+#include <QPen>
+#include <QBrush>
+#include <memory>
 
 class Oculars;
 class StelButton;
@@ -72,6 +75,7 @@ private slots:
 
 	void updateLayout();
 	void updateRotationButtons();
+	void updateBackgroundPixmap();
 
 private:
 	Oculars* ocularsPlugin;
@@ -81,7 +85,9 @@ private:
 
 	QGraphicsLinearLayout* mainLayout;
 
-	QGraphicsPathItem* borderPath;
+	QPen borderPen;
+	QBrush bgBrush;
+	std::unique_ptr<QGraphicsPixmapItem> bgPixmap;
 
 	//! Mini-toolbar holding StelButtons
 	QGraphicsWidget* buttonBar;

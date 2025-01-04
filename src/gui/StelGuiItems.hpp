@@ -24,6 +24,7 @@
 #include <QGraphicsWidget>
 #include <QDebug>
 #include <QMap>
+#include <memory>
 
 class QGraphicsSceneMouseEvent;
 class QTimeLine;
@@ -352,16 +353,23 @@ private:
 };
 
 //! @class StelBarsFrame: The path around the bottom and left button bars
-class StelBarsFrame : public QGraphicsPathItem
+class StelBarsFrame : public QGraphicsWidget
 {
 	public:
 		StelBarsFrame(QGraphicsItem* parent);
+		void setPen(const QPen& pen);
+		void setBrush(const QBrush& brush);
 		//! defines a line around the two button bars
 		void updatePath(BottomStelBar* bottom, LeftStelBar* left);
 		//! return radius of corner arc
 		double getRoundSize() const {return roundSize;}
 		void setBackgroundOpacity(double opacity);
 	private:
+		std::unique_ptr<QGraphicsPathItem> bgPath;
+		std::unique_ptr<QGraphicsPathItem> straightLinesPath;
+		std::unique_ptr<QGraphicsPixmapItem> cornerPixmapLeft;
+		std::unique_ptr<QGraphicsPixmapItem> cornerPixmapBottom;
+		QPixmap cornerPixmap;
 		double roundSize; // radius of corner arc
 };
 

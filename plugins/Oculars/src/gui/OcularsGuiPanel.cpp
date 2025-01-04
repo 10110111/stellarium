@@ -39,8 +39,7 @@ OcularsGuiPanel::OcularsGuiPanel(Oculars* plugin,
 				 Qt::WindowFlags wFlags):
 	QGraphicsWidget(parent, wFlags),
 	ocularsPlugin(plugin),
-	parentWidget(parent),
-	borderPath(Q_NULLPTR)
+	parentWidget(parent)
 {
 	setContentsMargins(0, 0, 0, 0);
 
@@ -174,8 +173,8 @@ OcularsGuiPanel::OcularsGuiPanel(Oculars* plugin,
 
 	updateRotationButtons();
 
-	borderPath = new QGraphicsPathItem(parentWidget);
-	borderPath->setZValue(100);
+	bgPixmap.reset(new QGraphicsPixmapItem(parentWidget));
+	bgPixmap->setZValue(100);
 
 	updateLayout();
 
@@ -197,9 +196,6 @@ OcularsGuiPanel::OcularsGuiPanel(Oculars* plugin,
 
 OcularsGuiPanel::~OcularsGuiPanel()
 {
-	if (borderPath)
-		delete borderPath;
-
 	delete buttonCrosshairs; buttonCrosshairs = Q_NULLPTR;
 	delete buttonCcd; buttonCcd = Q_NULLPTR;
 	delete buttonTelrad;	buttonTelrad = Q_NULLPTR;
@@ -274,20 +270,37 @@ void OcularsGuiPanel::updatePosition()
 	qreal xPos = parentWidget->size().width() - size().width();
 	qreal yPos = 0;
 	setPos(xPos, yPos);
+	bgPixmap->setPos(xPos - 1, yPos);
 
-	//Update border/shading
-	QPainterPath newBorderPath;
-	double cornerRadius = 12.0;
-	QPointF verticalBorderStart = geometry().topLeft() + QPointF(-0.5,0.5);
-	QPointF horizontalBorderEnd = geometry().bottomRight() + QPointF(-0.5,0.5);
-	QPointF cornerArcStart(verticalBorderStart.x(),
-			       horizontalBorderEnd.y() - cornerRadius);
-	newBorderPath.moveTo(verticalBorderStart);
-	newBorderPath.lineTo(cornerArcStart);
-	newBorderPath.arcTo(cornerArcStart.x(), cornerArcStart.y(), cornerRadius, cornerRadius, 180, 90);
-	newBorderPath.lineTo(horizontalBorderEnd);
-	newBorderPath.lineTo(horizontalBorderEnd.x(), verticalBorderStart.y());
-	borderPath->setPath(newBorderPath);
+	if (bgPixmap->pixmap().size() != size().toSize())
+		updateBackgroundPixmap();
+}
+
+void OcularsGuiPanel::updateBackgroundPixmap()
+{
+	const double cornerRadius = 12.0;
+	const QPointF verticalBorderStart = geometry().topLeft();
+	const QPointF horizontalBorderEnd = geometry().bottomRight();
+	const QPointF cornerArcStart(verticalBorderStart.x(),
+	                             horizontalBorderEnd.y() - cornerRadius);
+	QPainterPath path;
+	path.moveTo(verticalBorderStart);
+	path.lineTo(cornerArcStart);
+	path.arcTo(cornerArcStart.x(), cornerArcStart.y(), cornerRadius, cornerRadius, 180, 90);
+	path.lineTo(horizontalBorderEnd);
+	path.lineTo(horizontalBorderEnd.x(), verticalBorderStart.y());
+
+	QPixmap pix(size().toSize() + QSize(1,1));
+	pix.fill(Qt::transparent);
+	{
+		QPainter p(&pix);
+		p.setRenderHint(QPainter::Antialiasing);
+		p.setPen(borderPen);
+		p.setBrush(bgBrush);
+		p.translate(QPointF(0.5,0.5)-verticalBorderStart);
+		p.drawPath(path);
+	}
+	bgPixmap->setPixmap(pix);
 }
 
 void OcularsGuiPanel::updateOcularControls()
@@ -1169,9 +1182,10 @@ void OcularsGuiPanel::setControlsFont(const QFont& font)
 void OcularsGuiPanel::setColorScheme(const QString &schemeName)
 {
 	Q_UNUSED(schemeName)
-	borderPath->setPen(QColor::fromRgbF(0.7,0.7,0.7,0.5));
-	borderPath->setBrush(QColor::fromRgbF(0.15, 0.16, 0.19, 0.2));
+	borderPen = QPen(QColor::fromRgbF(0.7,0.7,0.7,0.5));
+	bgBrush = QBrush(QColor::fromRgbF(0.15, 0.16, 0.19, 0.2));
 	setControlsColor(QColor::fromRgbF(0.9, 0.91, 0.95, 0.9));
+	updateBackgroundPixmap();
 }
 
 void OcularsGuiPanel::updateRotationButtons()
