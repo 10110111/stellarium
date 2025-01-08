@@ -16098,6 +16098,9 @@ msgid ""
 "in India) and are largely used in the current language in Mongolia but in an"
 " unofficial way."
 msgstr ""
+"元々チベット・モンゴルの占星術では肉眼で見える各惑星の位置を計算していました。土星の先の惑星は望遠鏡(彼らが占星術を作成したずっと後に現れた機器)なしでは見えないので、モンゴル人は曜日ごとに5つの惑星の1つを帰属させ、日曜日は太陽(ナル、<em>Nar</em>)、月曜日は月(サル、<em>Sar</em>)で終わっています。モンゴル語での太陽系惑星と冥王星の名前にはいくつかの特徴があります。水星はブド(<em>Bud</em>、水曜日と関連)、金星はスガル(<em>Sugar</em>、金曜日と関連)、地球はデルキイ(<em>>Delkhii</em>)、火星はアヌガラグ(<em>Angarag</em>、火曜日と関連)、木星はバルハスバディ(<em>Barhasbadi</em>、木曜日と関連)、土星はサンチル(<em>Sanchir</em>、土曜日と関連)、天王星はテンゲリイン=ヴァン(<em>Tengeriin-"
+"van</em>)、海王星はダライ=ヴァン(<em>Dalai-van</em>)、冥王星はダルキイ=ヴァン(<em>Dalkhii-"
+"van</em>)、とそれぞれ呼ばれています。最後の3つの天体は肉眼では見えず、他の惑星の後に長い間発見されておらず、名前の末尾にヴァ(<em>-van</em>)が付け加えられるという特徴があり、ヴァンはモンゴル語での王位を示しています。冥王星は最後にヴァンが付け加えられたことを除いて、地球と同様に命名されています。モンゴル語での冥王星は「王子の地」と翻訳することが可能ですが、この場合の「地」は私たちが歩き回る表面を意味する地面を表し、地球という意味ではありません。天王星のテンゲリイン=ヴァンは「王子の空」と訳せ、海王星のダライ=ヴァンは「王子の海」と訳せます。それでもこの接頭辞には英語で実際に相当するものはなく、上記の翻訳は惑星の名前の意味を理解するために提示されています。ただ、これら天体の名前はサンスクリット語(インドで話されている言語)に由来し、モンゴルでは現在でも主に使用されていますが、非公式な名称です。"
 
 #. type: Content of: <p>
 #: ../../skycultures/mongolian/description.en.utf8:59
@@ -16431,6 +16434,9 @@ msgid ""
 "title=\"http://www.afanet.fr\" rel=\"nofollow\">L'Association Française "
 "d'Astronomie / The French Astronomy Association</a>"
 msgstr ""
+"<a href=\"http://www.afanet.fr\" class='external text' "
+"title=\"http://www.afanet.fr\" rel=\"nofollow\">L'Association Française "
+"d'Astronomie</a>(フランス天文学協会)"
 
 #. type: Content of: <img><ul><li>
 #: ../../skycultures/mongolian/description.en.utf8:249
@@ -16685,6 +16691,8 @@ msgid ""
 "Sirius - Procyon - Rigel - Betelgeuse, who form the cross named \"Antonio "
 "Quinatoa\". It is the constellation that governs the masculine cycle."
 msgstr ""
+"アントニオ・キナトアの十字(<b>\"Antonio Quinatoa\" Cross</b>):夕暮れ時に最初に現れる星はシリウス-プロシオン-"
+"リゲル-ベテルギウスで、「アントニオ・キナトア」という名の十字架を形成しています。男性の周期を支配する星座です。"
 
 #. type: Content of: <p>
 #: ../../skycultures/northern_andes/description.en.utf8:26
@@ -16742,6 +16750,9 @@ msgid ""
 "resulting form evokes the shape of an arrow that at the end of the December "
 "solstice It is in an East - West direction."
 msgstr ""
+"ホルヘ・トルヒーリョの矢(<b>The “Jorge Trujillo” Arrow</b>):12月終わりの南半球の冬至の夜に最も目立つ星は、カフ-"
+"シェダル-ナビ-"
+"カシオペア座κ星です。これらの星は西洋星座のカシオペア座の一部であり、最終的な形は矢印の形を連想させます。この矢は東西方向に向いています。"
 
 #. type: Content of: <p>
 #: ../../skycultures/northern_andes/description.en.utf8:37

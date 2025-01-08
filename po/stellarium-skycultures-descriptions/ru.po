@@ -2320,7 +2320,7 @@ msgstr ""
 " написанная примерно в 964 г. н.э. выдающимся астрономом ас-Суфи [al-Ṣūfī], "
 "где он отождествил местные арабские названия звезд с соответствующими "
 "птолемеевскими звездами греческих созвездий <sup><a "
-"href=\"#footnote-1\">[2]</a></sup>."
+"href=\"#footnote-2\">[2]</a></sup>."
 
 #. type: Content of: <h4>
 #: ../../skycultures/arabic_indigenous/description.en.utf8:6
@@ -2883,7 +2883,7 @@ msgid ""
 "(Dabih), and ν Cap"
 msgstr ""
 "(Араб.: سعد الذابح)  <em>Saʿd al-Dhābiḥ</em> (Счастливая звезда Мясника) "
-"состоит из 3 звёзд: α Cap (Algedi), β Cap (Dabih), и ν Cap"
+"состоит из 3 звёзд: α<sup>2</sup> Cap (Algedi), β Cap (Dabih), и ν Cap"
 
 #. type: Content of: <ol><li>
 #: ../../skycultures/arabic_lunar_mansions/description.en.utf8:55

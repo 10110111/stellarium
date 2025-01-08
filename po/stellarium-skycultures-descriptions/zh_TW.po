@@ -133,7 +133,7 @@ msgstr "鳥的腋窩"
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:15
 msgid "Group of four small stars just east of Manu's Body"
-msgstr ""
+msgstr "四顆小星星的組合，就在鳥身體的東方。"
 
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:16

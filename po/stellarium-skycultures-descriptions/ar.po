@@ -137,7 +137,7 @@ msgstr "إبط الطائر"
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:15
 msgid "Group of four small stars just east of Manu's Body"
-msgstr ""
+msgstr "مجموعة من أربع نجوم صغيرة تقع شرق جسد مانو"
 
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:16

@@ -143,7 +143,7 @@ msgstr "Die Vogelachsel"
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:15
 msgid "Group of four small stars just east of Manu's Body"
-msgstr ""
+msgstr "Gruppe von vier kleinen Sternen, gerade östlich des Körpers von Manu"
 
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:16
@@ -1227,6 +1227,9 @@ msgid ""
 "Cyg, and β1+β2 Cyg (Albireo). The source is oral tradition from the town of "
 "Zulfi in central Saudi Arabia."
 msgstr ""
+"Die kreuzförmig angeordneten Sterne α Cyg (Deneb), ε Cyg (Aljanah), γ Cyg "
+"(Sadr), δ Cyg, and β1+β2 Cyg (Albireo). Die Quelle ist eine mündliche "
+"Überlieferung aus der Stadt Zulfi in Zentral-Saudi-Arabien."
 
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/arabic_arabian_peninsula/description.en.utf8:48
@@ -1954,7 +1957,7 @@ msgstr "Der Folgende"
 #: ../../skycultures/arabic_arabian_peninsula/description.en.utf8:114
 #: ../../skycultures/arabic_arabian_peninsula/description.en.utf8:115
 msgid "The star Aldebaran, (second mansion of the Moon)"
-msgstr ""
+msgstr "Der Stern Aldebaran (zweite Mondstation)"
 
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/arabic_arabian_peninsula/description.en.utf8:115
@@ -1972,6 +1975,8 @@ msgid ""
 "The star Aldebaran, (second mansion of the Moon), Name is used in al-Ṭayef "
 "region, western Saudi Arabia."
 msgstr ""
+"Der Stern Aldebaran (zweite Mondstation). Dieser Name wird in der Region Al-"
+"Ṭayef im westlichen Saudi-Arabien benutzt."
 
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/arabic_arabian_peninsula/description.en.utf8:117
@@ -2307,6 +2312,21 @@ msgid ""
 "indigenous Arab star names with the respective Ptolemaic stars of the Greek "
 "constellations<sup><a href=\"#footnote-2\">[2]</a></sup>."
 msgstr ""
+"Das Sternenwissen der alten Araber wurde in alten Gedichten und den alten "
+"Abhandlungen der arabischen Sprachwissenschaftler und Lexikographen der "
+"islamischen Zivilisation aufgezeichnet und bewahrt. Viele Bücher wurden über"
+" das Sternnenwissen und anwāʾ [arabisch: الأنواء], dem arabischen Wissen "
+"über die Meteorologie, geschrieben. Die Herausgeber von Ibn Qutaybahs "
+"<em>Kitāb al-Anwāʾ</em> (9. Jhr.) zählen 24 Bücher über dieses Thema, "
+"mehrheitlich zwischen dem frühen 8. Jhr. und 10. Jhr. geschrieben, "
+"auf<sup><a href=\"#footnote-1\">[1]</a></sup>. Der einzige vollständig "
+"erhaltene Text ist der von Ibn Qutaybah. Jedoch haben spätere Gelehrte viele"
+" der früheren Texte zitiert. Einer der bedeutsamsten Werke, welches die "
+"traditionellen arabischen Sternnamen erfasst, ist das <em>Buch der "
+"Fixsterne</em>, geschrieben um 964 n.Chr. von dem bekannten Astronomen al-"
+"Ṣūfī. In diesem Buch identfiziert er die traditionellen arabischen "
+"Sternnamen mit den entsprechenden ptolemäischen Sternen der griechischen "
+"Sternbilder.<sup><a href=\"#footnote-2\">[2]</a></sup>."
 
 #. type: Content of: <h4>
 #: ../../skycultures/arabic_indigenous/description.en.utf8:6
@@ -2680,6 +2700,9 @@ msgid ""
 "<em>\"al-Ashrāṭ\"</em> (The signs) composed of the 3 stars: α Ari (Hamal), β"
 " Ari (Sheratan) and γ Ari (Mesarthim)"
 msgstr ""
+"(Arabisch: الشرطان) <em>Al-Sharaṭān</em> (Die zwei Zeichen) oder (arabisch: "
+"الأشراط) <em>»al-Ashrāṭ«</em> (Die Zeichen) bestehend aus den drei Sternen: "
+"α Ari (Hamal), β Ari (Sheratan) und γ Ari (Mesarthim)"
 
 #. type: Content of: <ol><li>
 #: ../../skycultures/arabic_lunar_mansions/description.en.utf8:34
@@ -12406,6 +12429,11 @@ msgid ""
 "because he had not supplied meat for his family, and he cannot fetch his "
 "arrow because of the fierce lion (Betelgeuse), watching the zebras."
 msgstr ""
+"Bei den Nama waren die Plejaden die Töchter des Himmelsgottes. Ihr Ehemann "
+"(Aldebaran) schoss seinen Pfeil (Schwert des Orion) auf drei Zebras "
+"(Oriongürtel), verfehlte aber. Nun saß er fest. Er konnte weder heimkehren, "
+"da er kein Fleisch für seine Familie geliefert hatte, noch konnte er seinen "
+"Pfeil wegen des wilden Löwen (Beteigeuze), der die Zebras beobachtet, holen."
 
 #. type: Content of: <ul><li>
 #: ../../skycultures/khoi-san/description.en.utf8:8

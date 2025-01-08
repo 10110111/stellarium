@@ -141,7 +141,7 @@ msgstr "L'ascella dell'uccello"
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:15
 msgid "Group of four small stars just east of Manu's Body"
-msgstr ""
+msgstr "Un gruppo di quattro piccole stelle appena ad est del Corpo di Manu"
 
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:16

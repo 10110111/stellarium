@@ -137,7 +137,7 @@ msgstr "새의 겨드랑이"
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:15
 msgid "Group of four small stars just east of Manu's Body"
-msgstr ""
+msgstr "4개의 작은 그룹이 마누의 몸 바로 동쪽을 시작합니다"
 
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:16

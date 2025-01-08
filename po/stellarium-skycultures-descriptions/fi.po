@@ -18590,6 +18590,10 @@ msgid ""
 "Dutch artist Wil Tirion and published in 1987 by the American publishing "
 "house Willmann-Bell, specializing in astronomical literature."
 msgstr ""
+"Uranometria 2000.0 on hollantilaisen taiteilijan Wil Tirionin laatima 2000.0"
+" aikakauden tähtitaivaan kartasto, jonka julkaisi vuonna 1987 "
+"yhdysvaltalainen tähtitieteelliseen kirjallisuuteen erikoistunut kustantamo "
+"Willmann-Bell."
 
 #. type: Content of: <p>
 #: ../../skycultures/modern_iau/description.en.utf8:101
@@ -18601,6 +18605,12 @@ msgid ""
 "deep-sky objects - in particular, all the objects of the Messier and NGC "
 "catalogs."
 msgstr ""
+"Atlas of Tirion, jota tähtitieteilijät arvostavat tarkkuudestaan ja "
+"kauneudesta, on varustettu yksityiskohtaisilla taulukoilla ja erilaisilla "
+"indekseillä. Toinen osa sisältää kolme läpinäkyvää peittokuvaa, jotka on "
+"suunniteltu tarkkoja mittauksia varten. Uranometria 2000.0 sisältää yli 280 "
+"000 tähteä ja yli 30 000 syvän taivaan objektia - erityisesti kaikki "
+"Messier- ja NGC-luetteloiden kohteet."
 
 #. type: Content of: <p>
 #: ../../skycultures/modern_iau/description.en.utf8:107

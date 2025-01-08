@@ -136,7 +136,7 @@ msgstr "Ptičji Pazuh"
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:15
 msgid "Group of four small stars just east of Manu's Body"
-msgstr ""
+msgstr "Grupa od četiri manje zvijezde istočno od tijela Manua"
 
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:16
@@ -16313,6 +16313,31 @@ msgid ""
 "in India) and are largely used in the current language in Mongolia but in an"
 " unofficial way."
 msgstr ""
+"Izvorno, Tebetansko-Mongolska astrologija proračunava pozicije svakog "
+"planeta vidljivog golim okom. Budući da planeti iza Saturna nisu vidljivi "
+"bez upotrebe teleskopa (instrumenta koji se pojavljuje mnogo kasnije od "
+"stvaranja njihove astrologije), Mongoli su svakom od pet planeta pripisali "
+"jedan dan u tjednu, zajedno sa Suncem (<em>Nar</em>) za nedjelju i Mjesec "
+"(<em>Sar</em>) za ponedjeljak. Nazivi planeta Sunčevog sustava i Plutona "
+"nose posebnu zanimljivost u mongolskom jeziku. Merkur se naziva <em>Bud</em>"
+" (povezano sa srijedom), Venera, <em>Sugar</em> (povezano s petkom), Zemlja,"
+" <em>Delkhii</em>, Mars, <em>Angarag</em> (povezano s utorkom), Jupiter, "
+"<em>Barhasbadi</em> (povezano s četvrtkom), Saturn, <em>Sanchir</em> "
+"(povezano sa subotom), Uran, <em>Tengeriin-van</em>, Neptun, <em>Dalai-"
+"van</em> te na kraju Pluton, <em>Dalkhii-van</em>. Možemo primjetiti da "
+"zadnja tri planeta, nevidljiva golim okom te otkrivena mnogo kasnije nego "
+"ostala, imaju karakteristični dodatak <em>-van</em> na kraju naziva, što "
+"ukazuje na kneževski status na mongolskom jeziku.  Zemlja i Pluton su "
+"sličnog naziva, osim što Pluton nosi taj posebni dodatak na kraju. Naziv je "
+"s mongolskog moguće prevesti kao \"Kneževsko tlo\" (tlo, ne zemlja, budući "
+"da se odnosi na tlo po kojem hodamo ne na Zemlju. Uran, <em>Tengeriin-"
+"van</em>, se može prevesti kao \"kneževsko nebo\", a Neptun, <em>Dalai-"
+"van</em>, kao \"kneževski ocean\". Bez obzira na prijevod, ovaj dodatak "
+"zapravo nema pravi ekvivalent na drugom jeziku, a gore navedeni prijevodi "
+"predstavljeni su kako bi se donekle steklo značenje naziva planeta. Međutim,"
+" ovdje navedeni nazivi nebeskih tijela zapravo potiču od sanskrta (jezika "
+"koji se govori u Indiji) i uvelike se koriste u trenutnom jeziku Mongolije, "
+"ali neslužbeno."
 
 #. type: Content of: <p>
 #: ../../skycultures/mongolian/description.en.utf8:59
@@ -16649,6 +16674,9 @@ msgid ""
 "title=\"http://www.afanet.fr\" rel=\"nofollow\">L'Association Française "
 "d'Astronomie / The French Astronomy Association</a>"
 msgstr ""
+"<a href=\"http://www.afanet.fr\" class='external text' "
+"title=\"http://www.afanet.fr\" rel=\"nofollow\">L'Association Française "
+"d'Astronomie / Francusko Astronomsko Društvo</a>"
 
 #. type: Content of: <img><ul><li>
 #: ../../skycultures/mongolian/description.en.utf8:249

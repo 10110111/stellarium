@@ -18891,6 +18891,10 @@ msgid ""
 "Dutch artist Wil Tirion and published in 1987 by the American publishing "
 "house Willmann-Bell, specializing in astronomical literature."
 msgstr ""
+"Uranometria 2000.0 es un atlas del cielo estrellado de la era 2000.0 "
+"elaborado por el artista holandés Wil Tirion y publicado en 1987 por la "
+"editorial estadounidense Willmann-Bell, especializada en literatura "
+"astronómica."
 
 #. type: Content of: <p>
 #: ../../skycultures/modern_iau/description.en.utf8:101
@@ -18902,6 +18906,12 @@ msgid ""
 "deep-sky objects - in particular, all the objects of the Messier and NGC "
 "catalogs."
 msgstr ""
+"El Atlas de Tirion, respetado por los astrónomos por su precisión y belleza,"
+" cuenta con tablas detalladas y varios índices. El segundo volumen contiene "
+"tres superposiciones transparentes diseñadas para mediciones precisas. "
+"Uranometria 2000.0 contiene más de 280 000 estrellas y más de 30 000 objetos"
+" de cielo profundo, en particular, todos los objetos de los catálogos "
+"Messier y NGC."
 
 #. type: Content of: <p>
 #: ../../skycultures/modern_iau/description.en.utf8:107

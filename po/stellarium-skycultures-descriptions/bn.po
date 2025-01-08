@@ -135,7 +135,7 @@ msgstr "পাখির বগল"
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:15
 msgid "Group of four small stars just east of Manu's Body"
-msgstr ""
+msgstr "মানু বা পাখির শরীরের পূর্ব দিকের কিছু তারা"
 
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:16
@@ -16964,6 +16964,26 @@ msgid ""
 "in India) and are largely used in the current language in Mongolia but in an"
 " unofficial way."
 msgstr ""
+"মূল তীব্বতীয়-মোঙ্গল জ্যোতিষচর্চায় খালি চোখে দৃশ্যমান পাঁচটি গ্রহের নামই শুধু"
+" পাওয়া যায় (কারন অনেক পরে দূরবীন আবিষ্কার হয়েছে) । মোঙ্গলরা পাঁচটি গ্রহের "
+"নামে সপ্তাহের পাঁটি দিনের নাম রেখেছে, আর বাকি দুটি নাম রেখেছে সূর্য বা "
+"(<em>নার</em>) থেকে রবিবার ও চাঁদ বা (<em>সার</em>) থেকে সোমবার । বুধ গ্রহকে"
+" <em>বুদ</em> (যা থেকে বুধবার এসেছে), শুক্র গ্রহকে <em>শুগর</em> (যা থেকে "
+"শুক্রবার এসেছে), পৃথিবীকে <em>দেলখি</em>, মঙ্গল গ্রহকে <em>অ্যাঙ্গারাগ</em> "
+"(যা থেকে মঙ্গলবার এসেছে), বৃতস্পতি গ্রহকে <em>বরহসবদি</em> (যা থেকে "
+"বৃহস্পতিবার এসেছে), শনি গ্রহকে <em>সানচির</em> (যা থেকে শনিবার এসেছে), "
+"ইউরেনাস কে <em>তেনজেরিন-ভ্যান</em>, নেপচুন কে <em>দালাই-ভ্যান</em> ও প্লুটো "
+"কে <em>দালখি-ভ্যান</em> নামে ডাকা হয় । শেষের তিনটি গ্রহের অনেক পরে আধুনিক "
+"যুগে নামকরন করা হয়েছে । লক্ষ করলে দেখা যাবে যে এগুলির নাম শেষ হচ্ছে "
+"<em>-ভ্যান</em> নামক শব্দ দিয়ে, যা গ্রহগুলিকে স্বর্গীয় তকমা প্রদান করে । "
+"প্লুটোর নাম পৃথিবীর নামেই রাখা হলেও সেটিকে স্বর্গীয় তকমা দেওয়া হয়েছে, ফলে "
+"প্লুটো কথার মোঙ্গলীয় অর্থ দাঁড়ায় \"স্বর্গীয় ভূমি\" । ইউরেনাস বা "
+"<em>তেনজেরিন-ভ্যান</em>, যার অর্থ \"স্বর্গীয় আকাশ\", এবং নেপচুন বা "
+"<em>দালাই-ভ্যান</em>, যার অর্থ \"স্বর্গীয় সাগর\" । সত্যি বলতে নামগুলির "
+"ইংরাজী কোনো সমার্থক নেই, অনুদিত নামের ক্ষেত্রে মূল অর্থটিকে প্রকাশ করার "
+"চেষ্টা করা হয়েছে । লক্ষনীয় যে বেশিরভাগ নামই সংস্কৃত ভাষা (ভারতে প্রচলিত) "
+"থেকে নেওয়া এবং এটি মোঙ্গোলিয়ার আধিকারিক ভাষা না হলেও এটি সেখানকার লোকেদের "
+"মধ্যে বহুল প্রচলিত ।"
 
 #. type: Content of: <p>
 #: ../../skycultures/mongolian/description.en.utf8:59
@@ -17372,6 +17392,9 @@ msgid ""
 "title=\"http://www.afanet.fr\" rel=\"nofollow\">L'Association Française "
 "d'Astronomie / The French Astronomy Association</a>"
 msgstr ""
+"<a href=\"http://www.afanet.fr\" class='external text' "
+"title=\"http://www.afanet.fr\" rel=\"nofollow\">L'Association Française "
+"d'Astronomie / ফরাসী অ্যাস্ট্রোনমি অ্যাসোশিয়েশন</a>"
 
 #. type: Content of: <img><ul><li>
 #: ../../skycultures/mongolian/description.en.utf8:249
@@ -17655,6 +17678,9 @@ msgid ""
 "Sirius - Procyon - Rigel - Betelgeuse, who form the cross named \"Antonio "
 "Quinatoa\". It is the constellation that governs the masculine cycle."
 msgstr ""
+"<b>\"আন্তোনিও কুইনাটোয়া\"</b> ক্রস: সন্ধ্যায় প্রথম আবির্ভুত তারাগুলি হল: "
+"লুব্ধক - প্রশ্বন - বানরাজা - আর্দ্রা, যা \"আন্তোনিও কুইনাটোয়া\" নামক ক্রসটি"
+" গঠন করে ।"
 
 #. type: Content of: <p>
 #: ../../skycultures/northern_andes/description.en.utf8:26
@@ -17714,6 +17740,10 @@ msgid ""
 "resulting form evokes the shape of an arrow that at the end of the December "
 "solstice It is in an East - West direction."
 msgstr ""
+"<b>“জর্জ ট্রুজিলো” তীর:</b> দক্ষিণ গোলার্ধের শীতকালীন সন্ধ্যার সবচেয়ে "
+"অসাধারণ তারাগুলি : ক্যাফ - শেডার - নাভি- κ ক্যাস, মূলত ক্যাসিওপিয়া মন্ডলের "
+"পশ্চিম অংশের তারাগুলি একটি তীরের আকৃতিকে প্রকাশ করে যা ডিসেম্বরের শেষে "
+"পূর্ব-পশ্চিম জুড়ে দেখা যায় ।"
 
 #. type: Content of: <p>
 #: ../../skycultures/northern_andes/description.en.utf8:37

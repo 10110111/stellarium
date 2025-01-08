@@ -137,7 +137,7 @@ msgstr "Paukščio pažastis"
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:15
 msgid "Group of four small stars just east of Manu's Body"
-msgstr " Keturių mažų žvaigždžių grupė į rytus nuo Manu kūno"
+msgstr "Keturių mažų žvaigždžių grupė į rytus nuo Manu kūno"
 
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:16
@@ -18537,8 +18537,8 @@ msgid ""
 "Dutch artist Wil Tirion and published in 1987 by the American publishing "
 "house Willmann-Bell, specializing in astronomical literature."
 msgstr ""
-"Uranometrija 2000.0 - tai olandų dailininko Wil Thirion parengtas 2000.0 "
-"eros žvaigždėto dangaus atlasas, kurį 1987 m. išleido amerikiečių leidykla "
+"Uranometrija 2000.0 - tai olandų dailininko Wil Tirion parengtas 2000.0 eros"
+" žvaigždėto dangaus atlasas, kurį 1987 m. išleido amerikiečių leidykla "
 "Willmann-Bell, besispecializuojanti astronominėje literatūroje."
 
 #. type: Content of: <p>

@@ -145,7 +145,7 @@ msgstr "L'aisselle du cygne"
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:15
 msgid "Group of four small stars just east of Manu's Body"
-msgstr ""
+msgstr "Groupe de quatre petites étoiles, juste à l'est du corps de Manu"
 
 #. type: Content of: <table><tr><td>
 #: ../../skycultures/anutan/description.en.utf8:16
@@ -16043,6 +16043,9 @@ msgid ""
 "title=\"http://www.afanet.fr\" rel=\"nofollow\">L'Association Française "
 "d'Astronomie / The French Astronomy Association</a>"
 msgstr ""
+"<a href=\"http://www.afanet.fr\" class='external text' "
+"title=\"http://www.afanet.fr\" rel=\"nofollow\">L'Association française "
+"d'astronomie</a>"
 
 #. type: Content of: <img><ul><li>
 #: ../../skycultures/mongolian/description.en.utf8:249
