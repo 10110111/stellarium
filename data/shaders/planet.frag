@@ -167,6 +167,16 @@ lowp float outgasFactor(in mediump vec3 normal, in highp vec3 lightDir, in mediu
     return opac;
 }
 
+float texCoordToIndex(const float texCoord, const float texSize)
+{
+    return (texSize*texCoord-0.5);
+}
+
+float indexToTexCoord(const float u, const float texSize)
+{
+    return (0.5+u)/texSize;
+}
+
 void main()
 {
 #ifndef IS_MOON
@@ -334,17 +344,49 @@ void main()
         if(sinSunElevation < sin(horizElev))
             horizonShadowCoefficient = 0.;
     }
+
+    mediump vec2 norMapTexSize = textureSize(normalMap,0);
+    mediump vec2 texcIdx = vec2(texCoordToIndex(texc.s, norMapTexSize.s),
+                                texCoordToIndex(texc.t, norMapTexSize.t));
+    mediump vec2 texcBLi = floor(texcIdx);
+    mediump vec2 texcBRi = vec2(texcBLi.s+1, texcBLi.t);
+    mediump vec2 texcTLi = vec2(texcBLi.s, texcBLi.t+1);
+    mediump vec2 texcTRi = vec2(texcBLi.s+1, texcBLi.t+1);
+    mediump vec2 texcBL = vec2(indexToTexCoord(texcBLi.s, norMapTexSize.s),
+                               indexToTexCoord(texcBLi.t, norMapTexSize.t));
+    mediump vec2 texcBR = vec2(indexToTexCoord(texcBRi.s, norMapTexSize.s),
+                               indexToTexCoord(texcBRi.t, norMapTexSize.t));
+    mediump vec2 texcTL = vec2(indexToTexCoord(texcTLi.s, norMapTexSize.s),
+                               indexToTexCoord(texcTLi.t, norMapTexSize.t));
+    mediump vec2 texcTR = vec2(indexToTexCoord(texcTRi.s, norMapTexSize.s),
+                               indexToTexCoord(texcTRi.t, norMapTexSize.t));
+    mediump vec3 normalBL = texture2D(normalMap, texcBL).rgb - vec3(0.5, 0.5, 0);
+    mediump vec3 normalBR = texture2D(normalMap, texcBR).rgb - vec3(0.5, 0.5, 0);
+    mediump vec3 normalTL = texture2D(normalMap, texcTL).rgb - vec3(0.5, 0.5, 0);
+    mediump vec3 normalTR = texture2D(normalMap, texcTR).rgb - vec3(0.5, 0.5, 0);
+    normalBL = normalize(normalX*normalBL.x+normalY*normalBL.y+normalZ*normalBL.z);
+    normalBR = normalize(normalX*normalBR.x+normalY*normalBR.y+normalZ*normalBR.z);
+    normalTL = normalize(normalX*normalTL.x+normalY*normalTL.y+normalZ*normalTL.z);
+    normalTR = normalize(normalX*normalTR.x+normalY*normalTR.y+normalZ*normalTR.z);
+
+    float lumBL = orenNayar(normalBL, lightDirection, eyeDirection, orenNayarParameters.x, orenNayarParameters.y, orenNayarParameters.z, orenNayarParameters.w);
+    float lumBR = orenNayar(normalBR, lightDirection, eyeDirection, orenNayarParameters.x, orenNayarParameters.y, orenNayarParameters.z, orenNayarParameters.w);
+    float lumTL = orenNayar(normalTL, lightDirection, eyeDirection, orenNayarParameters.x, orenNayarParameters.y, orenNayarParameters.z, orenNayarParameters.w);
+    float lumTR = orenNayar(normalTR, lightDirection, eyeDirection, orenNayarParameters.x, orenNayarParameters.y, orenNayarParameters.z, orenNayarParameters.w);
+
+    lum = mix(mix(lumBL, lumBR, texcIdx.s - texcBLi.s),
+              mix(lumTL, lumTR, texcIdx.s - texcTLi.s),
+              texcIdx.t - texcBLi.t);
+
+    lum *= horizonShadowCoefficient;
 #else
     // important to normalize here again
     mediump vec3 normal = normalize(normalVS);
-#endif
-#ifdef OREN_NAYAR
+# ifdef OREN_NAYAR
     // Use an Oren-Nayar model for rough surfaces
     // Ref: http://content.gpwiki.org/index.php/D3DBook:(Lighting)_Oren-Nayar
     lum = orenNayar(normal, lightDirection, eyeDirection, orenNayarParameters.x, orenNayarParameters.y, orenNayarParameters.z, orenNayarParameters.w);
-#endif
-#ifdef IS_MOON
-    lum *= horizonShadowCoefficient;
+# endif
 #endif
     //calculate pseudo-outgassing/rim-lighting effect
     lowp float outgas = 0.0;
