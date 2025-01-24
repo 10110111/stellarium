@@ -177,6 +177,59 @@ float indexToTexCoord(const float u, const float texSize)
     return (0.5+u)/texSize;
 }
 
+#ifdef IS_MOON
+float computeHorizonShadowCoef(const vec2 texcoord)
+{
+    mediump float horizonShadowCoefficient = 1.;
+
+    // Check whether the fragment is in the shadow of surrounding mountains or the horizon
+    mediump vec3 lonDir = normalX;
+    mediump vec3 northDir = normalY;
+    mediump vec3 zenith = normalZ;
+    mediump float sunAzimuth = atan(dot(lightDirection,lonDir), dot(lightDirection,northDir));
+    mediump float sinSunElevation = dot(zenith, lightDirection);
+    mediump vec4 horizonElevSample = (texture2D(horizonMap, texcoord) - 0.5) * 2.;
+    mediump vec4 sinHorizElevs = sign(horizonElevSample) * horizonElevSample * horizonElevSample;
+    mediump float sinHorizElevLeft, sinHorizElevRight;
+    mediump float alpha;
+    if(sunAzimuth >= PI/2.)
+    {
+        // Sun is between East and South
+        sinHorizElevLeft = sinHorizElevs[1];
+        sinHorizElevRight = sinHorizElevs[2];
+        alpha = (sunAzimuth - PI/2.) / (PI/2.);
+    }
+    else if(sunAzimuth >= 0.)
+    {
+        // Sun is between North and East
+        sinHorizElevLeft = sinHorizElevs[0];
+        sinHorizElevRight = sinHorizElevs[1];
+        alpha = sunAzimuth / (PI/2.);
+    }
+    else if(sunAzimuth <= -PI/2.)
+    {
+        // Sun is between South and West
+        sinHorizElevLeft = sinHorizElevs[2];
+        sinHorizElevRight = sinHorizElevs[3];
+        alpha = (sunAzimuth + PI) / (PI/2.);
+    }
+    else
+    {
+        // Sun is between West and North
+        sinHorizElevLeft = sinHorizElevs[3];
+        sinHorizElevRight = sinHorizElevs[0];
+        alpha = (sunAzimuth + PI/2.) / (PI/2.);
+    }
+    mediump float horizElevLeft = asin(sinHorizElevLeft);
+    mediump float horizElevRight = asin(sinHorizElevRight);
+    mediump float horizElev = horizElevLeft + (horizElevRight-horizElevLeft)*alpha;
+    if(sinSunElevation < sin(horizElev))
+        horizonShadowCoefficient = 0.;
+
+    return horizonShadowCoefficient;
+}
+#endif
+
 void main()
 {
 #ifndef IS_MOON
@@ -298,53 +351,6 @@ void main()
     normal = normalize(normalX*normal.x+normalY*normal.y+normalZ*normal.z);
     // normal now contains the real surface normal taking normal map into account
 
-    mediump float horizonShadowCoefficient = 1.;
-    {
-        // Check whether the fragment is in the shadow of surrounding mountains or the horizon
-        mediump vec3 lonDir = normalX;
-        mediump vec3 northDir = normalY;
-        mediump vec3 zenith = normalZ;
-        mediump float sunAzimuth = atan(dot(lightDirection,lonDir), dot(lightDirection,northDir));
-        mediump float sinSunElevation = dot(zenith, lightDirection);
-        mediump vec4 horizonElevSample = (texture2D(horizonMap, texc) - 0.5) * 2.;
-        mediump vec4 sinHorizElevs = sign(horizonElevSample) * horizonElevSample * horizonElevSample;
-        mediump float sinHorizElevLeft, sinHorizElevRight;
-        mediump float alpha;
-        if(sunAzimuth >= PI/2.)
-        {
-            // Sun is between East and South
-            sinHorizElevLeft = sinHorizElevs[1];
-            sinHorizElevRight = sinHorizElevs[2];
-            alpha = (sunAzimuth - PI/2.) / (PI/2.);
-        }
-        else if(sunAzimuth >= 0.)
-        {
-            // Sun is between North and East
-            sinHorizElevLeft = sinHorizElevs[0];
-            sinHorizElevRight = sinHorizElevs[1];
-            alpha = sunAzimuth / (PI/2.);
-        }
-        else if(sunAzimuth <= -PI/2.)
-        {
-            // Sun is between South and West
-            sinHorizElevLeft = sinHorizElevs[2];
-            sinHorizElevRight = sinHorizElevs[3];
-            alpha = (sunAzimuth + PI) / (PI/2.);
-        }
-        else
-        {
-            // Sun is between West and North
-            sinHorizElevLeft = sinHorizElevs[3];
-            sinHorizElevRight = sinHorizElevs[0];
-            alpha = (sunAzimuth + PI/2.) / (PI/2.);
-        }
-        mediump float horizElevLeft = asin(sinHorizElevLeft);
-        mediump float horizElevRight = asin(sinHorizElevRight);
-        mediump float horizElev = horizElevLeft + (horizElevRight-horizElevLeft)*alpha;
-        if(sinSunElevation < sin(horizElev))
-            horizonShadowCoefficient = 0.;
-    }
-
     mediump vec2 norMapTexSize = textureSize(normalMap,0);
     mediump vec2 texcIdx = vec2(texCoordToIndex(texc.s, norMapTexSize.s),
                                 texCoordToIndex(texc.t, norMapTexSize.t));
@@ -378,7 +384,13 @@ void main()
               mix(lumTL, lumTR, texcIdx.s - texcTLi.s),
               texcIdx.t - texcBLi.t);
 
-    lum *= horizonShadowCoefficient;
+    float horizonShadowCoefficientBL = computeHorizonShadowCoef(texcBL);
+    float horizonShadowCoefficientBR = computeHorizonShadowCoef(texcBR);
+    float horizonShadowCoefficientTL = computeHorizonShadowCoef(texcTL);
+    float horizonShadowCoefficientTR = computeHorizonShadowCoef(texcTR);
+    lum = mix(mix(horizonShadowCoefficientBL * lumBL, horizonShadowCoefficientBR * lumBR, texcIdx.s - texcBLi.s),
+              mix(horizonShadowCoefficientTL * lumTL, horizonShadowCoefficientTR * lumTR, texcIdx.s - texcTLi.s),
+              texcIdx.t - texcBLi.t);
 #else
     // important to normalize here again
     mediump vec3 normal = normalize(normalVS);
