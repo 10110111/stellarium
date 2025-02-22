@@ -70,6 +70,7 @@ class StelCore : public QObject
 	Q_PROPERTY(bool flagUseDST READ getUseDST WRITE setUseDST NOTIFY flagUseDSTChanged)
 	Q_PROPERTY(bool startupTimeStop READ getStartupTimeStop WRITE setStartupTimeStop NOTIFY startupTimeStopChanged)
 	Q_PROPERTY(DitheringMode ditheringMode READ getDitheringMode WRITE setDitheringMode NOTIFY ditheringModeChanged)
+	Q_PROPERTY(int textureSmoothingLevel READ getTextureSmoothingLevel WRITE setTextureSmoothingLevel NOTIFY textureSmoothingLevelChanged)
 
 public:
 	//! @enum FrameType
@@ -515,6 +516,9 @@ public slots:
 	void setDitheringMode(DitheringMode mode);
 	void setDitheringMode(const QString& modeName);
 
+	int getTextureSmoothingLevel() const { return textureSmoothingLevel; }
+	void setTextureSmoothingLevel(int level);
+
 	bool getUseCustomTimeZone(void) const;
 	void setUseCustomTimeZone(const bool b);
 
@@ -900,6 +904,7 @@ signals:
 	void configurationDataSaved();
 	void updateSearchLists();
 	void ditheringModeChanged(DitheringMode mode);
+	void textureSmoothingLevelChanged(int level);
 
 	//! Called just after algorithm/theory for ephemeris is changed in the GUI
 	void ephemAlgorithmChanged();
@@ -986,6 +991,7 @@ private:
 	double jdOfLastJDUpdate;         // JD when the time rate or time last changed
 
 	DitheringMode ditheringMode = DitheringMode::Color888;
+	int textureSmoothingLevel = 0;
 
 	QString currentTimeZone;	
 	bool flagUseDST;

@@ -173,7 +173,7 @@ void main()
     if(sunInfo.w==0.)
     {
         // We are drawing the Sun
-        vec4 texColor = texture2D(tex, texc);
+        vec4 texColor = smoothSampleTexture(tex, texc);
         texColor.rgb = srgbToLinear(texColor.rgb * sunInfo.rgb);
         // Reference: chapter 14.7 "Limb Darkening" in "Allen’s Astrophysical Quantities",
         //            A.N.Cox (ed.), 4th edition, New York: Springer-Verlag, 2002.
@@ -284,7 +284,7 @@ void main()
     }
 
 #ifdef IS_MOON
-    mediump vec3 normal = texture2D(normalMap, texc).rgb-vec3(0.5, 0.5, 0);
+    mediump vec3 normal = smoothSampleTexture(normalMap, texc).rgb-vec3(0.5, 0.5, 0);
     normal = normalize(normalX*normal.x+normalY*normal.y+normalZ*normal.z);
     // normal now contains the real surface normal taking normal map into account
 
@@ -394,7 +394,7 @@ void main()
     else
 #endif
     {
-        texColor = texture2D(tex, texc);
+        texColor = smoothSampleTexture(tex, texc);
     }
 
     texColor.rgb = srgbToLinear(texColor.rgb);

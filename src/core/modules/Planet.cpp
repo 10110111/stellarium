@@ -3128,6 +3128,7 @@ void Planet::PlanetShaderVars::initLocations(QOpenGLShaderProgram* p)
 	GL(orenNayarParameters = p->uniformLocation("orenNayarParameters"));
 	GL(outgasParameters = p->uniformLocation("outgasParameters"));
 	GL(hasAtmosphere = p->uniformLocation("hasAtmosphere"));
+	GL(textureSmoothingLevel = p->uniformLocation("textureSmoothingLevel"));
 
 	// Moon-specific variables
 	GL(earthShadow = p->uniformLocation("earthShadow"));
@@ -3273,15 +3274,17 @@ bool Planet::initShader()
 
 	shaderError = false;
 
+	const auto texSampFunc = StelOpenGL::smoothTexSamplingFunction();
+
 	// Default planet shader program
 	planetShaderProgram = createShader("planetShaderProgram",planetShaderVars,vsrc,
-	                                   makeSRGBUtilsShader()+fsrc);
+	                                   makeSRGBUtilsShader()+texSampFunc+fsrc);
 	// Planet with ring shader program
 	ringPlanetShaderProgram = createShader("ringPlanetShaderProgram",ringPlanetShaderVars,vsrc,
-	                                       makeSRGBUtilsShader()+fsrc,"#define RINGS_SUPPORT\n\n");
+	                                       makeSRGBUtilsShader()+texSampFunc+fsrc,"#define RINGS_SUPPORT\n\n");
 	// Moon shader program
 	moonShaderProgram = createShader("moonShaderProgram",moonShaderVars,vsrc,
-	                                 makeSRGBUtilsShader()+fsrc,"#define IS_MOON\n\n");
+	                                 makeSRGBUtilsShader()+texSampFunc+fsrc,"#define IS_MOON\n\n");
 	// OBJ model shader program
 	// we REQUIRE some fixed attribute locations here
 	QMap<QByteArray,int> attrLoc;
@@ -3289,9 +3292,9 @@ bool Planet::initShader()
 	attrLoc.insert("texCoord", StelOpenGLArray::ATTLOC_TEXCOORD);
 	attrLoc.insert("normalIn", StelOpenGLArray::ATTLOC_NORMAL);
 	objShaderProgram = createShader("objShaderProgram",objShaderVars,vsrc,
-	                                makeSRGBUtilsShader()+fsrc,"#define IS_OBJ\n\n",attrLoc);
+	                                makeSRGBUtilsShader()+texSampFunc+fsrc,"#define IS_OBJ\n\n",attrLoc);
 	//OBJ shader with shadowmap support
-	objShadowShaderProgram = createShader("objShadowShaderProgram",objShadowShaderVars,vsrc,makeSRGBUtilsShader()+fsrc,
+	objShadowShaderProgram = createShader("objShadowShaderProgram",objShadowShaderVars,vsrc,makeSRGBUtilsShader()+texSampFunc+fsrc,
 	                                      "#define IS_OBJ\n"
 	                                      "#define SHADOWMAP\n"
 	                                      "#define SM_SIZE " STRINGIFY(SM_SIZE) "\n"
@@ -4024,6 +4027,7 @@ Planet::RenderData Planet::setCommonShaderUniforms(const StelPainter& painter, Q
 	}
 	GL(shader->setUniformValue(shaderVars.skyBrightness, lmgr->getAtmosphereAverageLuminance()));
 	GL(shader->setUniformValue(shaderVars.poleLat, 1.1f, -0.1f)); // Avoid white objects. poleLat is only used for Mars.
+	GL(shader->setUniformValue(shaderVars.textureSmoothingLevel, core->getTextureSmoothingLevel()));
 
 	if(shaderVars.orenNayarParameters>=0)
 	{

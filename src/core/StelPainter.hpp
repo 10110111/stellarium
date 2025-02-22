@@ -445,6 +445,7 @@ private:
 
 	static QOpenGLShaderProgram* texturesShaderProgram;
 	struct TexturesShaderVars {
+		int textureSmoothingLevel;
 		int projectionMatrix;
 		int texCoord;
 		int vertex;
@@ -454,6 +455,7 @@ private:
 	static TexturesShaderVars texturesShaderVars;
 	static QOpenGLShaderProgram* texturesColorShaderProgram;
 	struct TexturesColorShaderVars {
+		int textureSmoothingLevel;
 		int projectionMatrix;
 		int texCoord;
 		int vertex;

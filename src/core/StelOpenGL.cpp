@@ -61,6 +61,47 @@ void StelOpenGL::clearGLErrors()
 	{ }
 }
 
+QByteArray StelOpenGL::smoothTexSamplingFunction()
+{
+	static const QByteArray src = 1+R"(
+#line 1 109
+uniform int textureSmoothingLevel;
+vec4 smoothSampleTexture(in sampler2D tex, vec2 texc)
+{
+	if(textureSmoothingLevel <= 0)
+	{
+		return texture2D(tex, texc);
+	}
+	else if(textureSmoothingLevel == 1)
+	{
+		vec2 delta = 0.35/vec2(textureSize(tex,0));
+		vec4 col0  = texture2D(tex, texc);
+		vec4 col1a = texture2D(tex, texc +   vec2( delta.s,  delta.t));
+		vec4 col1b = texture2D(tex, texc +   vec2(-delta.s,  delta.t));
+		vec4 col1c = texture2D(tex, texc +   vec2( delta.s, -delta.t));
+		vec4 col1d = texture2D(tex, texc +   vec2(-delta.s, -delta.t));
+		return 1./3.*(col0+0.5*(col1a+col1b+col1c+col1d));
+	}
+	else
+	{
+		vec2 delta = 0.35/vec2(textureSize(tex,0));
+		vec4 col0  = texture2D(tex, texc);
+		vec4 col1a = texture2D(tex, texc +   vec2( delta.s,  delta.t));
+		vec4 col1b = texture2D(tex, texc +   vec2(-delta.s,  delta.t));
+		vec4 col1c = texture2D(tex, texc +   vec2( delta.s, -delta.t));
+		vec4 col1d = texture2D(tex, texc +   vec2(-delta.s, -delta.t));
+		vec4 col2a = texture2D(tex, texc + 2.*vec2( delta.s, 0));
+		vec4 col2b = texture2D(tex, texc + 2.*vec2(       0,  delta.t));
+		vec4 col2c = texture2D(tex, texc + 2.*vec2(-delta.s, 0));
+		vec4 col2d = texture2D(tex, texc + 2.*vec2(       0, -delta.t));
+		return 0.2*(col0 + 0.7*(col1a+col1b+col1c+col1d) + 0.3*(col2a+col2b+col2c+col2d));
+	}
+}
+#line 1 0
+)";
+	return src;
+}
+
 QByteArray StelOpenGL::globalShaderPrefix(const ShaderType type)
 {
 	const auto& glInfo = StelMainView::getInstance().getGLInformation();

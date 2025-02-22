@@ -869,6 +869,7 @@ private:
 		int projectionMatrix;
 		int hasAtmosphere;
 		int tex;
+		int textureSmoothingLevel;
 		int lightDirection;
 		int eyeDirection;
 		int diffuseLight;

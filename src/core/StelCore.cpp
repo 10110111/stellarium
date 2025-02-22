@@ -205,6 +205,8 @@ void StelCore::init()
 	}
 	ditheringMode = parseDitheringMode(selectedDitherFormat.toString());
 
+	textureSmoothingLevel = conf->value("video/texture_smoothing", 0).toInt();
+
 	if (conf->childGroups().contains("location_run_once"))
 		defaultLocationID = "stellarium_cli";
 	else
@@ -1634,6 +1636,16 @@ void StelCore::setDitheringMode(const QString& modeName)
 {
 	const auto mode = parseDitheringMode(modeName);
 	setDitheringMode(mode);
+}
+
+void StelCore::setTextureSmoothingLevel(const int newLevel)
+{
+	if(newLevel == textureSmoothingLevel)
+		return;
+
+	textureSmoothingLevel = newLevel;
+	StelApp::immediateSave("video/texture_smoothing", newLevel);
+	emit textureSmoothingLevelChanged(newLevel);
 }
 
 bool StelCore::getUseCustomTimeZone() const

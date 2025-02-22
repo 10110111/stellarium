@@ -2050,6 +2050,7 @@ void StelPainter::sCylinder(double radius, double height, int slices, int orient
 void StelPainter::initGLShaders()
 {
 	qInfo() << "Initializing basic GL shaders... ";
+	const auto texSampFunc = StelOpenGL::smoothTexSamplingFunction();
 	// Basic shader: just vertex filled with plain color
 	QOpenGLShader vshader3(QOpenGLShader::Vertex);
 	const auto vsrc3 =
@@ -2182,12 +2183,13 @@ void main()
 	QOpenGLShader fshader2(QOpenGLShader::Fragment);
 	const auto fsrc2 =
 		StelOpenGL::globalShaderPrefix(StelOpenGL::FRAGMENT_SHADER) +
+		texSampFunc +
 		"VARYING mediump vec2 texc;\n"
 		"uniform sampler2D tex;\n"
 		"uniform mediump vec4 texColor;\n"
 		"void main(void)\n"
 		"{\n"
-		"    FRAG_COLOR = texture2D(tex, texc)*texColor;\n"
+		"    FRAG_COLOR = smoothSampleTexture(tex, texc)*texColor;\n"
 		"}\n";
 	fshader2.compileSourceCode(fsrc2);
 	if (!fshader2.log().isEmpty())
@@ -2197,6 +2199,7 @@ void main()
 	texturesShaderProgram->addShader(&vshader2);
 	texturesShaderProgram->addShader(&fshader2);
 	linkProg(texturesShaderProgram, "texturesShaderProgram");
+	texturesShaderVars.textureSmoothingLevel = texturesShaderProgram->uniformLocation("textureSmoothingLevel");
 	texturesShaderVars.projectionMatrix = texturesShaderProgram->uniformLocation("projectionMatrix");
 	texturesShaderVars.texCoord = texturesShaderProgram->attributeLocation("texCoord");
 	texturesShaderVars.vertex = texturesShaderProgram->attributeLocation("vertex");
@@ -2226,6 +2229,7 @@ void main()
 	QOpenGLShader fshader4(QOpenGLShader::Fragment);
 	const auto fsrc4 =
 		StelOpenGL::globalShaderPrefix(StelOpenGL::FRAGMENT_SHADER) +
+		texSampFunc +
 		makeSaturationShader()+
 		"VARYING mediump vec2 texc;\n"
 		"VARYING mediump vec4 outColor;\n"
@@ -2233,7 +2237,7 @@ void main()
 		"uniform lowp float saturation;\n"
 		"void main(void)\n"
 		"{\n"
-		"    FRAG_COLOR = texture2D(tex, texc)*outColor;\n"
+		"    FRAG_COLOR = smoothSampleTexture(tex, texc)*outColor;\n"
 		"    if (saturation != 1.0)\n"
 		"        FRAG_COLOR.rgb = saturate(FRAG_COLOR.rgb, saturation);\n"
 		"}\n";
@@ -2245,6 +2249,7 @@ void main()
 	texturesColorShaderProgram->addShader(&vshader4);
 	texturesColorShaderProgram->addShader(&fshader4);
 	linkProg(texturesColorShaderProgram, "texturesColorShaderProgram");
+	texturesColorShaderVars.textureSmoothingLevel = texturesColorShaderProgram->uniformLocation("textureSmoothingLevel");
 	texturesColorShaderVars.projectionMatrix = texturesColorShaderProgram->uniformLocation("projectionMatrix");
 	texturesColorShaderVars.texCoord = texturesColorShaderProgram->attributeLocation("texCoord");
 	texturesColorShaderVars.vertex = texturesColorShaderProgram->attributeLocation("vertex");
@@ -2723,6 +2728,8 @@ void StelPainter::drawFromArray(DrawingMode mode, int count, int offset, bool do
 		pr->setAttributeBuffer(texturesShaderVars.texCoord, texCoordArray.type, texCoordDataOffset, texCoordArray.size);
 		pr->enableAttributeArray(texturesShaderVars.texCoord);
 		//pr->setUniformValue(texturesShaderVars.texture, 0);    // use texture unit 0
+		pr->setUniformValue(texturesShaderVars.textureSmoothingLevel,
+		                    StelApp::getInstance().getCore()->getTextureSmoothingLevel());
 	}
 	else if (texCoordArray.enabled && colorArray.enabled && !normalArray.enabled && !wideLineMode)
 	{
@@ -2751,6 +2758,8 @@ void StelPainter::drawFromArray(DrawingMode mode, int count, int offset, bool do
 		pr->enableAttributeArray(texturesColorShaderVars.color);
 		//pr->setUniformValue(texturesShaderVars.texture, 0);    // use texture unit 0
 		pr->setUniformValue(texturesColorShaderVars.saturation, saturation);
+		pr->setUniformValue(texturesColorShaderVars.textureSmoothingLevel,
+		                    StelApp::getInstance().getCore()->getTextureSmoothingLevel());
 	}
 	else if (!texCoordArray.enabled && colorArray.enabled && !normalArray.enabled)
 	{

@@ -383,6 +383,8 @@ void ConfigurationDialog::createDialogContent()
 	populateDitherList();
 	connect(ui->ditheringComboBox, SIGNAL(currentIndexChanged(const int)), this, SLOT(setDitherFormat()));
 
+	connectIntProperty(ui->textureSmoothingLevel, "StelCore.textureSmoothingLevel");
+
 	// General Option Save
 	connect(ui->saveViewDirAsDefaultPushButton, SIGNAL(clicked()), this, SLOT(saveCurrentViewDirSettings()));
 	connect(ui->saveSettingsAsDefaultPushButton, SIGNAL(clicked()), this, SLOT(saveAllSettings()));

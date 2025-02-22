@@ -50,6 +50,8 @@ namespace StelOpenGL
 	//! Clears all queued-up OpenGL errors without handling them
 	void clearGLErrors();
 
+	QByteArray smoothTexSamplingFunction();
+
 	enum ShaderType
 	{
 		VERTEX_SHADER,
