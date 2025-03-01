@@ -30,6 +30,99 @@
 #include <QNetworkReply>
 #include <QTimeLine>
 
+namespace
+{
+bool linesIntersect(const Vec2f& a1, const Vec2f& a2,
+                    const Vec2f& b1, const Vec2f& b2)
+{
+    const auto vecA = a2 - a1;
+    const auto vecB = b2 - b1;
+
+    const auto denom = vecA[0] * vecB[1] - vecB[0] * vecA[1];
+    if (denom == 0) return false;
+
+    const auto s = (-vecA[1] * (a1[0] - b1[0]) + vecA[0] * (a1[1] - b1[1])) / denom;
+    const auto t = ( vecB[0] * (a1[1] - b1[1]) - vecB[1] * (a1[0] - b1[0])) / denom;
+
+    return s >= 0 && s <= 1 && t >= 0 && t <= 1;
+}
+
+bool pointInsideTriangle(const Vec2f& point, const Vec2f& A, const Vec2f& B, const Vec2f& C)
+{
+	// Adapted from https://stackoverflow.com/a/9755252
+	const auto AP = point - A;
+	const bool APToTheLeftOfAB = (B[0] - A[0]) * AP[1] - (B[1] - A[1]) * AP[0] > 0; // cross(AB, AP).z > 0
+	const bool APToTheLeftOfAC = (C[0] - A[0]) * AP[1] - (C[1] - A[1]) * AP[0] > 0; // cross(AC, AP).z > 0
+	if (APToTheLeftOfAC == APToTheLeftOfAB)
+		return false;
+	const bool BPToTheLeftOfBC = (C[0] - B[0]) * (point[1] - B[1]) - (C[1] - B[1])*(point[0] - B[0]) > 0; // cross(BC, BP).z > 0
+	if (BPToTheLeftOfBC != APToTheLeftOfAB)
+		return false;
+	return true;
+}
+
+
+bool checkMeshIsVisible(const Vec3f*const verts, const uint16_t*const indices, const int indexCount, const StelProjector& proj)
+{
+	bool visible = false;
+	const auto vp = proj.getViewport();
+	const auto vpBottomLeft = Vec2f(vp[0], vp[1]);
+	const auto vpTopRight = vpBottomLeft + Vec2f(vp[2], vp[3]);
+	const auto vpBottomRight = Vec2f(vpBottomLeft[1], vpTopRight[0]);
+	const auto vpTopLeft = Vec2f(vpBottomLeft[0], vpTopRight[1]);
+	const bool clockwise = proj.needGlFrontFaceCW();
+	for (int n = 0; n < indexCount; n += 3)
+	{
+		const auto& v1 = verts[indices[n+0]];
+		const auto& v2 = verts[indices[n+1]];
+		const auto& v3 = verts[indices[n+2]];
+		const Vec2f v1s(v1[0], v1[1]);
+		const Vec2f v2s(v2[0], v2[1]);
+		const Vec2f v3s(v3[0], v3[1]);
+		// First check orientation.
+		const auto vec12 = v2s - v1s;
+		const auto vec23 = v3s - v2s;
+		const float cross = vec12[0] * vec23[1] - vec12[1] * vec23[0];
+		if ((clockwise && cross > 0) || (!clockwise && cross < 0))
+		{
+			// Back-face culled, so invisible
+			continue;
+		}
+		// So the face passed the back-face test, check if any of its points is visible.
+		if (proj.checkInViewport(v1) || proj.checkInViewport(v2) || proj.checkInViewport(v3))
+		{
+			visible = true;
+			break;
+		}
+		// Either the whole shape is invisible, or we've zoomed into one of the triangles so that
+		// all its vertices are invisible. So now check whether any of the edges of the triangles
+		// intersects any side of the viewport.
+		// Only 3 sides of the viewport need checking, because if they are not intersected, nor is the 4th.
+		if (linesIntersect(v1s, v2s, vpTopLeft, vpTopRight)       ||
+		    linesIntersect(v1s, v2s, vpBottomLeft, vpBottomRight) ||
+		    linesIntersect(v1s, v2s, vpTopLeft, vpBottomLeft)     ||
+		    linesIntersect(v3s, v2s, vpTopLeft, vpTopRight)       ||
+		    linesIntersect(v3s, v2s, vpBottomLeft, vpBottomRight) ||
+		    linesIntersect(v3s, v2s, vpTopLeft, vpBottomLeft)     ||
+		    linesIntersect(v3s, v1s, vpTopLeft, vpTopRight)       ||
+		    linesIntersect(v3s, v1s, vpBottomLeft, vpBottomRight) ||
+		    linesIntersect(v3s, v1s, vpTopLeft, vpBottomLeft))
+		{
+			visible = true;
+			break;
+		}
+		// Either the whole shape is invisible, or we've zoomed into one of the triangles so that
+		// it contains the whole viewport. Now check if the center of the viewport is inside the triangle.
+		if (pointInsideTriangle(0.5f*(vpBottomLeft + vpTopRight), v1s, v2s, v3s))
+		{
+			visible = true;
+			break;
+		}
+	}
+	return visible;
+}
+}
+
 class HipsTile
 {
 public:
@@ -352,13 +445,13 @@ void HipsSurvey::updateProgressBar(int nb, int total)
 	progressBar->setValue(100 * nb / total);
 }
 
-HipsTile* HipsSurvey::getTile(int order, int pix)
+HipsTile* HipsSurvey::getTile(const int order, const int pix, const bool downloadIfNeeded)
 {
 	int nside = 1 << order;
 	long int uid = pix + 4L * nside * nside;
 	int orderMin = getPropertyInt("hips_order_min", 3);
 	HipsTile* tile = tiles[uid];
-	if (!tile)
+	if (!tile && downloadIfNeeded)
 	{
 		StelTextureMgr& texMgr = StelApp::getInstance().getTextureManager();
 		tile = new HipsTile();
@@ -445,6 +538,7 @@ void HipsSurvey::drawTile(int order, int pix, int drawOrder, int splitOrder, boo
 	HipsTile *tile;
 	int orderMin = getPropertyInt("hips_order_min", 3);
 	QVector<Vec3d> vertsArray;
+	std::unique_ptr<Vec3f[]> vertsArrayF;
 	QVector<Vec2f> texArray;
 	QVector<uint16_t> indicesArray;
 	int nb;
@@ -497,6 +591,18 @@ void HipsSurvey::drawTile(int order, int pix, int drawOrder, int splitOrder, boo
 	if (order < orderMin)
 		goto skip_render;
 
+	nb = fillArrays(order, pix, drawOrder, splitOrder, outside, sPainter,
+	                observerVelocity, vertsArray, texArray, indicesArray);
+	if (!callback)
+	{
+		// Second-level visibility check
+		const auto proj = sPainter->getProjector();
+		vertsArrayF.reset(new Vec3f[vertsArray.size()]);
+		proj->project(vertsArray.size(), vertsArray.data(), vertsArrayF.get());
+		const bool visible = checkMeshIsVisible(vertsArrayF.get(), indicesArray.data(), indicesArray.size(), *proj);
+		if (!visible) return;
+	}
+
 	nbVisibleTiles++;
 	tile = getTile(order, pix);
 
@@ -521,7 +627,7 @@ void HipsSurvey::drawTile(int order, int pix, int drawOrder, int splitOrder, boo
 		int i;
 		for (i = 0; i < 4; i++)
 		{
-			HipsTile* child = getTile(order + 1, pix * 4 + i);
+			HipsTile* child = getTile(order + 1, pix * 4 + i, false);
 			if (!child || child->texFader.currentValue() < 1.0) break;
 		}
 		if (i == 4) goto skip_render;
@@ -540,11 +646,9 @@ void HipsSurvey::drawTile(int order, int pix, int drawOrder, int splitOrder, boo
 		sPainter->setColor(1, 1, 1, 1);
 	}
 	sPainter->setCullFace(true);
-	nb = fillArrays(order, pix, drawOrder, splitOrder, outside, sPainter, observerVelocity,
-	                vertsArray, texArray, indicesArray);
 	if (!callback) {
-		sPainter->setArrays(vertsArray.constData(), texArray.constData());
-		sPainter->drawFromArray(StelPainter::Triangles, nb, 0, true, indicesArray.constData());
+		sPainter->setArrays(vertsArrayF.get(), texArray.constData());
+		sPainter->drawFromArray(StelPainter::Triangles, nb, 0, false, indicesArray.constData());
 	} else {
 		callback(vertsArray, texArray, indicesArray);
 	}
