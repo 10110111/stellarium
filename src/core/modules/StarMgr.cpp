@@ -1644,11 +1644,13 @@ StelObjectP StarMgr::searchByID(const QString &id) const
 //! Find and return the list of at most maxNbItem objects auto-completing the passed object name.
 QStringList StarMgr::listMatchingObjects(const QString& objPrefix, int maxNbItem, bool useStartOfWords) const
 {
+	using StelUtils::stripDiacritics;
+
 	QStringList result;
 	if (maxNbItem <= 0 || !getFlagStars())
 		return result;
 
-	QString objw = objPrefix.toUpper();
+	QString objw = stripDiacritics(objPrefix.toUpper());
 	bool found;
 
 	// Search for common names
@@ -1656,9 +1658,10 @@ QStringList StarMgr::listMatchingObjects(const QString& objPrefix, int maxNbItem
 	while (i.hasNext())
 	{
 		i.next();
-		if (useStartOfWords && i.key().startsWith(objw))
+		const auto curr = stripDiacritics(i.key());
+		if (useStartOfWords && curr.startsWith(objw))
 			found = true;
-		else if (!useStartOfWords && i.key().contains(objw))
+		else if (!useStartOfWords && curr.contains(objw))
 			found = true;
 		else
 			found = false;
@@ -1676,9 +1679,10 @@ QStringList StarMgr::listMatchingObjects(const QString& objPrefix, int maxNbItem
 	while (j.hasNext())
 	{
 		j.next();
-		if (useStartOfWords && j.key().startsWith(objw))
+		const auto curr = stripDiacritics(j.key());
+		if (useStartOfWords && curr.startsWith(objw))
 			found = true;
-		else if (!useStartOfWords && j.key().contains(objw))
+		else if (!useStartOfWords && curr.contains(objw))
 			found = true;
 		else
 			found = false;
@@ -1701,9 +1705,10 @@ QStringList StarMgr::listMatchingObjects(const QString& objPrefix, int maxNbItem
 			QStringList names = getAdditionalNames(k.value()).split(" - ");
 			for (const auto &name : std::as_const(names))
 			{
-				if (useStartOfWords && name.startsWith(objw, Qt::CaseInsensitive))
+				const auto simplifiedName = stripDiacritics(name);
+				if (useStartOfWords && simplifiedName.startsWith(objw, Qt::CaseInsensitive))
 					found = true;
-				else if (!useStartOfWords && name.contains(objw, Qt::CaseInsensitive))
+				else if (!useStartOfWords && simplifiedName.contains(objw, Qt::CaseInsensitive))
 					found = true;
 				else
 					found = false;

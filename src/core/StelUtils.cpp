@@ -2825,5 +2825,21 @@ qint64 getLongLong(const QJsonValue& v)
 	return integer;
 }
 
+QString stripDiacritics(const QString& text)
+{
+	const auto formD = text.normalized(QString::NormalizationForm_D);
+
+	QString filtered;
+	for (int i = 0; i < formD.length(); i++)
+	{
+		if (formD[i].category() != QChar::Mark_NonSpacing)
+		{
+			filtered += formD[i];
+		}
+	}
+
+	return filtered.normalized(QString::NormalizationForm_C);
+}
+
 } // end of the StelUtils namespace
 

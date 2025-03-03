@@ -129,6 +129,12 @@ namespace StelUtils
 	 */
 	qint64 getLongLong(const class QJsonValue& v);
 
+	//! @brief Remove all the diacritics from the input string
+	//!
+	//! This prepares gets a simplified string that can be
+	//! matched to a pattern entered from an English keyboard.
+	QString stripDiacritics(const QString& text);
+
 	inline const QString getEndLineChar() {
 		#ifdef Q_OS_WIN
 		const QString stelEndl="\r\n";
