@@ -4188,7 +4188,7 @@ void SolarSystem::onNewSurvey(HipsSurveyP survey)
 	if (!survey->isPlanetarySurvey()) return;
 
 	const auto type = survey->getType();
-	const bool isPlanetColor = type == "planet";
+	const bool isPlanetColor = type == "planet" || type.isEmpty();
 	const bool isPlanetNormal = type == "planet-normal";
 	const bool isPlanetHorizon = type == "planet-horizon";
 	if (!isPlanetColor && !isPlanetNormal && !isPlanetHorizon)

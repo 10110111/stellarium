@@ -677,7 +677,7 @@ static QString getHipsType(const HipsSurveyP hips)
 	QJsonObject properties = hips->property("properties").toJsonObject();
 	if (!hips->isPlanetarySurvey())
 		return "dss";
-	if (properties["type"].toString() == "planet") // TODO: switch to use hips->isPlanetarySurvey() and multiple surveys for Solar system bodies
+	if (properties["type"].toString() == "planet" || properties.contains("hips_body")) // TODO: switch to use hips->isPlanetarySurvey() and multiple surveys for Solar system bodies
 		return "sol";
 	return "other";
 }
