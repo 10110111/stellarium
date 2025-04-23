@@ -20,6 +20,7 @@
 #include "Dithering.hpp"
 #include "StelMainView.hpp"
 #include "StelTextureMgr.hpp"
+#include "StelPropertyMgr.hpp"
 
 #include <QFileInfo>
 #include <QFile>
@@ -194,6 +195,17 @@ void StelTextureMgr::reportTextureLoadStart()
 void StelTextureMgr::reportTextureLoadEnd()
 {
 	totalLoadTimeTaken += textureLoadTimer.nsecsElapsed();
+}
+
+quint64 StelTextureMgr::getMaxLoadTimePerFrame() const
+{
+	const auto propMgr = StelApp::getInstance().getStelPropertyManager();
+	double minFPS = propMgr->getStelPropertyValue("MainView.minFps").toInt();
+	if(minFPS <= 0) minFPS = 60; // just in case
+	// Let's try to keep the minimum FPS even if many textures are loaded every frame.
+	// (This estimation will work assuming that all the other computations take the
+	// same time per frame, so we take at most half the frame time slot.)
+	return 0.5e9 / minFPS;
 }
 
 //! Create a texture from a QImage.

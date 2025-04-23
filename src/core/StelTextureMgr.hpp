@@ -80,6 +80,8 @@ private:
 	void reportTextureLoadEnd();
 	//! Get total time taken by texture loads during current frame, in nanoseconds
 	quint64 getTotalLoadTimeTaken() const { return totalLoadTimeTaken; }
+	//! Get maximum allowed time to be taken by texture loads during current frame, in nanoseconds
+	quint64 getMaxLoadTimePerFrame() const;
 
 private:
 	friend class StelTexture;
