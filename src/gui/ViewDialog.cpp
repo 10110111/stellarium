@@ -607,6 +607,7 @@ void ViewDialog::createDialogContent()
 	connect(ui->surveysListWidget, SIGNAL(currentRowChanged(int)), this, SLOT(updateHips()), Qt::QueuedConnection);
 	connect(ui->surveysListWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(hipsListItemChanged(QListWidgetItem*)));
 	connect(ui->surveysFilter, &QLineEdit::textChanged, this, &ViewDialog::filterSurveys);
+	connect(ui->surveyMaxOrder, &QSpinBox::valueChanged, this, &ViewDialog::setMaxSurveyOrder);
 	updateHips();
 
 	updateTabBarListWidgetWidth();
@@ -730,6 +731,10 @@ void ViewDialog::updateHips()
 		{
 			currentItem = item;
 			currentHips = hips;
+			const int minOrder = properties["hips_order_min"].toString().toInt();
+			const int maxOrder = properties["hips_order"].toString().toInt();
+			ui->surveyMaxOrder->setRange(minOrder, std::min(maxOrder, hips->getMaxOrderLimit()));
+			ui->surveyMaxOrder->setValue(maxOrder);
 		}
 		disconnect(hips.data(), nullptr, this, nullptr);
 		connect(hips.data(), SIGNAL(statusChanged()), this, SLOT(updateHips()));
@@ -814,6 +819,26 @@ void ViewDialog::filterSurveys()
 		const QString text = item.text().simplified();
 		const bool show = pattern.isEmpty() || text.contains(pattern, Qt::CaseInsensitive);
 		item.setHidden(!show);
+	}
+}
+
+void ViewDialog::setMaxSurveyOrder(const int order)
+{
+	const auto item = ui->surveysListWidget->currentItem();
+	if (!item) return;
+
+	const auto typeComboBox = ui->surveyTypeComboBox;
+	const QVariant selectedType = typeComboBox->itemData(typeComboBox->currentIndex());
+	const auto currentSurvey = item->data(Qt::UserRole).toString();
+	const auto hipsmgr = StelApp::getInstance().getModule("HipsMgr");
+	const QList<HipsSurveyP> hipslist = hipsmgr->property("surveys").value<QList<HipsSurveyP>>();
+	for (const auto& hips : hipslist)
+	{
+		if (hips->property("url").toString() == currentSurvey)
+		{
+			hips->setMaxOrderLimit(order);
+			break;
+		}
 	}
 }
 

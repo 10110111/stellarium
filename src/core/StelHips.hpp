@@ -52,6 +52,7 @@ class HipsSurvey : public QObject
 	Q_PROPERTY(QJsonObject properties MEMBER properties NOTIFY propertiesChanged)
 	Q_PROPERTY(bool isLoading READ isLoading NOTIFY statusChanged)
 	Q_PROPERTY(bool visible READ isVisible WRITE setVisible NOTIFY visibleChanged)
+	Q_PROPERTY(int maxOrderLimit READ getMaxOrderLimit WRITE setMaxOrderLimit NOTIFY maxOrderLimitChanged)
 	//! The name of the planet the survey is attached to, or empty if this is a skysurvey.
 	Q_PROPERTY(QString planet MEMBER planet)
 
@@ -73,6 +74,9 @@ public:
 	//! Define whether the survey should be visible.
 	void setVisible(bool value);
 	float getInterstate() const {return fader.getInterstate();}
+
+	int getMaxOrderLimit() const { return maxOrderLimit; }
+	void setMaxOrderLimit(int order);
 
 	//! Render the survey.
 	//! @param sPainter the painter to use.
@@ -106,6 +110,7 @@ signals:
 	void propertiesChanged(void);
 	void statusChanged(void);
 	void visibleChanged(bool);
+	void maxOrderLimitChanged(int);
 
 private:
 	void checkForPlanetarySurvey();
@@ -119,6 +124,7 @@ private:
 	HipsSurveyP normals;
 	HipsSurveyP horizons;
 	double releaseDate; // As UTC Julian day.
+	int maxOrderLimit = 99999;
 	int order = -1;
 	bool planetarySurvey;
 	QCache<long int, HipsTile> tiles;

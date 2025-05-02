@@ -94,6 +94,7 @@ private slots:
 
 	void updateHips();
 	void filterSurveys();
+	void setMaxSurveyOrder(int order);
 	void hipsListItemChanged(QListWidgetItem* item);
 	void populateHipsGroups();
 	void toggleHipsDialog();

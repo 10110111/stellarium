@@ -148,6 +148,13 @@ void HipsSurvey::setVisible(bool value)
 	emit visibleChanged(value);
 }
 
+void HipsSurvey::setMaxOrderLimit(const int order)
+{
+	if (maxOrderLimit == order) return;
+	maxOrderLimit = order;
+	emit maxOrderLimitChanged(order);
+}
+
 int HipsSurvey::getPropertyInt(const QString& key, int fallback)
 {
 	if (!properties.contains(key)) return fallback;
@@ -311,6 +318,8 @@ void HipsSurvey::draw(StelPainter* sPainter, double angle, HipsSurvey::DrawCallb
 		drawOrder = ceil(log2(px / 1.5 / tileWidth));
 	}
 	drawOrder = qBound(orderMin, drawOrder, order);
+	if (drawOrder > maxOrderLimit)
+		drawOrder = maxOrderLimit;
 	int splitOrder = qMax(drawOrder, 4);
 	if (tileWidth < 512)
 	{
