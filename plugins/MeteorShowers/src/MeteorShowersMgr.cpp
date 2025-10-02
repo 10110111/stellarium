@@ -61,6 +61,7 @@ MeteorShowersMgr::MeteorShowersMgr()
 	, m_updateTimer(Q_NULLPTR)
 {
 	setObjectName("MeteorShowers");
+	connect(&StelApp::getInstance(), &StelApp::screenFontSizeChanged, this, &MeteorShowersMgr::updateFont);
 }
 
 MeteorShowersMgr::~MeteorShowersMgr()
@@ -152,6 +153,11 @@ void MeteorShowersMgr::createActions()
 	addAction("actionShow_MeteorShowers_search_dialog", msGroup, N_("Show meteor showers search dialog"),    m_searchDialog, "visible",      "Ctrl+Alt+M");
 }
 
+void MeteorShowersMgr::updateFont()
+{
+	setFontSize(m_conf->value(MS_CONFIG_PREFIX + "/font_size", 13).toInt());
+}
+
 void MeteorShowersMgr::loadConfig()
 {
 	setActiveRadiantOnly(m_conf->value(MS_CONFIG_PREFIX + "/flag_active_radiant_only", true).toBool());
@@ -167,7 +173,7 @@ void MeteorShowersMgr::loadConfig()
 	if (color[0]>1.f || color[1]>1.f || color[2]>1.f) { color /= 255.f; }
 	setColorIR(color);
 	setEnableAtStartup(m_conf->value(MS_CONFIG_PREFIX + "/enable_at_startup", true).toBool());	
-	setFontSize(m_conf->value(MS_CONFIG_PREFIX + "/font_size", 13).toInt());
+	updateFont();
 	setEnableLabels(m_conf->value(MS_CONFIG_PREFIX + "/flag_radiant_labels", true).toBool());
 	setEnableMarker(m_conf->value(MS_CONFIG_PREFIX + "/flag_radiant_marker", true).toBool());
 	setUpdateFrequencyHours(m_conf->value(MS_CONFIG_PREFIX + "/update_frequency_hours", 720).toInt());
@@ -560,7 +566,7 @@ void MeteorShowersMgr::setEnableAtStartup(const bool& b)
 void MeteorShowersMgr::setFontSize(int pixelSize)
 {
 	pixelSize = pixelSize < 1 ? 13 : pixelSize;
-	m_fontSize = pixelSize;
+	m_fontSize = pixelSize * StelApp::getInstance().screenFontSizeRatio();
 	m_conf->setValue(MS_CONFIG_PREFIX + "/font_size", pixelSize);
 }
 

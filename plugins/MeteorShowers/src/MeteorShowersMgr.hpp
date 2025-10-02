@@ -289,6 +289,9 @@ public slots:
 	//! Display a message. This is used for plugin-specific warnings and such
 	void displayMessage(const QString& message, const QString &hexColor="#999999");
 
+private:
+	void updateFont();
+
 private slots:
 	void checkForUpdates();
 	void updateDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
