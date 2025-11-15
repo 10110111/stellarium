@@ -53,6 +53,7 @@ AsterismMgr::AsterismMgr(StarMgr *_hip_stars)
         , namesFadeDuration(1.f)
         , rayHelpersFadeDuration(1.f)
 	, fontSize(14)
+	, relativeFontSize(fontSize / double(DEFAULT_FONT_SIZE))
         , asterismLineThickness(1)
         , rayHelperThickness(1)
 {
@@ -73,7 +74,10 @@ void AsterismMgr::init()
 	QSettings* conf = StelApp::getInstance().getSettings();
 	Q_ASSERT(conf);
 
-	setFontSize(conf->value("viewing/asterism_font_size", 14).toInt());
+	setFontSize(StelUtils::getFontSize(*conf, "viewing/asterism_relative_font_size",
+	                                   "viewing/asterism_font_size", 14. / 13.));
+	connect(&StelApp::getInstance(), &StelApp::screenFontSizeChanged, this,
+	        [this](const int size) { setFontSize(std::lround(relativeFontSize * size)); });
 	setFlagLines(conf->value("viewing/flag_asterism_drawing").toBool());
 	setFlagRayHelpers(conf->value("viewing/flag_rayhelper_drawing").toBool());
 	setFlagLabels(conf->value("viewing/flag_asterism_name").toBool());
@@ -247,7 +251,8 @@ Vec3f AsterismMgr::getLabelsColor() const
 void AsterismMgr::setFontSize(const int newFontSize)
 {
 	fontSize=newFontSize;
-	StelApp::immediateSave("viewing/asterism_font_size", newFontSize);
+	relativeFontSize = double(newFontSize) / StelApp::getInstance().getScreenFontSize();
+	StelApp::immediateSave("viewing/asterism_relative_font_size", relativeFontSize);
 	emit fontSizeChanged(newFontSize);
 }
 

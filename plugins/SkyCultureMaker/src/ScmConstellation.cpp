@@ -33,7 +33,9 @@ scm::ScmConstellation::ScmConstellation(const QString &id, const std::vector<Coo
 	, isDarkConstellation(isDarkConstellation)
 {
 	QSettings *conf = StelApp::getInstance().getSettings();
-	constellationNameFont.setPixelSize(conf->value("viewing/constellation_font_size", 15).toInt());
+	const auto fontSize = StelUtils::getFontSize(*conf, "viewing/constellation_relative_font_size",
+	                                             "viewing/constellation_font_size", 15. / DEFAULT_FONT_SIZE);
+	constellationNameFont.setPixelSize(fontSize);
 
 	QString defaultColor          = conf->value("color/default_color", "0.5,0.5,0.7").toString();
 	defaultConstellationLineColor = Vec3f(conf->value("color/const_lines_color", defaultColor).toString());

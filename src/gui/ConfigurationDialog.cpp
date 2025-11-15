@@ -864,6 +864,8 @@ void ConfigurationDialog::saveAllSettings()
 	const StelProjectorP proj = core->getProjection(StelCore::FrameJ2000);
 	Q_ASSERT(proj);
 
+	const auto screenFontSize = propMgr->getStelPropertyValue("StelApp.screenFontSize").toDouble();
+
         conf->setValue("gui/immediate_save_details",                    StelApp::getInstance().getFlagImmediateSave());
         conf->setValue("gui/flag_enable_kinetic_scrolling",             propMgr->getStelPropertyValue("StelGui.flagUseKineticScrolling").toBool());
 
@@ -1024,7 +1026,9 @@ void ConfigurationDialog::saveAllSettings()
         conf->setValue("viewing/part_thickness",                        propMgr->getStelPropertyValue("GridLinesMgr.partThickness").toInt());
         conf->setValue("viewing/point_size",                            propMgr->getStelPropertyValue("GridLinesMgr.pointSize").toInt());
 
-        conf->setValue("viewing/constellation_font_size",               propMgr->getStelPropertyValue("ConstellationMgr.fontSize").toInt());
+        conf->setValue("viewing/constellation_relative_font_size",      propMgr->getStelPropertyValue("ConstellationMgr.fontSize").toDouble() / screenFontSize);
+        conf->remove("viewing/constellation_font_size");
+
         conf->setValue("viewing/flag_constellation_abbreviations",      propMgr->getStelPropertyValue("StelSkyCultureMgr.flagUseAbbreviatedNames").toBool());
         conf->setValue("viewing/flag_constellation_drawing",            propMgr->getStelPropertyValue("ConstellationMgr.linesDisplayed").toBool());
         conf->setValue("viewing/flag_constellation_name",               propMgr->getStelPropertyValue("ConstellationMgr.namesDisplayed").toBool());
@@ -1054,7 +1058,9 @@ void ConfigurationDialog::saveAllSettings()
         conf->setValue("viewing/skyculture_lunarsystem_thickness",      QString::number(propMgr->getStelPropertyValue("ConstellationMgr.lunarSystemThickness").toDouble(), 'f', 1));
         conf->setValue("viewing/skyculture_lunarsystem_fade_duration",  QString::number(propMgr->getStelPropertyValue("ConstellationMgr.lunarSystemFadeDuration").toDouble(), 'f', 1));
 
-        conf->setValue("viewing/asterism_font_size",                    propMgr->getStelPropertyValue("AsterismMgr.fontSize").toInt());
+        conf->setValue("viewing/asterism_relative_font_size",           propMgr->getStelPropertyValue("AsterismMgr.fontSize").toDouble() / screenFontSize);
+        conf->remove("viewing/asterism_font_size");
+
         conf->setValue("viewing/flag_asterism_drawing",                 propMgr->getStelPropertyValue("AsterismMgr.linesDisplayed").toBool());
         conf->setValue("viewing/flag_asterism_name",                    propMgr->getStelPropertyValue("AsterismMgr.namesDisplayed").toBool());
         conf->setValue("viewing/asterism_line_thickness",               propMgr->getStelPropertyValue("AsterismMgr.asterismLineThickness").toInt());

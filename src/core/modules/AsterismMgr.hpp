@@ -279,6 +279,7 @@ private:
 	float rayHelpersFadeDuration;
 
 	int fontSize;
+	double relativeFontSize;
 	// Store the thickness of lines of the asterisms
 	int asterismLineThickness;
 	int rayHelperThickness;

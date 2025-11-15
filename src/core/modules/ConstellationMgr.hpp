@@ -548,6 +548,7 @@ private:
 	bool checkLoadingData;
 
 	int fontSize;
+	double relativeFontSize;
 	int constellationLineThickness;   //!< line width of the constellation lines
 	int boundariesThickness;          //!< line width of the constellation boundaries
 	int hullsThickness;               //!< line width of the constellation boundaries

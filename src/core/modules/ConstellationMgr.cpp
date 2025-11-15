@@ -70,6 +70,7 @@ ConstellationMgr::ConstellationMgr(StarMgr *_hip_stars)
 	  lunarSystemFadeDuration(1.),
 	  checkLoadingData(false),
 	  fontSize(15),
+	  relativeFontSize(fontSize / double(DEFAULT_FONT_SIZE)),
 	  constellationLineThickness(1),
 	  boundariesThickness(1),
 	  hullsThickness(1),
@@ -100,7 +101,11 @@ void ConstellationMgr::init()
 	QSettings* conf = StelApp::getInstance().getSettings();
 	Q_ASSERT(conf);
 
-	setFontSize(conf->value("viewing/constellation_font_size", 15).toInt());
+	setFontSize(StelUtils::getFontSize(*conf, "viewing/constellation_relative_font_size",
+	                                   "viewing/constellation_font_size", 15. / 13.));
+	connect(&StelApp::getInstance(), &StelApp::screenFontSizeChanged, this,
+	        [this](const int size) { setFontSize(std::lround(relativeFontSize * size)); });
+
 	setFlagLines(conf->value("viewing/flag_constellation_drawing", false).toBool());
 	setFlagLabels(conf->value("viewing/flag_constellation_name", false).toBool());
 	setFlagBoundaries(conf->value("viewing/flag_constellation_boundaries", false).toBool());
@@ -468,7 +473,8 @@ Vec3f ConstellationMgr::getLabelsColor() const
 void ConstellationMgr::setFontSize(const int newFontSize)
 {
 	fontSize=newFontSize;
-	StelApp::immediateSave("viewing/constellation_font_size", newFontSize);
+	relativeFontSize = double(newFontSize) / StelApp::getInstance().getScreenFontSize();
+	StelApp::immediateSave("viewing/constellation_relative_font_size", relativeFontSize);
 	emit fontSizeChanged(newFontSize);
 }
 

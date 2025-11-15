@@ -95,6 +95,7 @@
 #endif
 
 constexpr double DEFAULT_FONT_SIZE = 13;
+class QSettings;
 
 //! @namespace StelUtils contains general purpose utility functions.
 namespace StelUtils
@@ -133,6 +134,17 @@ namespace StelUtils
 	 *  will return 0, as QJsonValue's getters would in case of a type mismatch.
 	 */
 	qint64 getLongLong(const class QJsonValue& v);
+
+	/*! \brief Get font size based on a relative size setting or an absolute size setting
+	 *
+	 *  This function uses \p relativeSizeKey to get font size relative to screen font size
+	 *  and returns the corresponding absolute font size in (virtual) pixels, if this
+	 *  setting exists. If it doesn't, then the value of \p absoluteSizeKey is returned if
+	 *  it exists. If this one also doesn't exist, \p defaultRelSize is used to compute the
+	 *  return value as if it were the value of \p relativeSizeKey setting.
+	 */
+	int getFontSize(const QSettings& conf, const QString& relativeSizeKey,
+	                const QString& absoluteSizeKey, double defaultRelSize);
 
 	inline const QString getEndLineChar() {
 		#ifdef Q_OS_WIN

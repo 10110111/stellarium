@@ -27,6 +27,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QLocale>
+#include <QSettings>
 #include <QRegularExpression>
 #include <QProcess>
 #include <QSysInfo>
@@ -34,6 +35,7 @@
 #include <cmath> // std::fmod
 #include <limits>
 #include <zlib.h>
+#include "StelApp.hpp"
 
 #ifdef CYGWIN
 #include <malloc.h>
@@ -2847,6 +2849,18 @@ qint64 getLongLong(const QJsonValue& v)
 	if(value != integer) // fractional part must be zero
 		return reportError();
 	return integer;
+}
+
+int getFontSize(const QSettings& conf, const QString& relativeSizeKey,
+                const QString& absoluteSizeKey, double defaultRelSize)
+{
+	const double screenFontSize = StelApp::getInstance().getScreenFontSize();
+	const auto relFontSizeVar = conf.value(relativeSizeKey);
+	if (relFontSizeVar.isValid())
+		return std::lround(relFontSizeVar.toDouble() * screenFontSize);
+
+	const int defaultFontSize = std::lround(defaultRelSize * screenFontSize);
+	return conf.value(absoluteSizeKey, defaultFontSize).toInt();
 }
 
 } // end of the StelUtils namespace
