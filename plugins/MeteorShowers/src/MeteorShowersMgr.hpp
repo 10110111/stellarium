@@ -303,6 +303,7 @@ private:
 	MSSearchDialog* m_searchDialog;
 
 	int m_fontSize;
+	double m_relativeFontSize;
 	QSettings* m_conf;
 	QString m_catalogPath;
 

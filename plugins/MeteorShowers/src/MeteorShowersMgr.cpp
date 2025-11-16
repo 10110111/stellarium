@@ -167,7 +167,10 @@ void MeteorShowersMgr::loadConfig()
 	if (color[0]>1.f || color[1]>1.f || color[2]>1.f) { color /= 255.f; }
 	setColorIR(color);
 	setEnableAtStartup(m_conf->value(MS_CONFIG_PREFIX + "/enable_at_startup", true).toBool());	
-	setFontSize(m_conf->value(MS_CONFIG_PREFIX + "/font_size", 13).toInt());
+	setFontSize(StelUtils::getFontSize(*m_conf, MS_CONFIG_PREFIX + "/relative_font_size",
+	                                   MS_CONFIG_PREFIX + "/font_size", 1.0));
+	connect(&StelApp::getInstance(), &StelApp::screenFontSizeChanged, this,
+	        [this](const int size) { setFontSize(std::lround(m_relativeFontSize * size)); });
 	setEnableLabels(m_conf->value(MS_CONFIG_PREFIX + "/flag_radiant_labels", true).toBool());
 	setEnableMarker(m_conf->value(MS_CONFIG_PREFIX + "/flag_radiant_marker", true).toBool());
 	setUpdateFrequencyHours(m_conf->value(MS_CONFIG_PREFIX + "/update_frequency_hours", 720).toInt());
@@ -561,7 +564,9 @@ void MeteorShowersMgr::setFontSize(int pixelSize)
 {
 	pixelSize = pixelSize < 1 ? 13 : pixelSize;
 	m_fontSize = pixelSize;
-	m_conf->setValue(MS_CONFIG_PREFIX + "/font_size", pixelSize);
+	m_relativeFontSize = double(pixelSize) / StelApp::getInstance().getScreenFontSize();
+	m_conf->setValue(MS_CONFIG_PREFIX + "/relative_font_size", m_relativeFontSize);
+	m_conf->remove(MS_CONFIG_PREFIX + "/font_size");
 }
 
 void MeteorShowersMgr::setEnableLabels(const bool& b)
