@@ -4729,20 +4729,37 @@ void sMoon(Moon3DModel* model, const double equatorialRadius, const double oneMi
 		const auto data = StelUtils::uncompress(file);
 
 		uint32_t vertexCount, indexCount;
-		if(data.size() < sizeof vertexCount + sizeof indexCount)
-			throw std::runtime_error("cannot read vertex and index count");
+		float rMin, rMax;
+		if(size_t(data.size()) < sizeof vertexCount + sizeof indexCount + sizeof rMin + sizeof rMax)
+			throw std::runtime_error("cannot read header");
 		qsizetype pos = 0;
 		std::memcpy(&vertexCount, data.data() + pos, sizeof vertexCount);
 		pos += sizeof vertexCount;
 		std::memcpy(&indexCount, data.data() + pos, sizeof indexCount);
 		pos += sizeof indexCount;
+		std::memcpy(&rMin, data.data() + pos, sizeof rMin);
+		pos += sizeof rMin;
+		std::memcpy(&rMax, data.data() + pos, sizeof rMax);
+		pos += sizeof rMax;
 
 		model->vertexArr.resize(3 * vertexCount);
-		const qint64 vertSize = model->vertexArr.size()*sizeof model->vertexArr[0];
+		using VType = uint16_t;
+		constexpr double vTypeMax = std::numeric_limits<VType>::max();
+		const qint64 vertSize = model->vertexArr.size()*sizeof(VType);
 		if(data.size() < pos + vertSize)
 			throw std::runtime_error("cannot read vertices");
-		std::memcpy(model->vertexArr.data(), data.data() + pos, vertSize);
-		pos += vertSize;
+		for(size_t n = 0; n < vertexCount; ++n)
+		{
+			uint16_t coords[3];
+			std::memcpy(coords, data.data() + pos, sizeof coords);
+			pos += sizeof coords;
+			const auto r     = coords[0] / vTypeMax * (rMax - rMin) + rMin;
+			const auto theta = coords[1] / vTypeMax * M_PI - M_PI/2;
+			const auto phi   = coords[2] / vTypeMax * (2*M_PI) - M_PI;
+			model->vertexArr[n * 3 + 0] = r * std::cos(theta) * std::cos(phi);
+			model->vertexArr[n * 3 + 1] = r * std::cos(theta) * std::sin(phi);
+			model->vertexArr[n * 3 + 2] = r * std::sin(theta);
+		}
 
 		model->indexArr.resize(indexCount);
 		const qint64 indSize = model->indexArr.size()*sizeof model->indexArr[0];
