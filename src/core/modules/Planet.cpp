@@ -3930,15 +3930,6 @@ void Planet::draw(StelCore* core, float maxMagLabels, const QFont& planetNameFon
 	return;
 }
 
-class StelPainterLight
-{
-public:
-	Vec3d position;
-	Vec3f diffuse;
-	Vec3f ambient;
-};
-static StelPainterLight light;
-
 void Planet::PlanetShaderVars::initLocations(QOpenGLShaderProgram* p)
 {
 	GL(p->bind());
@@ -4513,6 +4504,8 @@ void Planet::draw3dModel(StelCore* core, StelProjector::ModelViewTranformP trans
 		}
 		#endif
 		
+		StelPainterLight light;
+
 		// Set the main source of light to be the sun.
 		// This must be the aberrated sun! (Mostly theoretically, this displacement seems more important for the shadows, done elsewhere...)
 		Vec3d sunPos = ssm->getSun()->getEclipticPos() + ssm->getSun()->getAberrationPush();
@@ -4563,20 +4556,20 @@ void Planet::draw3dModel(StelCore* core, StelProjector::ModelViewTranformP trans
 
 		if(ssm->getFlagUseObjModels() && !objModelPath.isEmpty())
 		{
-			if(!drawObjModel(&sPainter, screenRd))
+			if(!drawObjModel(light, &sPainter, screenRd))
 			{
-				drawSphere(&sPainter, screenRd, drawOnlyRing);
+				drawSphere(light, &sPainter, screenRd, drawOnlyRing);
 			}
 		}
 		else if (!survey || survey.colors->getInterstate() < 1.0f)
 		{
-			drawSphere(&sPainter, screenRd, drawOnlyRing);
+			drawSphere(light, &sPainter, screenRd, drawOnlyRing);
 		}
 
 		if (survey && survey.colors->getInterstate() > 0.0f)
 		{
-			drawSurvey(core, &sPainter);
-			drawSphere(&sPainter, screenRd, true);
+			drawSurvey(light, core, &sPainter);
+			drawSphere(light, &sPainter, screenRd, true);
 		}
 
 
@@ -4787,7 +4780,7 @@ void Planet::computeModelMatrix(Mat4d &result, bool solarEclipseCase) const
 }
 
 Planet::RenderData Planet::setCommonShaderUniforms(const StelPainter& painter, QOpenGLShaderProgram* shader, const PlanetShaderVars& shaderVars,
-                                                   const bool hasNormalMap, const bool hasHorizonMap)
+                                                   const StelPainterLight& light, const bool hasNormalMap, const bool hasHorizonMap)
 {
 	RenderData data;
 
@@ -4877,7 +4870,7 @@ Planet::RenderData Planet::setCommonShaderUniforms(const StelPainter& painter, Q
 	return data;
 }
 
-void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
+void Planet::drawSphere(const StelPainterLight& light, StelPainter* painter, float screenRd, bool drawOnlyRing)
 {
 	const float sphereScaleF=static_cast<float>(sphereScale);
 	if (horizonMap)
@@ -4967,7 +4960,7 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 
 	GL(shader->bind());
 
-	RenderData rData = setCommonShaderUniforms(*painter,shader,*shaderVars, isMoon,isMoon);
+	RenderData rData = setCommonShaderUniforms(*painter,shader,*shaderVars,light, isMoon,isMoon);
 	if(this==ssm->getSun())
 	{
 		const auto color = painter->getColor();
@@ -5189,7 +5182,7 @@ void Planet::drawSphere(StelPainter* painter, float screenRd, bool drawOnlyRing)
 }
 
 // Draw the Hips survey.
-void Planet::drawSurvey(StelCore* core, StelPainter* painter)
+void Planet::drawSurvey(const StelPainterLight& light, StelCore* core, StelPainter* painter)
 {
 	if (!Planet::initShader()) return;
 	static SolarSystem* ssm = GETSTELMODULE(SolarSystem);
@@ -5217,7 +5210,7 @@ void Planet::drawSurvey(StelCore* core, StelPainter* painter)
 	}
 
 	GL(shader->bind());
-	RenderData rData = setCommonShaderUniforms(*painter, shader, *shaderVars, !!survey.normals, !!survey.horizons);
+	RenderData rData = setCommonShaderUniforms(*painter, shader, *shaderVars, light, !!survey.normals, !!survey.horizons);
 	QVector<Vec3f> projectedVertsArray;
 	QVector<Vec3f> vertsArray;
 	const double angle = 2 * getSpheroidAngularRadius(core) * M_PI_180;
@@ -5399,7 +5392,7 @@ bool Planet::ensureObjLoaded()
 	return true;
 }
 
-bool Planet::drawObjModel(StelPainter *painter, float screenRd)
+bool Planet::drawObjModel(const StelPainterLight& light, StelPainter *painter, float screenRd)
 {
 	Q_UNUSED(screenRd) //screen size unused for now, use it for LOD or something?
 
@@ -5418,7 +5411,7 @@ bool Planet::drawObjModel(StelPainter *painter, float screenRd)
 	QMatrix4x4 shadowMatrix;
 	bool shadowmapping = false;
 	if(ssm->getFlagShowObjSelfShadows())
-		shadowmapping = drawObjShadowMap(painter,shadowMatrix);
+		shadowmapping = drawObjShadowMap(light.position, painter, shadowMatrix);
 
 	if(objModel->texture)
 	{
@@ -5511,7 +5504,7 @@ bool Planet::drawObjModel(StelPainter *painter, float screenRd)
 	GL(shd->enableAttributeArray("vertex"));
 	objModel->projPosBuffer->release();
 
-	setCommonShaderUniforms(*painter,shd,*shdVars,false,false);
+	setCommonShaderUniforms(*painter,shd,*shdVars,light,false,false);
 
 	//draw that model using the array wrapper
 	objModel->arr->draw();
@@ -5526,7 +5519,7 @@ bool Planet::drawObjModel(StelPainter *painter, float screenRd)
 	return true;
 }
 
-bool Planet::drawObjShadowMap(StelPainter *painter, QMatrix4x4& shadowMatrix)
+bool Planet::drawObjShadowMap(const Vec3d& lightPosition, StelPainter *painter, QMatrix4x4& shadowMatrix)
 {
 	if(!shadowInitialized)
 		if(!initFBO())
@@ -5542,7 +5535,7 @@ bool Planet::drawObjShadowMap(StelPainter *painter, QMatrix4x4& shadowMatrix)
 	//computeModelMatrix(modelMatrix);
 	//Mat4d worldToModel = modelMatrix.inverse();
 
-	Vec3d lightDir = light.position;
+	Vec3d lightDir = lightPosition;
 	projector->getModelViewTransform()->backward(lightDir);
 	//Vec3d lightDir(worldToModel[12], worldToModel[13], worldToModel[14]);
 	lightDir.normalize();
