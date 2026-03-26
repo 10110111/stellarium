@@ -300,6 +300,8 @@ void main()
 #ifdef IS_MOON
     mediump vec2 moonTexCoord = texc;
     mediump vec2 texDx = vec2(0), texDy = vec2(0);
+    if(texCoordsFromFragment)
+        moonTexCoord = vec2(atan(normalZ.x, -normalZ.y)/(2.*PI)+0.5, asin(normalize(normalZ).z)/PI+0.5);
 #ifdef textureGrad_SUPPORTED
     if(texCoordsFromFragment)
     {
@@ -322,8 +324,6 @@ void main()
 	    texDy = vec2(gradLongitude.t/(2.*PI), texTdy);
     }
 #endif
-    if(texCoordsFromFragment)
-        moonTexCoord = vec2(atan(normalZ.x, -normalZ.y)/(2.*PI)+0.5, asin(normalize(normalZ).z)/PI+0.5);
 
     mediump vec3 normal;
     if(hasNormalMap)
