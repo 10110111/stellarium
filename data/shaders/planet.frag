@@ -301,10 +301,10 @@ void main()
     mediump vec2 moonTexCoord = texc;
     mediump vec2 texDx = vec2(0), texDy = vec2(0);
     if(texCoordsFromFragment)
-        moonTexCoord = vec2(atan(normalZ.x, -normalZ.y)/(2.*PI)+0.5, asin(normalize(normalZ).z)/PI+0.5);
-#ifdef textureGrad_SUPPORTED
-    if(texCoordsFromFragment)
     {
+        moonTexCoord = vec2(atan(normalZ.x, -normalZ.y)/(2.*PI)+0.5, asin(normalize(normalZ).z)/PI+0.5);
+
+#ifdef textureGrad_SUPPORTED
         // The usual automatic computation of derivatives of texture coordinates
         // breaks down at the discontinuity of atan, resulting in choosing the most
         // minified mip level instead of the correct one, which looks as a seam on
@@ -322,8 +322,8 @@ void main()
         float texTdy = dFdy(moonTexCoord.t);
         texDx = vec2(gradLongitude.s/(2.*PI), texTdx);
         texDy = vec2(gradLongitude.t/(2.*PI), texTdy);
-    }
 #endif
+    }
 
     mediump vec3 normal;
     if(hasNormalMap)
