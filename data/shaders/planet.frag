@@ -305,23 +305,23 @@ void main()
 #ifdef textureGrad_SUPPORTED
     if(texCoordsFromFragment)
     {
-	    // The usual automatic computation of derivatives of texture coordinates
-	    // breaks down at the discontinuity of atan, resulting in choosing the most
-	    // minified mip level instead of the correct one, which looks as a seam on
-	    // the screen. Thus, we need to compute them in a custom way, treating atan
-	    // as a (continuous) multivalued function. We differentiate
-	    // atan(normalZ.x(x,y), -normalZ.y(x,y)) with respect to x and y and yield
-	    // gradLongitude vector.
-	    vec2 gradNormalZX = vec2(dFdx(normalZ.x), dFdy(normalZ.x));
-	    vec2 gradNormalZY = vec2(dFdx(-normalZ.y), dFdy(-normalZ.y));
-	    vec2 gradLongitude = vec2(-normalZ.y*gradNormalZX.s-normalZ.x*gradNormalZY.s,
-				      -normalZ.y*gradNormalZX.t-normalZ.x*gradNormalZY.t)
-		    /
-		    dot(normalZ, normalZ);
-	    float texTdx = dFdx(moonTexCoord.t);
-	    float texTdy = dFdy(moonTexCoord.t);
-	    texDx = vec2(gradLongitude.s/(2.*PI), texTdx);
-	    texDy = vec2(gradLongitude.t/(2.*PI), texTdy);
+        // The usual automatic computation of derivatives of texture coordinates
+        // breaks down at the discontinuity of atan, resulting in choosing the most
+        // minified mip level instead of the correct one, which looks as a seam on
+        // the screen. Thus, we need to compute them in a custom way, treating atan
+        // as a (continuous) multivalued function. We differentiate
+        // atan(normalZ.x(x,y), -normalZ.y(x,y)) with respect to x and y and yield
+        // gradLongitude vector.
+        vec2 gradNormalZX = vec2(dFdx(normalZ.x), dFdy(normalZ.x));
+        vec2 gradNormalZY = vec2(dFdx(-normalZ.y), dFdy(-normalZ.y));
+        vec2 gradLongitude = vec2(-normalZ.y*gradNormalZX.s-normalZ.x*gradNormalZY.s,
+                                  -normalZ.y*gradNormalZX.t-normalZ.x*gradNormalZY.t)
+                                                       /
+                                             dot(normalZ, normalZ);
+        float texTdx = dFdx(moonTexCoord.t);
+        float texTdy = dFdy(moonTexCoord.t);
+        texDx = vec2(gradLongitude.s/(2.*PI), texTdx);
+        texDy = vec2(gradLongitude.t/(2.*PI), texTdy);
     }
 #endif
 
