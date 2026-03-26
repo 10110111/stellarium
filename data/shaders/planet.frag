@@ -327,7 +327,7 @@ void main()
 
     mediump vec3 normal;
     if(hasNormalMap)
-        normal = sampleTexDxDy(normalMap, moonTexCoord, texDx, texDy).rgb-vec3(0.5, 0.5, 0);
+        normal = sampleTexDxDy(normalMap, moonTexCoord, texDx, texDy).rgb-vec3(0.5);
     else
         normal = vec3(0,0,1);
 
