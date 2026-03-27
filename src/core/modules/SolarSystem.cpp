@@ -1371,7 +1371,7 @@ bool SolarSystem::loadPlanets(const QString& filePath)
 					       pd.value(secname+"/albedo", 0.25f).toFloat(),
 					       pd.value(secname+"/roughness",0.9f).toFloat(),
 					       pd.value(secname+"/tex_map", "nomap.png").toString(),
-					       pd.value(secname+"/normals_map", englishName.toLower().append("_normals.png")).toString(),
+					       pd.value(secname+"/normals_map", englishName.toLower().append("_normals.png")).toString().replace("moon_normals", "moon_heights"),
 					       pd.value(secname+"/horizon_map", englishName.toLower().append("_horizon.png")).toString(),
 					       pd.value(secname+"/model").toString(),
 					       posfunc,

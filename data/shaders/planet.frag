@@ -327,7 +327,23 @@ void main()
 
     mediump vec3 normal;
     if(hasNormalMap)
-        normal = sampleTexDxDy(normalMap, moonTexCoord, texDx, texDy).rgb-vec3(0.5);
+    {
+        const float heightUnit = 65535. / 2.;
+        float height = heightUnit * sampleTexDxDy(normalMap, moonTexCoord, texDx, texDy).r;
+        float radius = 1727400. + height;
+        float ds = 1. / textureSize(normalMap, 0).s;
+        float dt = 1. / textureSize(normalMap, 0).t;
+        vec2 tcEast = moonTexCoord + vec2(ds,0);
+        vec2 tcNorth = moonTexCoord + vec2(0,dt);
+        float heightEast = heightUnit * sampleTexDxDy(normalMap, tcEast, texDx, texDy).r;
+        float heightNorth = heightUnit * sampleTexDxDy(normalMap, tcNorth, texDx, texDy).r;
+        float dHds = (heightEast - height) / ds;
+        float dHdt = (heightNorth - height) / dt;
+        float cosLat = sin(PI * moonTexCoord.t);
+        float dHdLon = dHds / (2*PI);
+        float dHdLat = dHdt / PI;
+        normal = normalize(vec3(-dHdLon, -cosLat * dHdLat, cosLat*radius));
+    }
     else
         normal = vec3(0,0,1);
 

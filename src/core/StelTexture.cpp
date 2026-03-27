@@ -379,21 +379,47 @@ QByteArray StelTexture::convertToGLFormat(QImage image, GLint& format, GLint& ty
 	          format == GL_RGBA ? 4 :
 	                          3;
 
-	ret.reserve(static_cast<long>(width) * height * bpp);
-	QImage tmp = image.convertToFormat(QImage::Format_ARGB32);
-
-	// convert data
-	// we always use a tightly packed format, with 1-4 bpp
-	// the image should be flipped over y, so read it backwards from the end
-	for (int i = height - 1; i >= 0; --i)
+	QImage tmp;
+	if (image.format() == QImage::Format_Grayscale16)
 	{
-		uint *p = reinterpret_cast<uint *>( tmp.scanLine(i));
-		for (int x = 0; x < width; ++x)
+		// Special case that has never used GL_LUMINANCE*, so regardless
+		// of support for luminance textures we can just use RED.
+		format = GL_RED;
+		type = GL_UNSIGNED_SHORT;
+		bpp = 2;
+		tmp = image;
+		ret.resize(static_cast<long>(width) * height * bpp);
+
+		size_t posInImg = 0;
+		for (int i = height - 1; i >= 0; --i)
 		{
-			uint c = qToBigEndian(p[x]);
-			const char* ptr = reinterpret_cast<const char*>(&c);
-			switch (format)
+			const auto p = tmp.scanLine(i);
+			size_t posInLine = 0;
+			for (int x = 0; x < width; ++x)
 			{
+				std::memcpy(ret.data() + posInImg, p + posInLine, bpp);
+				posInImg += bpp;
+				posInLine += bpp;
+			}
+		}
+	}
+	else
+	{
+		tmp = image.convertToFormat(QImage::Format_ARGB32);
+		ret.reserve(static_cast<long>(width) * height * bpp);
+
+		// convert data
+		// we always use a tightly packed format, with 1-4 bpp
+		// the image should be flipped over y, so read it backwards from the end
+		for (int i = height - 1; i >= 0; --i)
+		{
+			uint *p = reinterpret_cast<uint *>( tmp.scanLine(i));
+			for (int x = 0; x < width; ++x)
+			{
+				uint c = qToBigEndian(p[x]);
+				const char* ptr = reinterpret_cast<const char*>(&c);
+				switch (format)
+				{
 				case GL_RGBA:
 					ret.append(ptr + 1, 3);
 					ret.append(ptr, 1);
@@ -410,6 +436,7 @@ QByteArray StelTexture::convertToGLFormat(QImage image, GLint& format, GLint& ty
 					break;
 				default:
 					Q_ASSERT(false);
+				}
 			}
 		}
 	}
