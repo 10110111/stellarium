@@ -66,8 +66,73 @@
 #include <QtConcurrent>
 #endif
 
+#if USE_FAST_FLOAT
+# include <fast_float/fast_float.h>
+namespace sys
+{
+using fast_float::from_chars;
+}
+using fast_float::from_chars_result;
+#else
+# include <charconv>
+namespace sys
+{
+using std::from_chars;
+}
+using std::from_chars_result;
+#endif
+
+
 namespace
 {
+
+std::string_view string_view(const QByteArray& arr)
+{
+	return {arr.constData(), size_t(arr.size())};
+}
+
+std::string_view trimmed(const std::string_view sv)
+{
+	static const char spaces[] = "\t\n\v\f\r ";
+	const auto start = sv.find_first_not_of(spaces);
+	if (start == sv.npos) return "";
+	auto end = sv.find_last_not_of(spaces);
+	if (end == sv.npos)
+		end = sv.size();
+	else
+		++end;
+	return {sv.begin() + start, end - start};
+}
+
+std::vector<std::string_view> split(const std::string_view line, const char sep)
+{
+	std::vector<std::string_view> list;
+	auto currIt = line.begin();
+	while (currIt != line.end())
+	{
+		const auto nextIt = std::find(currIt, line.end(), sep);
+		list.emplace_back(&*currIt, nextIt - currIt);
+		if (nextIt == line.end()) break;
+		currIt = nextIt + 1; // skip sep
+	}
+	return list;
+}
+
+double toDouble(const std::string_view sv, bool* ok = nullptr)
+{
+	double value = 0;
+	const auto ret = std::from_chars(sv.begin(), sv.end(), value);
+	if (ok) *ok = ret.ec == std::errc{};
+	return value;
+}
+
+unsigned toUInt(const std::string_view sv, bool* ok = nullptr)
+{
+	unsigned value = 0;
+	const auto ret = std::from_chars(sv.begin(), sv.end(), value);
+	if (ok) *ok = ret.ec == std::errc{};
+	return value;
+}
 
 QByteArray unzipData(const QByteArray& fd)
 {
@@ -104,23 +169,25 @@ QByteArray unzipData(const QByteArray& fd)
 	return data;
 }
 
-struct SatCsvEntry
+// This struct is "temporary" in the sense that it
+// stores string views, not actual strings.
+struct SatCsvEntryTmp
 {
-	QString object_id;
-	QString epoch;
+	std::string_view object_id;
+	std::string_view epoch;
+	std::string_view classification_type;
 	double mean_motion;
 	double eccentricity;
 	double inclination;
 	double ra_of_asc_node;
 	double arg_of_pericenter;
 	double mean_anomaly;
-	int ephemeris_type;
-	QString classification_type;
-	int element_set_no;
-	int rev_at_epoch;
 	double bstar;
 	double mean_motion_dot;
 	double mean_motion_ddot;
+	int ephemeris_type;
+	int element_set_no;
+	int rev_at_epoch;
 };
 
 void addTleChecksum(QString& line)
@@ -137,7 +204,7 @@ void addTleChecksum(QString& line)
 	line += QString::number(sum % 10);
 }
 
-QString formatTleEpoch(const QString& epochFromCSV)
+QString formatTleEpoch(const std::string_view epochFromCSV)
 {
 	// The expected format is QDateTime's "yyyy-MM-ddTHH:mm:ss.z", followed by 3 digits of microseconds.
 	// But parsing this using QDateTime::fromString() is awfully slow (more than 70× slower than this code).
@@ -152,13 +219,13 @@ QString formatTleEpoch(const QString& epochFromCSV)
 		return {};
 	}
 	bool yOK = false, mthOK = false, dOK = false, hOK = false, minOK = false, sOK = false, usOK = false;
-	const auto year = epochFromCSV.mid(0, 4).toUInt(&yOK);
-	const auto month = epochFromCSV.mid(5, 2).toUInt(&mthOK);
-	const auto day = epochFromCSV.mid(8, 2).toUInt(&dOK);
-	const auto hour = epochFromCSV.mid(11, 2).toUInt(&hOK);
-	const auto minute = epochFromCSV.mid(14, 2).toUInt(&minOK);
-	const auto second = epochFromCSV.mid(17, 2).toUInt(&sOK);
-	const auto microsecond = epochFromCSV.mid(20, 6).toUInt(&usOK);
+	const auto year = toUInt(epochFromCSV.substr(0, 4), &yOK);
+	const auto month = toUInt(epochFromCSV.substr(5, 2), &mthOK);
+	const auto day = toUInt(epochFromCSV.substr(8, 2), &dOK);
+	const auto hour = toUInt(epochFromCSV.substr(11, 2), &hOK);
+	const auto minute = toUInt(epochFromCSV.substr(14, 2), &minOK);
+	const auto second = toUInt(epochFromCSV.substr(17, 2), &sOK);
+	const auto microsecond = toUInt(epochFromCSV.substr(20, 6), &usOK);
 	if (!yOK|| !mthOK|| !dOK|| !hOK|| !minOK|| !sOK|| !usOK) return {};
 
 	const auto ms = microsecond / 1000;
@@ -215,7 +282,7 @@ bool tleLineValid(const QString& line, const QString& lineTemplate)
 	QString("Current length must be <=%1, but is %2.\nCurrent incomplete line: \"%3\"").arg(N).arg(line.size()).arg(line)); \
 	return {}; } }
 
-QString generateTleLine1(const SatCsvEntry& data,
+QString generateTleLine1(const SatCsvEntryTmp& data,
                          const std::function<void(const QString&,const QString&)>& warn)
 {
 	QString line = L1S("1 00000");
@@ -231,7 +298,7 @@ QString generateTleLine1(const SatCsvEntry& data,
 	line += ' ';
 
 	auto object_id = data.object_id;
-	if (object_id.isEmpty())
+	if (object_id.empty())
 		object_id = "    -    ";
 	if (object_id.size() < 6)
 	{
@@ -242,7 +309,7 @@ QString generateTleLine1(const SatCsvEntry& data,
 	// Skip the '-' in the object_id, and omit first two digits of the year
 	line += object_id[2];
 	line += object_id[3];
-	line += object_id.mid(5, 6);
+	line += object_id.substr(5, 6);
 	TLE_POS_MUST_BE_LE(line,1, 17);
 	line.resize(18, QLatin1Char(' ')); // pad to the next field
 	const auto epochStr = formatTleEpoch(data.epoch);
@@ -305,7 +372,7 @@ QString generateTleLine1(const SatCsvEntry& data,
 	return line;
 }
 
-QString generateTleLine2(const SatCsvEntry& data,
+QString generateTleLine2(const SatCsvEntryTmp& data,
                          const std::function<void(const QString&,const QString&)>& warn)
 {
 	QString line = L1S("2 00000 ");
@@ -3075,11 +3142,12 @@ void Satellites::parseCsvFile(QFile& openFile, const QStringList& headerEntries,
 	int BSTAR = -1;
 	int MEAN_MOTION_DOT = -1;
 	int MEAN_MOTION_DDOT = -1;
-	const auto warn = [&tleURL,&headerEntries](const QString& what, const QString& why, const QStringList& lineEntries)
+	const auto warn = [&tleURL,&headerEntries](const QString& what, const QString& why,
+	                                           const std::vector<std::string_view>& lineEntries)
 	{
 		qWarning().noquote().nospace() << what << " in " << tleURL << ": " << why;
 		qWarning() << "Header entries:" << headerEntries;
-		if (!lineEntries.isEmpty())
+		if (!lineEntries.empty())
 			qWarning() << "Line entries:" << lineEntries;
 	};
 	for (int idx = 0; idx < headerEntries.size(); ++idx)
@@ -3116,12 +3184,13 @@ void Satellites::parseCsvFile(QFile& openFile, const QStringList& headerEntries,
 
 	while (!openFile.atEnd())
 	{
-		const auto lineEntries = QString(openFile.readLine()).trimmed().split(QLatin1Char(','));
+		const auto line = openFile.readLine().trimmed();
+		const auto lineEntries = split(string_view(line), ',');
 		const auto warnAboutLine = [&warn, &lineEntries](const QString& what, const QString& why)
 		{
 			warn(what, why, lineEntries);
 		};
-		if (lineEntries.size() != headerEntries.size())
+		if (lineEntries.size() != size_t(headerEntries.size()))
 		{
 			warnAboutLine("Bad CSV line",
 			              QString("number of entries %1  doesn't match number of header entries %2")
@@ -3131,9 +3200,9 @@ void Satellites::parseCsvFile(QFile& openFile, const QStringList& headerEntries,
 		TleData data{};
 		data.addThis = addFlagValue;
 		data.sourceURL = tleURL;
-		data.name = lineEntries[OBJECT_NAME];
+		data.name = QLatin1String(lineEntries[OBJECT_NAME].data(), lineEntries[OBJECT_NAME].size());
 		bool ok = false;
-		data.id = lineEntries[NORAD_CAT_ID];
+		data.id = QLatin1String(lineEntries[NORAD_CAT_ID].data(), lineEntries[NORAD_CAT_ID].size());
 		data.id.toUInt(&ok);
 		if (!ok)
 		{
@@ -3143,24 +3212,24 @@ void Satellites::parseCsvFile(QFile& openFile, const QStringList& headerEntries,
 
 		// Now generate a TLE from the CSV fields, except the NORAD id
 		// will be zeroed out, because it may be longer than 5 digits.
-		SatCsvEntry entry;
+		SatCsvEntryTmp entry;
 		bool mmOK = false, eccOK = false, incOK = false, raaOK = false, aopOK = false, maOK = false;
 		bool etOK = false, esnOK = false, raeOK = false, bsOK = false, mmdOK = false, mmddOK = false;
-		entry.object_id           = lineEntries[OBJECT_ID].trimmed();
-		entry.epoch               = lineEntries[EPOCH].trimmed();
-		entry.mean_motion         = lineEntries[MEAN_MOTION].trimmed().toDouble(&mmOK);
-		entry.eccentricity        = lineEntries[ECCENTRICITY].trimmed().toDouble(&eccOK);
-		entry.inclination         = lineEntries[INCLINATION].trimmed().toDouble(&incOK);
-		entry.ra_of_asc_node      = lineEntries[RA_OF_ASC_NODE].trimmed().toDouble(&raaOK);
-		entry.arg_of_pericenter   = lineEntries[ARG_OF_PERICENTER].trimmed().toDouble(&aopOK);
-		entry.mean_anomaly        = lineEntries[MEAN_ANOMALY].trimmed().toDouble(&maOK);
-		entry.ephemeris_type      = lineEntries[EPHEMERIS_TYPE].trimmed().toUInt(&etOK);
-		entry.classification_type = lineEntries[CLASSIFICATION_TYPE].trimmed();
-		entry.element_set_no      = lineEntries[ELEMENT_SET_NO].trimmed().toUInt(&esnOK);
-		entry.rev_at_epoch        = lineEntries[REV_AT_EPOCH].trimmed().toUInt(&raeOK);
-		entry.bstar               = lineEntries[BSTAR].trimmed().toDouble(&bsOK);
-		entry.mean_motion_dot     = lineEntries[MEAN_MOTION_DOT].trimmed().toDouble(&mmdOK);
-		entry.mean_motion_ddot    = lineEntries[MEAN_MOTION_DDOT].trimmed().toDouble(&mmddOK);
+		entry.object_id           = trimmed(lineEntries[OBJECT_ID]);
+		entry.epoch               = trimmed(lineEntries[EPOCH]);
+		entry.classification_type = trimmed(lineEntries[CLASSIFICATION_TYPE]);
+		entry.mean_motion         = toDouble(trimmed(lineEntries[MEAN_MOTION]), &mmOK);
+		entry.eccentricity        = toDouble(trimmed(lineEntries[ECCENTRICITY]), &eccOK);
+		entry.inclination         = toDouble(trimmed(lineEntries[INCLINATION]), &incOK);
+		entry.ra_of_asc_node      = toDouble(trimmed(lineEntries[RA_OF_ASC_NODE]), &raaOK);
+		entry.arg_of_pericenter   = toDouble(trimmed(lineEntries[ARG_OF_PERICENTER]), &aopOK);
+		entry.mean_anomaly        = toDouble(trimmed(lineEntries[MEAN_ANOMALY]), &maOK);
+		entry.bstar               = toDouble(trimmed(lineEntries[BSTAR]), &bsOK);
+		entry.mean_motion_dot     = toDouble(trimmed(lineEntries[MEAN_MOTION_DOT]), &mmdOK);
+		entry.mean_motion_ddot    = toDouble(trimmed(lineEntries[MEAN_MOTION_DDOT]), &mmddOK);
+		entry.ephemeris_type      = toUInt(trimmed(lineEntries[EPHEMERIS_TYPE]), &etOK);
+		entry.element_set_no      = toUInt(trimmed(lineEntries[ELEMENT_SET_NO]), &esnOK);
+		entry.rev_at_epoch        = toUInt(trimmed(lineEntries[REV_AT_EPOCH]), &raeOK);
 		if (!(mmOK && eccOK && incOK && raaOK && aopOK && maOK && etOK && esnOK && raeOK && bsOK && mmdOK && mmddOK))
 		{
 			warnAboutLine("Bad CSV line", "not all numbers are parsable");
