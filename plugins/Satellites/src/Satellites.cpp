@@ -2785,7 +2785,8 @@ void Satellites::parseTleFile(QFile& openFile, TleDataHash& tleList, bool addFla
 				//TODO: Error warnings? --BM
 			}
 			else
-				qDebug() << "[Satellites] unprocessed line " << lineNumber <<  " in file " << QDir::toNativeSeparators(openFile.fileName());
+				qWarning().nospace() << "[Satellites] unprocessed line " << lineNumber << " in file "
+					<< QDir::toNativeSeparators(openFile.fileName()) << ": " << line;
 		}
 	}
 }
