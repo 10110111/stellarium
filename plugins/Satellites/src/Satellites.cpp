@@ -139,10 +139,33 @@ void addTleChecksum(QString& line)
 
 QString formatTleEpoch(const QString& epochFromCSV)
 {
-	const auto epoch = QDateTime::fromString(epochFromCSV.left(23) + " +0000", "yyyy-MM-ddTHH:mm:ss.z tt");
+	// The expected format is QDateTime's "yyyy-MM-ddTHH:mm:ss.z", followed by 3 digits of microseconds.
+	// But parsing this using QDateTime::fromString() is awfully slow (more than 70× slower than this code).
+	if (epochFromCSV.size() != 26 ||
+	    epochFromCSV[4] != '-' ||
+	    epochFromCSV[7] != '-' ||
+	    epochFromCSV[10] != 'T' ||
+	    epochFromCSV[13] != ':' ||
+	    epochFromCSV[16] != ':' ||
+	    epochFromCSV[19] != '.')
+	{
+		return {};
+	}
+	bool yOK = false, mthOK = false, dOK = false, hOK = false, minOK = false, sOK = false, usOK = false;
+	const auto year = epochFromCSV.mid(0, 4).toUInt(&yOK);
+	const auto month = epochFromCSV.mid(5, 2).toUInt(&mthOK);
+	const auto day = epochFromCSV.mid(8, 2).toUInt(&dOK);
+	const auto hour = epochFromCSV.mid(11, 2).toUInt(&hOK);
+	const auto minute = epochFromCSV.mid(14, 2).toUInt(&minOK);
+	const auto second = epochFromCSV.mid(17, 2).toUInt(&sOK);
+	const auto microsecond = epochFromCSV.mid(20, 6).toUInt(&usOK);
+	if (!yOK|| !mthOK|| !dOK|| !hOK|| !minOK|| !sOK|| !usOK) return {};
+
+	const auto ms = microsecond / 1000;
+	const auto microsecTail = microsecond - ms * 1000;
+	const auto epoch = QDateTime(QDate(year, month, day), QTime(hour, minute, second, ms), QTimeZone(0));
 	if (!epoch.isValid()) return {};
-	static const auto epoch0 = QDateTime(QDate(epoch.date().year(), 1, 1), QTime(0,0,0), QTimeZone(0));
-	const auto microsecTail = epochFromCSV.mid(23).toUInt();
+	static const auto epoch0 = QDateTime(QDate(year, 1, 1), QTime(0,0,0), QTimeZone(0));
 	// The +1 shifts refence to "Jan 0" instead of Jan 1
 	const auto diffInDays = 1 + (epoch0.msecsTo(epoch) + microsecTail * 1e-3) / 86400e3;
 	const auto epochYear = epoch.date().year();
