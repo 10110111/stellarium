@@ -405,32 +405,32 @@ ENDIF()
 
 ########### Others ###########
 # Activate translation
-SET(ENABLE_NLS 1 CACHE BOOL "Define whether program translation should be supported.")
+SET(ENABLE_NLS 0 CACHE BOOL "Define whether program translation should be supported.")
 IF(ENABLE_NLS)
      ADD_DEFINITIONS(-DENABLE_NLS)
 ENDIF()
 # This option toggle processing files in po directory
-SET(ENABLE_PODIR 1 CACHE BOOL "Define whether processing of translation files should be supported.")
+SET(ENABLE_PODIR 0 CACHE BOOL "Define whether processing of translation files should be supported.")
 
 # Activate media support
-SET(ENABLE_MEDIA 1 CACHE BOOL "Define whether media support should be activated.")
+SET(ENABLE_MEDIA 0 CACHE BOOL "Define whether media support should be activated.")
 
 # Activate media support
-SET(ENABLE_SPEECH 1 CACHE BOOL "Define whether speech output should be activated. Requires Qt6.4+ and ENABLE_MEDIA.")
+SET(ENABLE_SPEECH 0 CACHE BOOL "Define whether speech output should be activated. Requires Qt6.4+ and ENABLE_MEDIA.")
 
 # Activate QtWebEngine support
-SET(ENABLE_QTWEBENGINE 1 CACHE BOOL "Define whether QtWebEngine module should be supported if it installed.")
+SET(ENABLE_QTWEBENGINE 0 CACHE BOOL "Define whether QtWebEngine module should be supported if it installed.")
 
 # Activate GPS support. Solution depends on operating system:
 # - Windows: Only directly-attached serial NMEA emitter.
 # - Other systems: libgps if possible and NMEA emitter as fallback.
-SET(ENABLE_GPS 1 CACHE BOOL "Define whether GPS queries should be supported.")
+SET(ENABLE_GPS 0 CACHE BOOL "Define whether GPS queries should be supported.")
 
 # Activate support for ShowMySky atmosphere
-SET(ENABLE_SHOWMYSKY 1 CACHE BOOL "Define whether to support ShowMySky atmosphere model if installed")
+SET(ENABLE_SHOWMYSKY 0 CACHE BOOL "Define whether to support ShowMySky atmosphere model if installed")
 
 # Activate support for XLSX (Excel) files
-SET(ENABLE_XLSX 1 CACHE BOOL "Define whether to support XLSX (Excel) files")
+SET(ENABLE_XLSX 0 CACHE BOOL "Define whether to support XLSX (Excel) files")
 IF(ENABLE_XLSX)
      ADD_DEFINITIONS(-DENABLE_XLSX)
 ENDIF()
@@ -498,7 +498,7 @@ IF(ENABLE_SPOUT)
      MARK_AS_ADVANCED(SPOUT_LIBRARY_DLL)
 ENDIF(ENABLE_SPOUT)
 
-SET(ENABLE_SCRIPTING 1 CACHE BOOL "Define whether scripting features should be activated.")
+SET(ENABLE_SCRIPTING 0 CACHE BOOL "Define whether scripting features should be activated.")
 IF(ENABLE_SCRIPTING)
      ADD_DEFINITIONS(-DENABLE_SCRIPTING)
      # (De-)Activate the script edit console
@@ -553,42 +553,42 @@ ENDMACRO()
 ADD_PLUGIN(HelloStelModule 0)
 ADD_PLUGIN(SimpleDrawLine 0)
 #### work plugins ####
-ADD_PLUGIN(AngleMeasure 1)
-ADD_PLUGIN(ArchaeoLines 1)
-ADD_PLUGIN(Calendars 1)
-ADD_PLUGIN(Exoplanets 1)
-ADD_PLUGIN(EquationOfTime 1)
-ADD_PLUGIN(MeteorShowers 1)
-ADD_PLUGIN(MosaicCamera 1)
-ADD_PLUGIN(NavStars 1)
-ADD_PLUGIN(Novae 1)
-ADD_PLUGIN(Observability 1)
-ADD_PLUGIN(Oculars 1)
+ADD_PLUGIN(AngleMeasure 0)
+ADD_PLUGIN(ArchaeoLines 0)
+ADD_PLUGIN(Calendars 0)
+ADD_PLUGIN(Exoplanets 0)
+ADD_PLUGIN(EquationOfTime 0)
+ADD_PLUGIN(MeteorShowers 0)
+ADD_PLUGIN(MosaicCamera 0)
+ADD_PLUGIN(NavStars 0)
+ADD_PLUGIN(Novae 0)
+ADD_PLUGIN(Observability 0)
+ADD_PLUGIN(Oculars 0)
 ADD_PLUGIN(Oculus 0)
-ADD_PLUGIN(OnlineQueries 1)
-ADD_PLUGIN(Planes 1)
-ADD_PLUGIN(PointerCoordinates 1)
-ADD_PLUGIN(Pulsars 1)
-ADD_PLUGIN(Quasars 1)
+ADD_PLUGIN(OnlineQueries 0)
+ADD_PLUGIN(Planes 0)
+ADD_PLUGIN(PointerCoordinates 0)
+ADD_PLUGIN(Pulsars 0)
+ADD_PLUGIN(Quasars 0)
 IF(ENABLE_SCRIPTING)
      ADD_PLUGIN(RemoteControl 1)
 ELSE()
      ADD_PLUGIN(RemoteControl 0)
 ENDIF()
-ADD_PLUGIN(RemoteSync 1)
-ADD_PLUGIN(Satellites 1)
-ADD_PLUGIN(Scenery3d 1)
-ADD_PLUGIN(Supernovae 1)
+ADD_PLUGIN(RemoteSync 0)
+ADD_PLUGIN(Satellites 0)
+ADD_PLUGIN(Scenery3d 0)
+ADD_PLUGIN(Supernovae 0)
 # Candidate to removing as an archaic plugin
-ADD_PLUGIN(TextUserInterface 1)
+ADD_PLUGIN(TextUserInterface 0)
 ADD_PLUGIN(TelescopeControl 1)
 # These plugins are GUI heavy and just make no sense without:
 IF (STELLARIUM_GUI_MODE STREQUAL "Standard")
-     ADD_PLUGIN(LensDistortionEstimator 1)
-     ADD_PLUGIN(NebulaTextures 1)
-     ADD_PLUGIN(SkyCultureMaker 1)
-     ADD_PLUGIN(SolarSystemEditor 1)
-     ADD_PLUGIN(TimeNavigator 1)
+     ADD_PLUGIN(LensDistortionEstimator 0)
+     ADD_PLUGIN(NebulaTextures 0)
+     ADD_PLUGIN(SkyCultureMaker 0)
+     ADD_PLUGIN(SolarSystemEditor 0)
+     ADD_PLUGIN(TimeNavigator 0)
 ENDIF()
 
 ADD_PLUGIN(Vts 0)
