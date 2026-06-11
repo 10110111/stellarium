@@ -128,7 +128,7 @@ before_build:
 
   - cd c:\stellarium
   - mkdir build && cd build
-  - if [%PUBLISH_BINARY%]==[true] cmake -DCMAKE_PREFIX_PATH=c:\%exiv2baseName%;c:\%gettextBaseName%;c:\%tidyBaseName% -DENABLE_MEDIA=On -DCMAKE_INSTALL_PREFIX=c:\stellarium-package -G "%CMAKE_GENERATOR%" %CMAKE_ARGS% ..
+  - if [%PUBLISH_BINARY%]==[true] cmake -DCMAKE_PREFIX_PATH=c:\%exiv2baseName%;c:\%gettextBaseName%;c:\%tidyBaseName% -DENABLE_MEDIA=On -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=c:\stellarium-package -G "%CMAKE_GENERATOR%" %CMAKE_ARGS% ..
   - if [%PUBLISH_BINARY%]==[false] cmake -DCMAKE_PREFIX_PATH=c:\%exiv2baseName%;c:\%gettextBaseName%;c:\%tidyBaseName% -DENABLE_MEDIA=On -DENABLE_TESTING=On -DENABLE_NLS=Off -DCMAKE_INSTALL_PREFIX=c:\stellarium-package -G "%CMAKE_GENERATOR%" %CMAKE_ARGS% ..
 
 build:
