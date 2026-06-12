@@ -203,7 +203,6 @@ after_test:
   # - ps: if($env:QT_BASEDIR.contains('arm64')) { C:\Qt\6.9\msvc2022_64\bin\windeployqt.exe --no-translations --compiler-runtime --verbose 2 --qtpaths C:\Qt\6.9\msvc2022_arm64\bin\qtpaths.bat --dir c:\stellarium-package\qtstuff\ c:\stellarium-package\bin\stellarium.exe}
   #- echo "The qtstuff directory should include Qt6 dll libraries, not just the dummy file "
   #- dir /s c:\stellarium-package\qtstuff\
-  - if [%PUBLISH_BINARY%]==[true] cmake --build c:\stellarium\build\ --config %configuration% --target stellarium-installer
   - if [%USE_EXTRA_EXE%]==[true] cmake --build c:\stellarium\build\ --config %configuration% --target stellarium-patch-installer
   - if [%PUBLISH_BINARY%]==[true] cd c:\stellarium\installers
   - if [%PUBLISH_BINARY%]==[true] for %%i in (*.exe) do appveyor PushArtifact %%i
