@@ -800,23 +800,8 @@ QSurfaceFormat StelMainView::getDesiredGLFormat(QSettings* configuration)
 										  : openGLModuleType==QOpenGLContext::LibGL
 											? "OpenGL ES 2 or higher"
 											: std::to_string(openGLModuleType).c_str());
-	if (openGLModuleType==QOpenGLContext::LibGL)
-	{
-		fmt.setRenderableType(QSurfaceFormat::OpenGL);
-		fmt.setVersion(3, 3);
-		fmt.setProfile(QSurfaceFormat::CoreProfile);
-
-		if (qApp && qApp->property("onetime_opengl_compat").toBool())
-		{
-			qInfo() << "Setting OpenGL Compatibility profile from command line...";
-			fmt.setProfile(QSurfaceFormat::CompatibilityProfile);
-			fmt.setOption(QSurfaceFormat::DeprecatedFunctions);
-		}
-		// FIXME: temporary hook for Qt5-based macOS bundles
-		#if defined(Q_OS_MACOS) && (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-		fmt.setProfile(QSurfaceFormat::CompatibilityProfile);
-		#endif
-	}
+	fmt.setRenderableType(QSurfaceFormat::OpenGLES);
+	fmt.setVersion(3, 0);
 
 	// NOTE: multisampling is implemented via FBO now, so it's not requested here.
 
