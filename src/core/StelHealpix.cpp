@@ -74,7 +74,7 @@ int healpix_xyf2nest(int nside, int ix, int iy, int face_num)
     | (utab[iy&0xff]<<1) | (utab[iy>>8]<<17));
 }
 
-static void nest2xyf(int nside, int pix, int *ix, int *iy, int *face_num)
+void healpix_nest2xyf(int nside, int pix, int *ix, int *iy, int *face_num)
 {
     int npface_ = nside * nside, raw;
     *face_num = pix / npface_;
@@ -91,7 +91,7 @@ static void nest2xyf(int nside, int pix, int *ix, int *iy, int *face_num)
 void healpix_get_mat3(int nside, int pix, double out[3][3])
 {
     int ix, iy, face;
-    nest2xyf(nside, pix, &ix, &iy, &face);
+    healpix_nest2xyf(nside, pix, &ix, &iy, &face);
     out[0][0] = +M_PI / 4 / nside;
     out[0][1] = +M_PI / 4 / nside;
     out[0][2] = 0;
@@ -141,7 +141,7 @@ void healpix_pix2vec(int nside, int pix, double out[3])
 {
     int ix, iy, face;
     double xy[2];
-    nest2xyf(nside, pix, &ix, &iy, &face);
+    healpix_nest2xyf(nside, pix, &ix, &iy, &face);
     xy[0] = (FACES[face][0] + (ix - iy + 0.0) / nside) * M_PI / 4;
     xy[1] = (FACES[face][1] + (ix + iy + 1.0) / nside) * M_PI / 4;
     healpix_xy2vec(xy, out);
@@ -151,7 +151,7 @@ void healpix_pix2ang(int nside, int pix, double *theta, double *phi)
 {
     int ix, iy, face;
     double xy[2];
-    nest2xyf(nside, pix, &ix, &iy, &face);
+    healpix_nest2xyf(nside, pix, &ix, &iy, &face);
     xy[0] = (FACES[face][0] + (ix - iy + 0.0) / nside) * M_PI / 4;
     xy[1] = (FACES[face][1] + (ix + iy + 1.0) / nside) * M_PI / 4;
     healpix_xy2ang(xy, theta, phi);

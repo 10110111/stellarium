@@ -30,9 +30,11 @@
 #include <functional>
 
 #include "StelTexture.hpp"
+#include "StelTextureTypes.hpp"
 #include "VecMath.hpp"
 #include "StelFader.hpp"
 
+class HipsMap;
 class StelPainter;
 class HipsTile;
 class QNetworkReply;
@@ -156,6 +158,7 @@ private:
 	void checkForPlanetarySurvey();
 
 private:
+	HipsMap* map = nullptr;
 	LinearFader fader;
 	QString url;
 	QString group;

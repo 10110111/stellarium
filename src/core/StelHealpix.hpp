@@ -50,6 +50,7 @@ static const short ctab[] = {
     #undef Z
 };
 
+void healpix_nest2xyf(int nside, int pix, int *ix, int *iy, int *face_num);
 void healpix_pix2vec(int nside, int pix, double out[3]);
 void healpix_get_mat3(int nside, int pix, double out[3][3]);
 void healpix_xy2vec(const double xy[2], double out[3]);

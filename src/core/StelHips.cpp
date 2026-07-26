@@ -30,6 +30,7 @@
 #include "StelUtils.hpp"
 #include "StelProgressController.hpp"
 #include "StelHealpix.hpp"
+#include "HipsMap.hpp"
 
 #include <QNetworkReply>
 #include <QTimeLine>
@@ -83,6 +84,7 @@ QUrl HipsSurvey::getUrlFor(const QString& path) const
 
 HipsSurvey::HipsSurvey(const QString& url_, const QString& group, const QString& frame, const QString& type,
                        const QMap<QString, QString>& hipslistProps, const double releaseDate_) :
+	map(new HipsMap),
 	url(url_),
 	group(group),
 	type(type),
@@ -600,7 +602,10 @@ HipsTile* HipsSurvey::getTile(int order, int pix)
 		}
 		int tileWidth = getPropertyInt("hips_tile_width", 512);
 		tiles.insert(uid, tile, static_cast<qint64>(tileWidth) * tileWidth);
+		map->tileCreated(order, pix, tile->texture);
 	}
+
+	map->setWindowTitle(getTitle());
 
 	if (tile && normals && !tile->normalTexture)
 	{

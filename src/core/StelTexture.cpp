@@ -185,11 +185,21 @@ StelTexture::GLData StelTexture::loadFromData(const QByteArray& data, const QStr
 		auto data_ = data;
 		QBuffer buf(&data_);
 		QImageReader reader(&buf);
-		const auto img = reader.read();
+		auto img = reader.read();
 		if (img.isNull())
 		{
 			qCritical().noquote().nospace() << "Failed to read texture image "
 			                                << path << ": " << reader.errorString();
+		}
+		else
+		{
+			img = img.mirrored();
+			{
+				QPainter p(&img);
+				p.setPen(Qt::magenta);
+				p.drawText(img.rect(), QFileInfo(path).fileName().split("?")[0], Qt::AlignHCenter|Qt::AlignVCenter);
+			}
+			img = img.mirrored();
 		}
 		return imageToGLData(img, decimateBy);
 	}
@@ -263,6 +273,11 @@ void StelTexture::waitForLoaded()
 	}
 }
 
+bool StelTexture::dataLoaded() const
+{
+	return loader && loader->isFinished();
+}
+
 template <typename T, typename...Params, typename...Args>
 void StelTexture::startAsyncLoader(T (*functionPointer)(Params...), Args&&...args)
 {
@@ -285,6 +300,7 @@ bool StelTexture::load()
 		req.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
 		req.setRawHeader("User-Agent", StelUtils::getUserAgentString().toLatin1());
 		networkReply = StelApp::getInstance().getNetworkAccessManager()->get(req);
+		connect(networkReply, &QNetworkReply::downloadProgress, this, &StelTexture::onDownloadProgress);
 		connect(networkReply, &QNetworkReply::finished, this, &StelTexture::onNetworkReply);
 		return false;
 	}
@@ -318,6 +334,13 @@ void StelTexture::onNetworkReply()
 
 	networkReply->deleteLater();
 	networkReply = Q_NULLPTR;
+}
+
+void StelTexture::onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal)
+{
+	this->bytesReceived = bytesReceived;
+	this->bytesTotal = bytesTotal;
+	emit downloadProgress(bytesReceived, bytesTotal);
 }
 
 /*************************************************************************

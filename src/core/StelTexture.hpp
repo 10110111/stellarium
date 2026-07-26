@@ -91,6 +91,8 @@ public:
 	//! Return whether the texture can be binded, i.e. it is fully loaded
 	bool canBind() const {return id!=0;}
 
+	bool dataLoaded() const;
+
 	//! Return the width and height of the texture in pixels
 	bool getDimensions(int &width, int &height);
 
@@ -115,6 +117,8 @@ public:
 	//! Return texture memory size
 	unsigned int getGlSize() const {return glSize;}
 
+	std::pair<qint64/*bytesReceived*/, qint64/*bytesTotal*/> getDownloadProgress() const { return {bytesReceived, bytesTotal}; }
+
 signals:
 	//! Emitted when the texture is ready to be bind(), i.e. when downloaded, imageLoading and	glLoading is over
 	//! or when an error occurred and the texture will never be available
@@ -122,8 +126,11 @@ signals:
 	//! @param error is equal to true if an error occurred while loading the texture
 	void loadingProcessFinished(bool error);
 
+	void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+
 private slots:
 	void onNetworkReply();
+	void onDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
 
 private:
 	friend class StelTextureMgr;
@@ -205,6 +212,10 @@ private:
 
 	GLsizei width = -1;	//! Texture image width
 	GLsizei height = -1;	//! Texture image height
+
+	// Download progress trackers
+	qint64 bytesReceived = 0;
+	qint64 bytesTotal = 0;
 
 	//! Size in GL memory
 	unsigned int glSize = 0;
