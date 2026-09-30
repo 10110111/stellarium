@@ -20,6 +20,7 @@
 #include "AtmosphereLightweight.hpp"
 #include "Planet.hpp"
 #include "StelApp.hpp"
+#include "StelSRGB.hpp"
 #include "StelCore.hpp"
 #include "StelPainter.hpp"
 #include "StelFileMgr.hpp"
@@ -324,6 +325,9 @@ void AtmosphereLightweight::releaseVAO(const int layer)
 
 void AtmosphereLightweight::recompileRenderShaders(const StelProjector& projector)
 {
+	const QByteArray noHighGraphicsDefine =
+		StelMainView::getInstance().getGLInformation().isHighGraphicsMode ?
+		QByteArray{} : QByteArray("#define NO_HIGH_GRAPHICS 1\n");
 	const auto vSrc = R"(
 ATTRIBUTE mediump vec3 screenVertex;
 VARYING mediump vec3 ndcPos;
@@ -387,7 +391,9 @@ void main()
 
 	QOpenGLShader fShader(QOpenGLShader::Fragment);
 	if (!fShader.compileSourceCode(StelOpenGL::globalShaderPrefix(StelOpenGL::FRAGMENT_SHADER) +
-	                               projector.getUnProjectShader() + toneRepro.readAll() + renderFragSrc))
+	                               projector.getUnProjectShader() +
+	                               noHighGraphicsDefine + makeSRGBUtilsShader() +
+	                               toneRepro.readAll() + renderFragSrc))
 	{
 		qFatal("Error while compiling Lightweight atmosphere fragment shader: %s", fShader.log().toUtf8().constData());
 	}

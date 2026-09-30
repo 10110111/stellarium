@@ -102,5 +102,15 @@ vec3 xyYToRGB(highp float x, highp float y, highp float Y)
 		color = XYZ2RGB * XYZ * brightnessScale;
 	}
 
-	return flagUseTmGamma ? color : pow(abs(color), vec3(oneOverGamma));
+	color = flagUseTmGamma ? color : pow(abs(color), vec3(oneOverGamma));
+#ifdef NO_HIGH_GRAPHICS
+	return color;
+#else
+	// The tonemapper produced a value to be shown directly on the sRGB screen.
+	// Our framebuffer is linear, so convert the color to linear. The color^(1/gamma)
+	// done above is not strictly what we should want to do, because linearToSRGB is
+	// not a simple power function, but let's allow the legacy tonemapper reproduce
+	// its colors until we get a better one.
+	return srgbToLinear(color);
+#endif
 }
