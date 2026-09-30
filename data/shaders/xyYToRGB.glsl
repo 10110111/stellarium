@@ -102,5 +102,9 @@ vec3 xyYToRGB(highp float x, highp float y, highp float Y)
 		color = XYZ2RGB * XYZ * brightnessScale;
 	}
 
+#ifdef NO_HIGH_GRAPHICS
 	return flagUseTmGamma ? color : pow(abs(color), vec3(oneOverGamma));
+#else
+	return flagUseTmGamma ? srgbToLinear(color) : abs(color);
+#endif
 }
