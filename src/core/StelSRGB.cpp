@@ -37,7 +37,7 @@ QVector3D colorToShader(const Vec3f& c)
 QVector4D colorToShader(const Vec4f& c)
 {
 	if (StelMainView::getInstance().getGLInformation().isHighGraphicsMode)
-		return QVector4D(srgbToLinear(Vec3f(c[0], c[1], c[2])).toQVector(), c[3]);
+		return srgbToLinear(c).toQVector();
 	return c.toQVector();
 }
 
