@@ -101,10 +101,10 @@ int Lx200CommandSetSelectedRa::readAnswerFromBuffer(const char *&buff,
 {
 	if (buff < end && *buff=='#')
 		buff++; // ignore silly byte
-	
+
 	if (buff >= end)
 		return 0;
-	
+
 	switch (buff[0])
 	{
 		case '0':
@@ -112,31 +112,31 @@ int Lx200CommandSetSelectedRa::readAnswerFromBuffer(const char *&buff,
 			*log_file << Now()
 			          << "Lx200CommandSetSelectedRa::readAnswerFromBuffer:"
 			             "ra invalid"
-				  << StelUtils::getEndLineChar();
+			          << StelUtils::getEndLineChar();
 			#endif
 			buff++;
 			break;
-		
+
 		case '1':
 			#ifdef DEBUG4
 			*log_file << Now()
 			          << "Lx200CommandSetSelectedRa::readAnswerFromBuffer:"
 			             "ra valid"
-				  << StelUtils::getEndLineChar();
+			          << StelUtils::getEndLineChar();
 			#endif
 			buff++;
 			break;
-		
+
 		default:
 			#ifdef DEBUG4
 			*log_file << Now()
 			          << "Lx200CommandSetSelectedRa::readAnswerFromBuffer:"
 			             "strange: unexpected char"
-				  << StelUtils::getEndLineChar();
+			          << StelUtils::getEndLineChar();
 			#endif
 			break;
 	}
-	
+
 	return 1;
 }
 
@@ -151,7 +151,7 @@ bool Lx200CommandSetSelectedDec::writeCommandToBuffer(char *&p, char *end)
 {
 	if (end-p < 13)
 		return false;
-	
+
 	  // set object dec:
 	*p++ = ':';
 	*p++ = 'S';
@@ -186,10 +186,10 @@ int Lx200CommandSetSelectedDec::readAnswerFromBuffer(const char *&buff,
 {
 	if (buff < end && *buff=='#')
 		buff++; // ignore silly byte
-	
+
 	if (buff >= end)
 		return 0;
-	
+
 	switch (buff[0])
 	{
 		case '0':
@@ -197,31 +197,31 @@ int Lx200CommandSetSelectedDec::readAnswerFromBuffer(const char *&buff,
 			*log_file << Now()
 			          << "Lx200CommandSetSelectedDec::readAnswerFromBuffer:"
 			             "dec invalid"
-				  << StelUtils::getEndLineChar();
+			          << StelUtils::getEndLineChar();
 			#endif
 			buff++;
 			break;
-		
+
 		case '1':
 			#ifdef DEBUG4
 			*log_file << Now()
 			          << "Lx200CommandSetSelectedDec::readAnswerFromBuffer:"
 			             "dec valid"
-				  << StelUtils::getEndLineChar();
+			          << StelUtils::getEndLineChar();
 			#endif
 			buff++;
 			break;
-		
+
 		default:
 			#ifdef DEBUG4
 			*log_file << Now()
 			          << "Lx200CommandSetSelectedDec::readAnswerFromBuffer:"
 			             "strange: unexpected char"
-				  << StelUtils::getEndLineChar();
+			          << StelUtils::getEndLineChar();
 			#endif
 			break;
 	}
-	
+
 	return 1;
 }
 
@@ -238,7 +238,7 @@ bool Lx200CommandGotoSelected::writeCommandToBuffer(char *&p, char *end)
 {
 	if (end-p < 4)
 		return false;
-	
+
 	  // slew to current object coordinates
 	*p++ = ':';
 	*p++ = 'M';
@@ -253,17 +253,17 @@ int Lx200CommandGotoSelected::readAnswerFromBuffer(const char *&buff,
 {
 	if (buff < end && *buff=='#')
 		buff++; // ignore silly byte
-	
+
 	if (buff >= end)
 		return 0;
-	
+
 	const char *p = buff;
 	if (first_byte == 256)
 	{
 		first_byte = buff[0];
 		p++;
 	}
-	
+
 	switch (first_byte)
 	{
 		case '0':
@@ -271,11 +271,11 @@ int Lx200CommandGotoSelected::readAnswerFromBuffer(const char *&buff,
 			*log_file << Now()
 			          << "Lx200CommandGotoSelected::readAnswerFromBuffer: "
 			             "slew ok"
-				  << StelUtils::getEndLineChar();
+			          << StelUtils::getEndLineChar();
 			#endif
 			buff++;
 			return 1;
-		
+
 		case '1':
 		case '2':
 		{
@@ -286,15 +286,15 @@ int Lx200CommandGotoSelected::readAnswerFromBuffer(const char *&buff,
 				*log_file << Now()
 				          << "Lx200CommandGotoSelected::readAnswerFromBuffer: "
 				             "slew failed ("
-					  << (static_cast<char>(first_byte))
+				          << (static_cast<char>(first_byte))
 				          << "), "
 				             "but no complete answer yet"
-					  << StelUtils::getEndLineChar();
+				          << StelUtils::getEndLineChar();
 				#endif
 				buff++;
 				return 0;
 			}
-			
+
 			for (;;p++)
 			{
 				if (p >= end)
@@ -306,28 +306,28 @@ int Lx200CommandGotoSelected::readAnswerFromBuffer(const char *&buff,
 			}
 			#ifdef DEBUG4
 			*log_file << Now()
-			<< "Lx200CommandGotoSelected::readAnswerFromBuffer: "
-			   "slew failed ("
-			<< (static_cast<char>(first_byte))
-			<< "): '"
-			<< QByteArray(buff + 1, static_cast<int>(p - buff - 1))
-			<< '\''
-			<< StelUtils::getEndLineChar();
+			          << "Lx200CommandGotoSelected::readAnswerFromBuffer: "
+			             "slew failed ("
+			          << (static_cast<char>(first_byte))
+			          << "): '"
+			          << QByteArray(buff + 1, static_cast<int>(p - buff - 1))
+			          << '\''
+			          << StelUtils::getEndLineChar();
 			#endif
 			buff = p+1;
 			return 1;
 		}
-		
+
 		default:
 			#ifdef DEBUG4
 			*log_file << Now()
 			          << "Lx200CommandGotoSelected::readAnswerFromBuffer: "
 			             "slew returns something weird"
-				  << StelUtils::getEndLineChar();
+			          << StelUtils::getEndLineChar();
 			#endif
 			break;
 	}
-	
+
 	return -1;
 }
 
@@ -351,7 +351,7 @@ bool Lx200CommandSyncSelected::writeCommandToBuffer(char *&p, char *end)
 }
 
 int Lx200CommandSyncSelected::readAnswerFromBuffer(const char *&buff,
-						   const char *end)
+                                                   const char *end)
 {
 	if (buff < end && *buff=='#')
 		buff++; // ignore silly byte
@@ -377,8 +377,8 @@ int Lx200CommandSyncSelected::readAnswerFromBuffer(const char *&buff,
 	{
 		#ifdef DEBUG4
 		*log_file << Now()
-			  << "Lx200CommandSyncSelected::readAnswerFromBuffer: sync ok"
-			  << StelUtils::getEndLineChar();
+		          << "Lx200CommandSyncSelected::readAnswerFromBuffer: sync ok"
+		          << StelUtils::getEndLineChar();
 		#endif
 		buff++;
 		return 1;
@@ -393,10 +393,10 @@ int Lx200CommandSyncSelected::readAnswerFromBuffer(const char *&buff,
 	}
 	#ifdef DEBUG4
 	*log_file << Now()
-	<< "Lx200CommandSyncSelected::readAnswerFromBuffer: sync acknowledged: '"
-	<< QByteArray(buff, static_cast<int>(p - buff))
-	<< '\''
-	<< StelUtils::getEndLineChar();
+	          << "Lx200CommandSyncSelected::readAnswerFromBuffer: sync acknowledged: '"
+	          << QByteArray(buff, static_cast<int>(p - buff))
+	          << '\''
+	          << StelUtils::getEndLineChar();
 	#endif
 	buff = p+1;
 	return 1;
@@ -412,7 +412,7 @@ bool Lx200CommandGetRa::writeCommandToBuffer(char *&p, char *end)
 {
 	if (end-p < 5)
 		return false;
-	
+
 	  // get RA:
 	*p++ = '#';
 	*p++ = ':';
@@ -428,10 +428,10 @@ int Lx200CommandGetRa::readAnswerFromBuffer(const char *&buff,
 {
 	if (buff < end && *buff=='#')
 		buff++; // ignore silly byte
-		
+
 	if (end-buff < 8)
 		return 0;
-	
+
 	bool long_format = true;
 	int ra;
 	const char *p = buff;
@@ -444,11 +444,11 @@ int Lx200CommandGetRa::readAnswerFromBuffer(const char *&buff,
 		*log_file << Now()
 		          << "Lx200CommandGetRa::readAnswerFromBuffer: "
 		             "error: ':' expected"
-			  << StelUtils::getEndLineChar();
+		          << StelUtils::getEndLineChar();
 		#endif
 		return -1;
 	}
-	
+
 	ra *=  6; ra += ((*p++) - '0');
 	ra *= 10; ra += ((*p++) - '0');
 	switch (*p++)
@@ -459,30 +459,30 @@ int Lx200CommandGetRa::readAnswerFromBuffer(const char *&buff,
 			if (end-buff < 9)
 				return 0;
 			break;
-		
+
 		case '.':
 			ra *= 10; ra += ((*p++) - '0');
 			ra *= 6;
 			long_format = false;
 			break;
-		
+
 		default:
 			*log_file << Now()
 			          << "Lx200CommandGetRa::readAnswerFromBuffer: "
 			             "error: '.' or ':' expected"
-				  << StelUtils::getEndLineChar();
+			          << StelUtils::getEndLineChar();
 			return -1;
 	}
-	
+
 	if (*p++ != '#')
 	{
 		*log_file << Now()
 		          << "Lx200CommandGetRa::readAnswerFromBuffer: "
 		             "error: '#' expected"
-			  << StelUtils::getEndLineChar();
+		          << StelUtils::getEndLineChar();
 		return -1;
 	}
-	
+
 	#ifdef DEBUG4
 	*log_file << Now()
 	          << "Lx200CommandGetRa::readAnswerFromBuffer: "
@@ -494,9 +494,9 @@ int Lx200CommandGetRa::readAnswerFromBuffer(const char *&buff,
 	          << qSetFieldWidth(0) << ':'
 	          << qSetFieldWidth(2) << (ra%60)
 	          << qSetFieldWidth(0) << qSetPadChar(' ')
-		  << StelUtils::getEndLineChar();
+	          << StelUtils::getEndLineChar();
 	#endif
-	
+
 	buff = p;
 	server.longFormatUsedReceived(long_format);
 	server.raReceived(static_cast<unsigned int>(std::floor(ra * (4294967296.0/86400.0))));
@@ -515,7 +515,7 @@ bool Lx200CommandGetDec::writeCommandToBuffer(char *&p,char *end)
 {
 	if (end-p < 5)
 		return false;
-	
+
 	  // get Dec:
 	*p++ = '#';
 	*p++ = ':';
@@ -531,10 +531,10 @@ int Lx200CommandGetDec::readAnswerFromBuffer(const char *&buff,
 {
 	if (buff < end && *buff=='#')
 		buff++; // ignore silly byte
-		
+
 	if (end-buff < 7)
 		return 0;
-		
+
 	bool long_format = true;
 	int dec;
 	const char *p = buff;
@@ -543,31 +543,31 @@ int Lx200CommandGetDec::readAnswerFromBuffer(const char *&buff,
 	{
 		case '+':
 			break;
-		
+
 		case '-':
 			sign_dec = true;
 			break;
-		
+
 		default:
 			#ifdef DEBUG4
 			*log_file << Now()
 			          << "Lx200CommandGetDec::readAnswerFromBuffer: "
 			             "error: '+' or '-' expected"
-				  << StelUtils::getEndLineChar();
+			          << StelUtils::getEndLineChar();
 			#endif
 			return -1;
 	}
-	
+
 	dec = ((*p++) - '0');
 	dec *= 10; dec += ((*p++) - '0');
 	if (*p++ != (static_cast<char>(223)))
 	{
 		*log_file << Now()
 		          << "Lx200CommandGetDec::readAnswerFromBuffer: "
-			     "error: degree sign expected" // not a star, really 0xDF
-			  << StelUtils::getEndLineChar();
+		             "error: degree sign expected" // not a star, really 0xDF
+		          << StelUtils::getEndLineChar();
 	}
-	
+
 	dec *=  6; dec += ((*p++) - '0');
 	dec *= 10; dec += ((*p++) - '0');
 	switch (*p++)
@@ -592,7 +592,7 @@ int Lx200CommandGetDec::readAnswerFromBuffer(const char *&buff,
 				*log_file << Now()
 				          << "Lx200CommandGetDec::readAnswerFromBuffer: "
 				             "error: '#' expected"
-					  << StelUtils::getEndLineChar();
+				          << StelUtils::getEndLineChar();
 				return -1;
 			}
 			break;
@@ -601,7 +601,7 @@ int Lx200CommandGetDec::readAnswerFromBuffer(const char *&buff,
 			*log_file << Now()
 			          << "Lx200CommandGetDec::readAnswerFromBuffer: "
 			             "error: '#', ':' or ''' expected"
-				  << StelUtils::getEndLineChar();
+			          << StelUtils::getEndLineChar();
 			return -1;
 	}
 	#ifdef DEBUG4
@@ -615,9 +615,9 @@ int Lx200CommandGetDec::readAnswerFromBuffer(const char *&buff,
 	          << qSetFieldWidth(0) << ':'
 	          << qSetFieldWidth(2) << (dec%60)
 	          << qSetFieldWidth(0) << qSetPadChar(' ')
-		  << StelUtils::getEndLineChar();
+	          << StelUtils::getEndLineChar();
 	#endif
-	
+
 	if (sign_dec)
 		dec = -dec;
 	buff = p;
@@ -630,5 +630,3 @@ void Lx200CommandGetDec::print(QTextStream &o) const
 {
 	o << "Lx200CommandGetDec";
 }
-
-

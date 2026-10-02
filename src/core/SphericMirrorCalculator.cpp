@@ -26,17 +26,17 @@
 SphericMirrorCalculator::SphericMirrorCalculator(const QSettings& conf)
 {
 	const Vec3f mirror_position(
-				conf.value("spheric_mirror/mirror_position_x",0.0).toFloat(),
-				conf.value("spheric_mirror/mirror_position_y",2.0).toFloat(),
-				conf.value("spheric_mirror/mirror_position_z",0.0).toFloat());
+	                            conf.value("spheric_mirror/mirror_position_x",0.0).toFloat(),
+	                            conf.value("spheric_mirror/mirror_position_y",2.0).toFloat(),
+	                            conf.value("spheric_mirror/mirror_position_z",0.0).toFloat());
 	const float mirror_radius(conf.value("spheric_mirror/mirror_radius",0.25).toFloat());
 	DomeCenter = mirror_position * (-1.0f/mirror_radius);
 	const float dome_radius(conf.value("spheric_mirror/dome_radius",2.5).toFloat());
 	DomeRadius = dome_radius / mirror_radius;
 	const Vec3f projector_position(
-				conf.value("spheric_mirror/projector_position_x",0.0).toFloat(),
-				conf.value("spheric_mirror/projector_position_y",1.0).toFloat(),
-				conf.value("spheric_mirror/projector_position_z",-0.2).toFloat());
+	                               conf.value("spheric_mirror/projector_position_x",0.0).toFloat(),
+	                               conf.value("spheric_mirror/projector_position_y",1.0).toFloat(),
+	                               conf.value("spheric_mirror/projector_position_z",-0.2).toFloat());
 	P = (projector_position - mirror_position) * (1.0f/mirror_radius);
 	PP = P.normSquared();
 	lP = std::sqrt(PP);
@@ -48,7 +48,7 @@ SphericMirrorCalculator::SphericMirrorCalculator(const QSettings& conf)
 		image_distance_div_height = std::sqrt(PP-1.0f) * scaling_factor;
 		qDebug() << "INFO: spheric_mirror:scaling_factor is deprecated and may be removed in future versions.";
 		qDebug() << "      In order to keep your setup unchanged, please use spheric_mirror:image_distance_div_height = "
-				<< image_distance_div_height << " instead";
+		         << image_distance_div_height << " instead";
 	}
 	horzZoomFactor = conf.value("spheric_mirror/flip_horz",true).toBool() ? (-image_distance_div_height) : image_distance_div_height;
 	vertZoomFactor = conf.value("spheric_mirror/flip_vert",false).toBool() ? (-image_distance_div_height) : image_distance_div_height;
@@ -67,7 +67,7 @@ SphericMirrorCalculator::SphericMirrorCalculator(const QSettings& conf)
 		delta = -atan(y/image_distance_div_height) + atan(zenith_y/image_distance_div_height);
 		qDebug() << "INFO: spheric_mirror:zenith_y is deprecated and may be removed in future versions.";
 		qDebug() << "      In order to keep your setup unchanged, please use spheric_mirror:projector_delta = "
-				<< (delta*M_180_PIf) << " instead";
+		         << (delta*M_180_PIf) << " instead";
 	}
 	else
 		delta *= M_PI_180f;

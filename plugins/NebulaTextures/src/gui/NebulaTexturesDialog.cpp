@@ -59,7 +59,7 @@ const QString NebulaTexturesDialog::ConfigPrefix = NT_CONFIG_PREFIX;
  * Also loads nebula textures on initialization.
  */
 NebulaTexturesDialog::NebulaTexturesDialog()
-	: StelDialog("NebulaTextures"),
+        : StelDialog("NebulaTextures"),
           refreshCount(0), refreshLimit(2),
           conf(StelApp::getInstance().getSettings()),
           progressBar(Q_NULLPTR),

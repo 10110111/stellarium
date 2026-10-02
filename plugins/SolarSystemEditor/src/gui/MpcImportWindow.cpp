@@ -356,8 +356,8 @@ void MpcImportWindow::bookmarkSelected(int bookmarkIndex)
 
 void MpcImportWindow::populateCandidateObjects(QList<SsoElements> objects)
 {
-	candidatesForAddition.clear();	// new objects
-	candidatesForUpdate.clear();	// existing objects
+	candidatesForAddition.clear();  // new objects
+	candidatesForUpdate.clear();    // existing objects
 
 	//Get a list of the current objects
 	//QHash<QString,QString> defaultSsoIdentifiers = ssoManager->getDefaultSsoIdentifiers();
@@ -635,16 +635,16 @@ void MpcImportWindow::downloadComplete(QNetworkReply *reply)
 
 	/*
 	qDebug() << "reply->isOpen():" << reply->isOpen()
-		<< "reply->isReadable():" << reply->isReadable()
-		<< "reply->isFinished():" << reply->isFinished();
+	         << "reply->isReadable():" << reply->isReadable()
+	         << "reply->isFinished():" << reply->isFinished();
 	*/
 
 	if(reply->error() || reply->bytesAvailable()==0)
 	{
 		qWarning() << "Download error: While downloading"
 		           << reply->url().toString()
-				   << "the following error occurred:"
-				   << reply->errorString();
+		           << "the following error occurred:"
+		           << reply->errorString();
 		enableInterface(true);
 		reply->deleteLater();
 		downloadReply = nullptr;
@@ -830,7 +830,7 @@ void MpcImportWindow::receiveQueryReply(QNetworkReply *reply)
 	{
 		qWarning() << "Download error: While trying to access"
 		           << reply->url().toString()
-			   << "the following error occurred:"
+		           << "the following error occurred:"
 		           << reply->errorString();
 		ui->labelQueryMessage->setText(reply->errorString());//TODO: Decide if this is a good idea
 		ui->labelQueryMessage->setVisible(true);
@@ -896,7 +896,7 @@ void MpcImportWindow::readQueryReply(QNetworkReply * reply)
 	if (objects.isEmpty())
 	{
 		qWarning() << "No objects found in the file downloaded from"
-				   << reply->url().toString();
+		           << reply->url().toString();
 	}
 	else
 	{
@@ -947,7 +947,7 @@ void MpcImportWindow::resetCountdown()
 		if (queryReply != nullptr && queryReply->isRunning())
 		{
 			abortQuery();
-                        ui->labelQueryMessage->setText("The query timed out. You can try again, now or later.");
+			ui->labelQueryMessage->setText("The query timed out. You can try again, now or later.");
 			ui->labelQueryMessage->setVisible(true);
 		}
 	}

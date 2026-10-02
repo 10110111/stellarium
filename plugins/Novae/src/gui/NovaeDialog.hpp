@@ -50,7 +50,7 @@ private slots:
 	void setUpdateValues(int days);
 	void setUpdatesEnabled(int checkState);
 	void updateStateReceiver(Novae::UpdateState state);
-        void updateCompleteReceiver();
+	void updateCompleteReceiver();
 	void restoreDefaults(void);
 	void saveSettings(void);
 	void updateJSON(void);

@@ -56,8 +56,8 @@ public:
 	//! Compute sky brightness values and average luminance.
 	//! @param noScatter true to suppress the actual sky brightness modelling. This will keep refraction/extinction working for didactic reasons.
 	virtual void computeColor(StelCore* core, double JD, const Planet& currentPlanet, const Planet& sun, const Planet* moon,
-							  const StelLocation& location, float temperature, float relativeHumidity, float extinctionCoefficient,
-							  bool noScatter) = 0;
+	                          const StelLocation& location, float temperature, float relativeHumidity, float extinctionCoefficient,
+	                          bool noScatter) = 0;
 	virtual void draw(StelCore* core) = 0;
 	virtual bool isLoading() const = 0;
 	virtual bool isReadyToRender() const = 0;

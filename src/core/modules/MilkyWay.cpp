@@ -280,7 +280,7 @@ void main(void)
 		extinctionFactor = 1.;
 	}
 
-    vec4 color = texture2D(mainTex, texc)*vec4(brightness,1)*extinctionFactor;
+	vec4 color = texture2D(mainTex, texc)*vec4(brightness,1)*extinctionFactor;
 	if(saturation != 1.0)
 		color.rgb = saturate(color.rgb, saturation);
 	FRAG_COLOR = color;

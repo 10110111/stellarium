@@ -254,8 +254,8 @@ void scm::ScmDraw::handleMouseClicks(class QMouseEvent *event)
 					point = nearest->coordinate;
 				}
 				qDebug() << "SkyCultureMaker: Added point to constellation at"
-					 << QString::number(point.v[0]) + "," + QString::number(point.v[1]) + "," +
-						    QString::number(point.v[2]);
+				         << QString::number(point.v[0]) + "," + QString::number(point.v[1]) + "," +
+				                QString::number(point.v[2]);
 				appendDrawPoint(point, QString());
 			}
 

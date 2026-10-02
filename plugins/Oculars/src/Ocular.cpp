@@ -170,9 +170,9 @@ Ocular * Ocular::ocularFromSettings(const QSettings *theSettings, const int ocul
 
 	if (!(ocular->apparentFOV() > 0.0 && ocular->effectiveFocalLength() > 0.0)) {
 		qWarning() << "Invalid data for ocular. Ocular values must be positive. \n"
-		<< "\tafov: " << ocular->apparentFOV() << "\n"
-		<< "\tefl: " << ocular->effectiveFocalLength() << "\n"
-		<< "\tThis ocular will be ignored.";
+		           << "\tafov: " << ocular->apparentFOV() << "\n"
+		           << "\tefl: " << ocular->effectiveFocalLength() << "\n"
+		           << "\tThis ocular will be ignored.";
 		delete ocular;
 		ocular = Q_NULLPTR;
 	}

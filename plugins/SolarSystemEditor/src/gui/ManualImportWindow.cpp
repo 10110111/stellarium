@@ -216,20 +216,20 @@ bool ManualImportWindow::verifyTextureFile(const QString &filePath)
 	if (texture.isNull())
 	{
 		qDebug() << "File doesn't exist or is not an accepted texture format:"
-				<< filePath;
+		         << filePath;
 		return false;
 	}
 
 	if (!verifyPowerOfTwo(texture.height()))
 	{
 		qDebug() << "Invalid texture height:" << texture.height()
-				<< "for file" << filePath;
+		         << "for file" << filePath;
 		return false;
 	}
 	if (!verifyPowerOfTwo(texture.width()))
 	{
 		qDebug() << "Invalid texture width:" << texture.width()
-				<< "for file" << filePath;
+		         << "for file" << filePath;
 		return false;
 	}
 

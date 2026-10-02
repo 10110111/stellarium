@@ -78,16 +78,16 @@ QStringList* TelescopeConfigurationDialog::listSerialPorts()
 		plist->append(serialPortInfo.systemLocation());
 #endif
 		qCDebug(Telescopes) << "[TelescopeControl] port name:" << serialPortInfo.portName()
-				 << "; vendor identifier:" << serialPortInfo.vendorIdentifier()
-				 << "; product identifier:" << serialPortInfo.productIdentifier();
+		                    << "; vendor identifier:" << serialPortInfo.vendorIdentifier()
+		                    << "; product identifier:" << serialPortInfo.productIdentifier();
 	}
 
 // on linux find some virtual ports
 #ifdef Q_OS_LINUX
 	QStringList filters;
 	filters << "ttyNET*"
-			<< "ttynet*"
-			<< "Telescope*";
+	        << "ttynet*"
+	        << "Telescope*";
 	// look in /dev/*
 	QDir dev("/dev");
 	dev.setFilter(QDir::System);
@@ -101,7 +101,7 @@ QStringList* TelescopeConfigurationDialog::listSerialPorts()
 	}
 	// look in /tmp/* for non-root virtual ports (append ttyS8 and ttyUSB*)
 	filters << "ttyS*"
-			<< "ttyUSB*";
+	        << "ttyUSB*";
 	QDir tmp("/tmp");
 	tmp.setFilter(QDir::System);
 	tmp.setSorting(QDir::Reversed);
@@ -190,12 +190,12 @@ void TelescopeConfigurationDialog::populateToolTips()
 {
 	ui->doubleSpinBoxTelescopeDelay->setToolTip(
 	  QString("<p>%1</p>")
-		.arg(q_("The approximate time it takes for the signals from the telescope to reach Stellarium. "
-				"Increase this value if the reticle is skipping.")));
+	          .arg(q_("The approximate time it takes for the signals from the telescope to reach Stellarium. "
+	                  "Increase this value if the reticle is skipping.")));
 	ui->doubleSpinBoxRTS2Refresh->setToolTip(
 	  QString("<p>%1</p>")
-		.arg(q_("Refresh rate of the RTS2 telescope. Delay before sending next telescope status request. The "
-				"default value of 0.5 second works fine with most setups.")));
+	          .arg(q_("Refresh rate of the RTS2 telescope. Delay before sending next telescope status request. The "
+	                  "default value of 0.5 second works fine with most setups.")));
 }
 
 // Set the configuration panel in a predictable state
@@ -589,14 +589,14 @@ void TelescopeConfigurationDialog::buttonSavePressed()
 			// Pass an empty serial port so the slot is stored/started as a
 			// network connection.
 			telescopeManager->addTelescopeAtSlot(configuredSlot, type, name, equinox, deviceHost, devicePort, delay,
-			  connectAtStartup, circles, ui->comboBoxDeviceModel->currentText(), QString());
+			                                     connectAtStartup, circles, ui->comboBoxDeviceModel->currentText(), QString());
 		}
 		else
 		{
 			// Read the serial port
 			QString serialPortName = ui->comboSerialPort->currentText();
 			telescopeManager->addTelescopeAtSlot(configuredSlot, type, name, equinox, host, portTCP, delay,
-			  connectAtStartup, circles, ui->comboBoxDeviceModel->currentText(), serialPortName);
+			                                     connectAtStartup, circles, ui->comboBoxDeviceModel->currentText(), serialPortName);
 		}
 	}
 	else if (ui->radioButtonTelescopeConnection->isChecked())
@@ -618,9 +618,9 @@ void TelescopeConfigurationDialog::buttonSavePressed()
 	{
 		type = TelescopeControl::ConnectionRTS2;
 		telescopeManager->addTelescopeAtSlot(configuredSlot, type, name, equinox, host, portTCP, delay,
-		  connectAtStartup, circles, QString(), QString(), ui->lineEditRTS2Url->text(),
-		  ui->lineEditRTS2Username->text(), ui->lineEditRTS2Password->text(),
-		  qRound(MICROSECONDS_FROM_SECONDS(ui->doubleSpinBoxRTS2Refresh->value())));
+		                                     connectAtStartup, circles, QString(), QString(), ui->lineEditRTS2Url->text(),
+		                                     ui->lineEditRTS2Username->text(), ui->lineEditRTS2Password->text(),
+		                                     qRound(MICROSECONDS_FROM_SECONDS(ui->doubleSpinBoxRTS2Refresh->value())));
 	}
 	#ifdef ENABLE_INDI
 	else if (ui->radioButtonTelescopeINDI->isChecked())
@@ -634,8 +634,8 @@ void TelescopeConfigurationDialog::buttonSavePressed()
 	{
 		type = TelescopeControl::ConnectionASCOM;
 		telescopeManager->addTelescopeAtSlot(configuredSlot, type, name, equinox, host, portTCP, delay,
-		  connectAtStartup, circles, QString(), QString(), QString(), QString(), QString(), -1,
-		  ascomWidget->selectedDevice(), ascomWidget->useDeviceEqCoordType());
+		                                     connectAtStartup, circles, QString(), QString(), QString(), QString(), QString(), -1,
+		                                     ascomWidget->selectedDevice(), ascomWidget->useDeviceEqCoordType());
 	}
 	#endif
 
@@ -651,9 +651,9 @@ void TelescopeConfigurationDialog::deviceModelSelected(int modelIndex)
 {
 	const QString& deviceModelName=ui->comboBoxDeviceModel->itemText(modelIndex);
 	ui->labelDeviceModelDescription->setText(
-	  q_(telescopeManager->getDeviceModels().value(deviceModelName).description));
+		q_(telescopeManager->getDeviceModels().value(deviceModelName).description));
 	ui->doubleSpinBoxTelescopeDelay->setValue(
-	  SECONDS_FROM_MICROSECONDS(telescopeManager->getDeviceModels().value(deviceModelName).defaultDelay));
+		SECONDS_FROM_MICROSECONDS(telescopeManager->getDeviceModels().value(deviceModelName).defaultDelay));
 
 	// The serial/network choice depends on the selected device model
 	updateDeviceConnectionMediumState();

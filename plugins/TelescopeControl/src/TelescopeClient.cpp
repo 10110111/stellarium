@@ -205,9 +205,9 @@ TelescopeTCP::TelescopeTCP(const QString &name, const QString &params, Telescope
 
 	if (paramMatch.hasMatch())
 	{
-		host		= paramMatch.captured(1).trimmed();
-		port		= static_cast<quint16>(paramMatch.captured(2).toUInt());
-		time_delay	= paramMatch.captured(3).toInt();
+		host       = paramMatch.captured(1).trimmed();
+		port       = static_cast<quint16>(paramMatch.captured(2).toUInt());
+		time_delay = paramMatch.captured(3).toInt();
 	}
 	else
 	{
@@ -352,7 +352,7 @@ void TelescopeTCP::performWriting(void)
 	{
 		//TODO: Better error message. See the Qt documentation.
 		qCWarning(Telescopes) << "TelescopeTCP(" << name << ")::performWriting: "
-			<< "write failed: " << tcpSocket->errorString();
+		                      << "write failed: " << tcpSocket->errorString();
 		hangup();
 	}
 	else if (rc > 0)

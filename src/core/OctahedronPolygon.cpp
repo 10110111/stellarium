@@ -402,17 +402,17 @@ bool OctahedronPolygon::isTriangleConvexPositive2D(const Vec3d& a, const Vec3d& 
 
 bool OctahedronPolygon::triangleContains2D(const Vec3d& a, const Vec3d& b, const Vec3d& c, const Vec3d& p)
 {
-	return	(b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0])>=0. &&
-			(c[0]-b[0])*(p[1]-b[1])-(c[1]-b[1])*(p[0]-b[0])>=0. &&
-			(a[0]-c[0])*(p[1]-c[1])-(a[1]-c[1])*(p[0]-c[0])>=0.;
+	return (b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0])>=0. &&
+	       (c[0]-b[0])*(p[1]-b[1])-(c[1]-b[1])*(p[0]-b[0])>=0. &&
+	       (a[0]-c[0])*(p[1]-c[1])-(a[1]-c[1])*(p[0]-c[0])>=0.;
 }
 
 // Store data for the GLUES tesselation callbacks. This is used as tess->polygonData
 struct OctTessTrianglesCallbackData
 {
 	// TODO: Note that QVector and QList are the same in Qt6! Check how they differ in our use here!
-	QVector<Vec3d> result;			//! Contains the resulting tesselated vertices.
-	QList<Vec3d> tempVertices;		//! Used to store the temporary combined vertices
+	QVector<Vec3d> result;     //! Contains the resulting tesselated vertices.
+	QList<Vec3d> tempVertices; //! Used to store the temporary combined vertices
 };
 
 void errorCallback(GLenum errn)
@@ -582,9 +582,9 @@ void OctahedronPolygon::updateVertexArray()
 
 struct OctTessLineLoopCallbackData
 {
-	SubContour result;				//! Contains the resulting tesselated vertices.
+	SubContour result;              //! Contains the resulting tesselated vertices.
 	QVector<SubContour> resultList;
-	QList<EdgeVertex> tempVertices;	//! Used to store the temporary combined vertices
+	QList<EdgeVertex> tempVertices; //! Used to store the temporary combined vertices
 };
 
 // 8 sides, so sidenb in 0...7
@@ -774,8 +774,8 @@ bool OctahedronPolygon::contains(const Vec3d& p) const
 	for (int i=0;i<fillCachedVertexArray.vertex.size()/3;++i)
 	{
 		if (sideHalfSpaceContains(fillCachedVertexArray.vertex.at(i*3+1), fillCachedVertexArray.vertex.at(i*3), p) &&
-			sideHalfSpaceContains(fillCachedVertexArray.vertex.at(i*3+2), fillCachedVertexArray.vertex.at(i*3+1), p) &&
-			sideHalfSpaceContains(fillCachedVertexArray.vertex.at(i*3), fillCachedVertexArray.vertex.at(i*3+2), p))
+		    sideHalfSpaceContains(fillCachedVertexArray.vertex.at(i*3+2), fillCachedVertexArray.vertex.at(i*3+1), p) &&
+		    sideHalfSpaceContains(fillCachedVertexArray.vertex.at(i*3), fillCachedVertexArray.vertex.at(i*3+2), p))
 			return true;
 	}
 	return false;
@@ -784,7 +784,7 @@ bool OctahedronPolygon::contains(const Vec3d& p) const
 bool OctahedronPolygon::isEmpty() const
 {
 	return sides[0].isEmpty() && sides[1].isEmpty() && sides[2].isEmpty() && sides[3].isEmpty() &&
-			sides[4].isEmpty() && sides[5].isEmpty() && sides[6].isEmpty() && sides[7].isEmpty();
+	       sides[4].isEmpty() && sides[5].isEmpty() && sides[6].isEmpty() && sides[7].isEmpty();
 }
 
 
@@ -984,8 +984,8 @@ OctahedronPolygon OctahedronPolygon::createAllSkyOctahedronPolygon()
 		sc.clear();
 		side.clear();
 		sc << EdgeVertex(vertice[verticeIndice[i][0]], false)
-				<< EdgeVertex(vertice[verticeIndice[i][1]], false)
-				<< EdgeVertex(vertice[verticeIndice[i][2]], false);
+		   << EdgeVertex(vertice[verticeIndice[i][1]], false)
+		   << EdgeVertex(vertice[verticeIndice[i][2]], false);
 		side.append(sc);
 		poly.sides[i]=side;
 	}

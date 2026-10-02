@@ -269,7 +269,7 @@ bool StelOpenGLArray::load(const StelVertexArray& array)
 	if(array.primitiveType != GL_TRIANGLES)
 	{
 		qCritical() << "StelOpenGLArray: got a StelVertexArray primitive type" << array.primitiveType
-					<< "that is not Triangles. This is not supported.";
+		            << "that is not Triangles. This is not supported.";
 		return false;
 	}
 
@@ -376,7 +376,7 @@ bool StelOpenGLArray::load(const StelVertexArray& array)
 		m_indexBuffer.release();
 	}
 	qCDebug(stelOpenGLArray).nospace() << "Loaded StelVertexArray data into OpenGL in " << timer.elapsed() << " ms ("
-		<< (static_cast<double>(m_memoryUsage) / 1024.0) << " KiB GL memory)";
+	                                   << (static_cast<double>(m_memoryUsage) / 1024.0) << " KiB GL memory)";
 	return true;
 }
 

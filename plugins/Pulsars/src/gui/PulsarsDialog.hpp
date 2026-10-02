@@ -56,7 +56,7 @@ private slots:
 	void setDisplayShowPulsarsButton(int checkState);
 	void setFilteringEnabled(int checkState);
 	void updateStateReceiver(Pulsars::UpdateState state);
-        void updateCompleteReceiver();
+	void updateCompleteReceiver();
 	void restoreDefaults(void);
 	void saveSettings(void);
 	void updateJSON(void);

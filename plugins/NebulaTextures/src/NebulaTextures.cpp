@@ -111,7 +111,7 @@ void NebulaTextures::init()
 	catch (std::runtime_error& e)
 	{
 		qWarning() << "[NebulaTextures] unable to manage toolbar buttons for NebulaTextures plugin!"
-			<< e.what();
+		           << e.what();
 	}
 }
 

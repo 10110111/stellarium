@@ -38,8 +38,8 @@ Foundation, Inc., 51 Franklin Street, Suite 500, Boston, MA  02110-1335, USA.
 #include <QWidget>
 
 OcularsGuiPanel::OcularsGuiPanel(Oculars* plugin,
-				 QGraphicsWidget *parent,
-				 Qt::WindowFlags wFlags):
+                                 QGraphicsWidget *parent,
+                                 Qt::WindowFlags wFlags):
 	QGraphicsWidget(parent, wFlags),
 	ocularsPlugin(plugin),
 	parentWidget(parent),
@@ -60,48 +60,48 @@ OcularsGuiPanel::OcularsGuiPanel(Oculars* plugin,
 
 	Q_ASSERT(ocularsPlugin->actionShowOcular);
 	buttonOcular = new StelButton(buttonBar,
-				      QPixmap(":/ocular/bt_ocular_on.png"),
-				      QPixmap(":/ocular/bt_ocular_off.png"),
-				      QPixmap(":/graphicGui/miscGlow32x32.png"),
-				      ocularsPlugin->actionShowOcular,
-				      true); //No background
+	                              QPixmap(":/ocular/bt_ocular_on.png"),
+	                              QPixmap(":/ocular/bt_ocular_off.png"),
+	                              QPixmap(":/graphicGui/miscGlow32x32.png"),
+	                              ocularsPlugin->actionShowOcular,
+	                              true); //No background
 	buttonOcular->setToolTip(ocularsPlugin->actionShowOcular->getText());
 
 	Q_ASSERT(ocularsPlugin->actionShowCrosshairs);
 	buttonCrosshairs = new StelButton(buttonBar,
-					  QPixmap(":/ocular/bt_crosshairs_on.png"),
-					  QPixmap(":/ocular/bt_crosshairs_off.png"),
-					  QPixmap(":/graphicGui/miscGlow32x32.png"),
-					  ocularsPlugin->actionShowCrosshairs,
-					  true);
+	                                  QPixmap(":/ocular/bt_crosshairs_on.png"),
+	                                  QPixmap(":/ocular/bt_crosshairs_off.png"),
+	                                  QPixmap(":/graphicGui/miscGlow32x32.png"),
+	                                  ocularsPlugin->actionShowCrosshairs,
+	                                  true);
 	buttonCrosshairs->setToolTip(ocularsPlugin->actionShowCrosshairs->getText());
 	buttonCrosshairs->setVisible(false);
 
 	Q_ASSERT(ocularsPlugin->actionShowSensor);
 	buttonCcd = new StelButton(buttonBar,
-				   QPixmap(":/ocular/bt_sensor_on.png"),
-				   QPixmap(":/ocular/bt_sensor_off.png"),
-				   QPixmap(":/graphicGui/miscGlow32x32.png"),
-				   ocularsPlugin->actionShowSensor,
-				   true);
+	                           QPixmap(":/ocular/bt_sensor_on.png"),
+	                           QPixmap(":/ocular/bt_sensor_off.png"),
+	                           QPixmap(":/graphicGui/miscGlow32x32.png"),
+	                           ocularsPlugin->actionShowSensor,
+	                           true);
 	buttonCcd->setToolTip(ocularsPlugin->actionShowSensor->getText());
 
 	Q_ASSERT(ocularsPlugin->actionShowTelrad);
 	buttonTelrad = new StelButton(buttonBar,
-				      QPixmap(":/ocular/bt_telrad_on.png"),
-				      QPixmap(":/ocular/bt_telrad_off.png"),
-				      QPixmap(":/graphicGui/miscGlow32x32.png"),
-				      ocularsPlugin->actionShowTelrad,
-				      true);
+	                              QPixmap(":/ocular/bt_telrad_on.png"),
+	                              QPixmap(":/ocular/bt_telrad_off.png"),
+	                              QPixmap(":/graphicGui/miscGlow32x32.png"),
+	                              ocularsPlugin->actionShowTelrad,
+	                              true);
 	buttonTelrad->setToolTip(ocularsPlugin->actionShowTelrad->getText());
 
 	Q_ASSERT(ocularsPlugin->actionConfiguration);
 	buttonConfiguration = new StelButton(buttonBar,
-					     QPixmap(":/ocular/bt_settings_on.png"),
-					     QPixmap(":/ocular/bt_settings_off.png"),
-					     QPixmap(":/graphicGui/miscGlow32x32.png"),
-					     ocularsPlugin->actionConfiguration,
-					     true);
+	                                     QPixmap(":/ocular/bt_settings_on.png"),
+	                                     QPixmap(":/ocular/bt_settings_off.png"),
+	                                     QPixmap(":/graphicGui/miscGlow32x32.png"),
+	                                     ocularsPlugin->actionConfiguration,
+	                                     true);
 	buttonConfiguration->setToolTip(ocularsPlugin->actionConfiguration->getText());
 
 	setLayout(mainLayout);
@@ -268,8 +268,8 @@ OcularsGuiPanel::~OcularsGuiPanel()
 	delete fieldPrismRotation; fieldPrismRotation = Q_NULLPTR;
 	delete fieldTelescopeName; fieldTelescopeName = Q_NULLPTR;
 	delete fieldMagnification; fieldMagnification = Q_NULLPTR;
-	delete fieldExitPupil; fieldExitPupil = Q_NULLPTR;	
-	delete fieldTwilightFactor; fieldTwilightFactor = Q_NULLPTR;	
+	delete fieldExitPupil; fieldExitPupil = Q_NULLPTR;
+	delete fieldTwilightFactor; fieldTwilightFactor = Q_NULLPTR;
 	delete fieldRelativeBrightness; fieldRelativeBrightness = Q_NULLPTR;
 	delete fieldAdlerIndex; fieldAdlerIndex = Q_NULLPTR;
 	delete fieldBishopIndex; fieldBishopIndex = Q_NULLPTR;
@@ -320,11 +320,11 @@ void OcularsGuiPanel::updatePosition()
 	const double cornerRadius = 12.0;
 	updateGeometry();
 	/*qDebug() << "Widget:" << size()
-		<< "Buttonbar:" << buttonBar->size()
-		<< "Ocular" << ocularControls->size()
-		<< "CCD" << ccdControls->size()
-		<< "Telescope" << telescopeControls->size()
-		<< "Layout" << mainLayout->geometry();*/
+	         << "Buttonbar:" << buttonBar->size()
+	         << "Ocular" << ocularControls->size()
+	         << "CCD" << ccdControls->size()
+	         << "Telescope" << telescopeControls->size()
+	         << "Layout" << mainLayout->geometry();*/
 	qreal xPos = parentWidget->size().width() - size().width();
 	qreal yPos = 0;
 	const int buttonBarCorner=StelApp::getInstance().getStelPropertyManager()
@@ -350,7 +350,7 @@ void OcularsGuiPanel::updatePosition()
 	QPointF verticalBorderStart = geometry().topLeft() + QPointF(-0.5,0.5);
 	QPointF horizontalBorderEnd = geometry().bottomRight() + QPointF(-0.5,0.5);
 	QPointF cornerArcStart(verticalBorderStart.x(),
-			       horizontalBorderEnd.y() - cornerRadius);
+	                       horizontalBorderEnd.y() - cornerRadius);
 	newBorderPath.moveTo(verticalBorderStart);
 	newBorderPath.lineTo(cornerArcStart);
 	newBorderPath.arcTo(cornerArcStart.x(), cornerArcStart.y(), cornerRadius, cornerRadius, 180, 90);
@@ -425,7 +425,7 @@ void OcularsGuiPanel::updateOcularControls()
 		QString apparentFovString = QString::number(ocular->apparentFOV(), 'f', 2);
 		apparentFovString.append(QChar(0x00B0));// Degree sign
 		QString apparentFovLabel = QString(q_("Ocular aFOV: %1"))
-				.arg(apparentFovString);
+		                                   .arg(apparentFovString);
 		fieldOcularAfov->setPlainText(apparentFovLabel);
 		fieldOcularAfov->setToolTip(q_("Apparent field of view of the ocular"));
 		fieldOcularAfov->setPos(posX, posY);
@@ -520,7 +520,7 @@ void OcularsGuiPanel::updateCcdControls()
 
 	//Get the name
 	int index = ocularsPlugin->selectedCCDIndex;
-	CCD* ccd = ocularsPlugin->ccds[index];	
+	CCD* ccd = ocularsPlugin->ccds[index];
 	Q_ASSERT(ccd);
 	if (ccd->chipRotAngle()!=ocularsPlugin->getSelectedCCDRotationAngle())
 		ocularsPlugin->setSelectedCCDRotationAngle(ccd->chipRotAngle());
@@ -575,7 +575,7 @@ void OcularsGuiPanel::updateCcdControls()
 	fieldCcdDimensions->setToolTip(q_("Dimensions field of view"));
 	fieldCcdDimensions->setPos(posX, posY);
 	posY += fieldCcdDimensions->boundingRect().height();
-	widgetHeight += fieldCcdDimensions->boundingRect().height();	
+	widgetHeight += fieldCcdDimensions->boundingRect().height();
 	QString binningLabel = QString("%1: %2 %4 %3").arg(q_("Binning")).arg(ccd->binningX()).arg(ccd->binningY()).arg(QChar(0x00D7));
 	fieldCcdBinning->setPlainText(binningLabel);
 	fieldCcdBinning->setPos(posX, posY);
@@ -602,14 +602,14 @@ void OcularsGuiPanel::updateCcdControls()
 	widgetHeight += fieldCcdRotation->boundingRect().height();
 
 	int rotationButtonsWidth = rotateCcdMinus90Button->boundingRect().width()
-				 + rotateCcdMinus15Button->boundingRect().width()
-				 + rotateCcdMinus5Button->boundingRect().width()
-				 + rotateCcdMinus1Button->boundingRect().width()
-				 + resetCcdRotationButton->boundingRect().width()
-				 + rotateCcdPlus1Button->boundingRect().width()
-				 + rotateCcdPlus5Button->boundingRect().width()
-				 + rotateCcdPlus15Button->boundingRect().width()
-				 + rotateCcdPlus90Button->boundingRect().width();
+	                         + rotateCcdMinus15Button->boundingRect().width()
+	                         + rotateCcdMinus5Button->boundingRect().width()
+	                         + rotateCcdMinus1Button->boundingRect().width()
+	                         + resetCcdRotationButton->boundingRect().width()
+	                         + rotateCcdPlus1Button->boundingRect().width()
+	                         + rotateCcdPlus5Button->boundingRect().width()
+	                         + rotateCcdPlus15Button->boundingRect().width()
+	                         + rotateCcdPlus90Button->boundingRect().width();
 	int spacing = (fieldCcdRotation->boundingRect().width() - rotationButtonsWidth) / 8;
 	posX = fieldCcdRotation->x();
 	rotateCcdMinus90Button->setPos(posX, posY);
@@ -647,14 +647,14 @@ void OcularsGuiPanel::updateCcdControls()
 		widgetHeight += fieldPrismRotation->boundingRect().height();
 
 		int positionAngleButtonsWidth = rotatePrismMinus90Button->boundingRect().width()
-					      + rotatePrismMinus15Button->boundingRect().width()
-					      + rotatePrismMinus5Button->boundingRect().width()
-					      + rotatePrismMinus1Button->boundingRect().width()
-					      + resetPrismRotationButton->boundingRect().width()
-					      + rotatePrismPlus1Button->boundingRect().width()
-					      + rotatePrismPlus5Button->boundingRect().width()
-					      + rotatePrismPlus15Button->boundingRect().width()
-					      + rotatePrismPlus90Button->boundingRect().width();
+		                              + rotatePrismMinus15Button->boundingRect().width()
+		                              + rotatePrismMinus5Button->boundingRect().width()
+		                              + rotatePrismMinus1Button->boundingRect().width()
+		                              + resetPrismRotationButton->boundingRect().width()
+		                              + rotatePrismPlus1Button->boundingRect().width()
+		                              + rotatePrismPlus5Button->boundingRect().width()
+		                              + rotatePrismPlus15Button->boundingRect().width()
+		                              + rotatePrismPlus90Button->boundingRect().width();
 		spacing = (fieldPrismRotation->boundingRect().width() - positionAngleButtonsWidth) / 8;
 		posX = fieldPrismRotation->x();
 		rotatePrismMinus90Button->setPos(posX, posY);
@@ -786,7 +786,7 @@ void OcularsGuiPanel::updateTelescopeControls()
 		fieldRelativeBrightness->setVisible(false);
 		fieldAdlerIndex->setVisible(false);
 		fieldBishopIndex->setVisible(false);
-		fieldFov->setVisible(false);		
+		fieldFov->setVisible(false);
 	}
 
 	bool isBinocular = false;
@@ -803,7 +803,7 @@ void OcularsGuiPanel::updateTelescopeControls()
 		{
 			prevTelescopeButton->setVisible(false);
 			nextTelescopeButton->setVisible(false);
-			fieldTelescopeName->setVisible(false);			
+			fieldTelescopeName->setVisible(false);
 			posY = 0.;
 			widgetHeight = 0.;
 
@@ -892,7 +892,7 @@ void OcularsGuiPanel::updateTelescopeControls()
 		fieldRelativeBrightness->setVisible(showBinoFactors);
 		fieldAdlerIndex->setVisible(showBinoFactors);
 		fieldBishopIndex->setVisible(showBinoFactors);
-	}	
+	}
 
 	double diameter = telescope->diameter();
 	if (diameter>0.0 && ocularsPlugin->getFlagShowResolutionCriteria() && !isBinocular)
@@ -1448,11 +1448,11 @@ void OcularsGuiPanel::setFontSize(const int size)
 }
 
 QPixmap OcularsGuiPanel::createPixmapFromText(const QString& text,
-					      int width,
-					      int height,
-					      const QFont& font,
-					      const QColor& textColor,
-					      const QColor& backgroundColor)
+                                              int width,
+                                              int height,
+                                              const QFont& font,
+                                              const QColor& textColor,
+                                              const QColor& backgroundColor)
 {
 	if (width <= 0 || height <=0)
 	{

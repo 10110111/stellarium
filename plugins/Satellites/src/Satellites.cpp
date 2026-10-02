@@ -467,12 +467,12 @@ void Satellites::init()
 		if (gui)
 		{
 			toolbarButton = new StelButton(nullptr,
-						       QPixmap(":/satellites/bt_satellites_on.png"),
-						       QPixmap(":/satellites/bt_satellites_off.png"),
-						       QPixmap(":/graphicGui/miscGlow32x32.png"),
-						       "actionShow_Satellite_Hints",
-						       false,
-						       "actionShow_Satellite_ConfigDialog_Global");
+			                               QPixmap(":/satellites/bt_satellites_on.png"),
+			                               QPixmap(":/satellites/bt_satellites_off.png"),
+			                               QPixmap(":/graphicGui/miscGlow32x32.png"),
+			                               "actionShow_Satellite_Hints",
+			                               false,
+			                               "actionShow_Satellite_ConfigDialog_Global");
 			gui->getButtonBar()->addButton(toolbarButton, "065-pluginsGroup");
 		}
 #endif
@@ -1523,7 +1523,7 @@ void Satellites::setDataMap(const QVariantMap& map)
 		if (sat->initialized)
 		{
 			satellites.append(sat);
-			groups.unite(sat->groups);			
+			groups.unite(sat->groups);
 		}
 		smit++;
 	}
@@ -1538,8 +1538,8 @@ QVariantMap Satellites::createDataMap(void)
 	QVariantMap map;
 	QVariantList defHintCol;
 	defHintCol << Satellite::roundToDp(defaultHintColor[0],3)
-		   << Satellite::roundToDp(defaultHintColor[1],3)
-		   << Satellite::roundToDp(defaultHintColor[2],3);
+	           << Satellite::roundToDp(defaultHintColor[1],3)
+	           << Satellite::roundToDp(defaultHintColor[2],3);
 
 	map["creator"] = QString("Satellites plugin version %1").arg(SATELLITES_PLUGIN_VERSION);
 	map["version"] = QString("%1").arg(SatellitesCatalogVersion);
@@ -1568,7 +1568,7 @@ QVariantMap Satellites::createDataMap(void)
 		if (satMap["status"].toInt() == Satellite::StatusUnknown)
 			satMap.remove("status");
 
-		sats[sat->id] = satMap;		
+		sats[sat->id] = satMap;
 	}
 	map["satellites"] = sats;
 	return map;
@@ -1856,43 +1856,43 @@ QList<CommLink> Satellites::getCommunicationData(const TleData& tleData)
 
 	// Communication data for groups of satellites
 	const QMap<QString, QString> startsWith = {
-		{ "GPS",		"gps" },
-		{ "BEIDOU",	"beidou" },
-		{ "IRNSS",	"irnss" },
-		{ "ORBCOMM",	"orbcomm" },
-		{ "TEVEL",	"tevel" },
-		{ "QZS",		"qzss" },
-		{ "FORMOSAT",	"formosat" },
-		{ "FOSSASAT",	"fossasat"},
-		{ "NETSAT",	"netsat" },
-		{ "GONETS-M",	"gonets" },
-		{ "SOYUZ-MS",	"soyuz-ms" },
+		{ "GPS",        "gps" },
+		{ "BEIDOU",     "beidou" },
+		{ "IRNSS",      "irnss" },
+		{ "ORBCOMM",    "orbcomm" },
+		{ "TEVEL",      "tevel" },
+		{ "QZS",        "qzss" },
+		{ "FORMOSAT",   "formosat" },
+		{ "FOSSASAT",   "fossasat"},
+		{ "NETSAT",     "netsat" },
+		{ "GONETS-M",   "gonets" },
+		{ "SOYUZ-MS",   "soyuz-ms" },
 		{ "PROGRESS-MS","progress-ms" },
-		{ "IRIDIUM",	"iridium" },
-		{ "STARLINK",	"starlink" },
-		{ "NOAA",	"noaa" },
-		{ "METEOR 1",	"meteor-1" },
-		{ "METEOR 3",	"meteor-2" },
-		{ "METEOR 2",	"meteor-3" },
-		{ "METEOR M",	"meteor-m" },
-		{ "METEOR-M",	"meteor-m" },
-		{ "METOP",	"metop" },
-		{ "BEESAT",	"beesat" },
-		{ "UMBRA",	"umbra" },
-		{ "BLACKJACK",	"blackjack" },
-		{ "S-NET",	"s-net" },
-		{ "ION SCV",	"ion-scv" },
-		{ "ASTROCAST-",	"astrocast" },
-		{ "VR3X",	"vr3x" },
-		{ "RASSVET",	"rassvet" },
-		{ "PICO-1A",	"pico-1a" },
-		{ "GLOBALSTAR",	"globalstar" },
-		{ "STRATOSAT",	"stratosat" },
+		{ "IRIDIUM",    "iridium" },
+		{ "STARLINK",   "starlink" },
+		{ "NOAA",       "noaa" },
+		{ "METEOR 1",   "meteor-1" },
+		{ "METEOR 3",   "meteor-2" },
+		{ "METEOR 2",   "meteor-3" },
+		{ "METEOR M",   "meteor-m" },
+		{ "METEOR-M",   "meteor-m" },
+		{ "METOP",      "metop" },
+		{ "BEESAT",     "beesat" },
+		{ "UMBRA",      "umbra" },
+		{ "BLACKJACK",  "blackjack" },
+		{ "S-NET",      "s-net" },
+		{ "ION SCV",    "ion-scv" },
+		{ "ASTROCAST-", "astrocast" },
+		{ "VR3X",       "vr3x" },
+		{ "RASSVET",    "rassvet" },
+		{ "PICO-1A",    "pico-1a" },
+		{ "GLOBALSTAR", "globalstar" },
+		{ "STRATOSAT",  "stratosat" },
 		{ "COSMO-SKYMED", "cosmo-skymed" },
-		{ "QIANFAN",	"qianfan" },
-		{ "HULIANWANG",	"hulianwang" },
-		{ "KUIPER",	"kuiper" },
-		{ "YAMAL",	"yamal" }
+		{ "QIANFAN",    "qianfan" },
+		{ "HULIANWANG", "hulianwang" },
+		{ "KUIPER",     "kuiper" },
+		{ "YAMAL",      "yamal" }
 	};
 
 	QStringList groups;
@@ -2100,9 +2100,9 @@ void Satellites::add(const TleDataList& newSatellites)
 		satelliteListModel->endSatellitesChange();
 	
 	qDebug() << "[Satellites] "
-		 << newSatellites.count() << "satellites proposed for addition, "
-		 << numAdded << " added, "
-		 << satellites.count() << " total after the operation.";
+	         << newSatellites.count() << "satellites proposed for addition, "
+	         << numAdded << " added, "
+	         << satellites.count() << " total after the operation.";
 }
 
 void Satellites::remove(const QStringList& idList)
@@ -2138,9 +2138,9 @@ void Satellites::removeWithoutModelReset(const QStringList& idList)
 	// As the satellite list is kept sorted, no need for re-sorting.
 
 	qDebug() << "[Satellites] "
-		 << idList.count() << "satellites proposed for removal, "
-		 << numRemoved << " removed, "
-		 << satellites.count() << " remain.";
+	         << idList.count() << "satellites proposed for removal, "
+	         << numRemoved << " removed, "
+	         << satellites.count() << " remain.";
 }
 
 int Satellites::getSecondsToUpdate(void)
@@ -3083,7 +3083,7 @@ void Satellites::parseTleFile(QFile& openFile, TleDataHash& tleList, bool addFla
 			}
 			else
 				qWarning().nospace() << "[Satellites] unprocessed line " << lineNumber << " in file "
-					<< QDir::toNativeSeparators(openFile.fileName()) << ": " << line;
+				                     << QDir::toNativeSeparators(openFile.fileName()) << ": " << line;
 		}
 	}
 }
@@ -3537,7 +3537,7 @@ bool Satellites::isValidRangeDates(const StelCore *core) const
 {
 	double tJD = core->getJD();
 	double uJD = lastUpdate.first.isNull() ?  // No updates yet?
-			tJD : lastUpdate.second;
+	                                   tJD : lastUpdate.second;
 	// do not draw anything before Oct 4, 1957, 19:28:34GMT ;-)
 	// upper limit for drawing is +5 years after latest update of TLE
 	return ((tJD>=2436116.3115) && (tJD<=(uJD+5*365)));

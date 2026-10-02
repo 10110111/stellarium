@@ -348,7 +348,7 @@ QVector<QPair<QString,StelObjectP>> Novae::listAllObjects(bool inEnglish) const
 */
 void Novae::restoreDefaultJsonFile(void)
 {
-    if (QFileInfo::exists(novaeJsonPath))
+	if (QFileInfo::exists(novaeJsonPath))
 		backupJsonFile(true);
 
 	QFile src(":/Novae/novae.json");

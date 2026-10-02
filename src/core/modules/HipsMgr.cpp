@@ -126,7 +126,7 @@ void HipsMgr::loadSources()
 	if (sources.isEmpty())
 	{
 		sources << "http://alasky.u-strasbg.fr/MocServer/query?*/P/*&get=record"
-			<< "https://data.stellarium.org/surveys/hipslist";
+		        << "https://data.stellarium.org/surveys/hipslist";
 	}
 
 	for (QUrl source: std::as_const(sources))
@@ -165,7 +165,7 @@ void HipsMgr::init()
 	setFlagShow(conf->value("show", false).toBool());
 	flagShowAtmosphericExtinction = conf->value("show_atmospheric_extinction", false).toBool();
 	int size = conf->beginReadArray("surveys");
-	conf->endArray();	
+	conf->endArray();
 	conf->endGroup();
 	bool hasVisibleSurvey = size>0 ? true: false;
 
