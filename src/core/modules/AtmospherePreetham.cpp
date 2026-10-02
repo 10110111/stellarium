@@ -25,7 +25,6 @@
 #include "StelProjector.hpp"
 #include "StelToneReproducer.hpp"
 #include "StelCore.hpp"
-#include "StelMainView.hpp"
 #include "StelPainter.hpp"
 #include "Skylight.hpp"
 
