@@ -93,17 +93,32 @@ vec3 linearColorToFramebuffer(vec3 c)
 	// In high graphics mode the framebuffer has linear colors
 	return c;
 }
+
+vec3 srgbToFramebuffer(vec3 c)
+{
+	// In high graphics mode the framebuffer has linear colors
+	return srgbToLinear(c);
+}
 #line 1 0
 )"
 			: 1+R"(
 #line 1 109
 vec3 texSampleToLinear(vec3 tex)
 {
+	// In low graphics mode texture samples are in sRGB
 	return srgbToLinear(tex);
 }
+
 vec3 linearColorToFramebuffer(vec3 c)
 {
+	// In low graphics mode the framebuffer has sRGB colors
 	return linearToSRGB(c);
+}
+
+vec3 srgbToFramebuffer(vec3 c)
+{
+	// In low graphics mode the framebuffer has sRGB colors
+	return c;
 }
 #line 1 0
 )";

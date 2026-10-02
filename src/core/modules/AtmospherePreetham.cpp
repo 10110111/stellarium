@@ -55,11 +55,8 @@ AtmospherePreetham::AtmospherePreetham(Skylight& sky)
 		QFile toneRepro(":/shaders/xyYToRGB.glsl");
 		if(!toneRepro.open(QFile::ReadOnly))
 			qFatal("Failed to open ToneReproducer shader source");
-		const QByteArray noHighGraphicsDefine =
-			StelMainView::getInstance().getGLInformation().isHighGraphicsMode ?
-			QByteArray{} : QByteArray("#define NO_HIGH_GRAPHICS 1\n");
 		if (!vShader.compileSourceCode(StelOpenGL::globalShaderPrefix(StelOpenGL::VERTEX_SHADER) +
-		                               vert.readAll()+noHighGraphicsDefine+makeSRGBUtilsShader()+toneRepro.readAll()))
+		                               vert.readAll()+makeSRGBUtilsShader()+toneRepro.readAll()))
 			qFatal("Error while compiling atmosphere vertex shader: %s", vShader.log().toLatin1().constData());
 	}
 	if (!vShader.log().isEmpty())
