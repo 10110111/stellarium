@@ -33,7 +33,7 @@ jobs:
       extra: ${{ steps.mode.outputs.extra }}
       signing: ${{ steps.mode.outputs.signing }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 10
           persist-credentials: false
@@ -123,9 +123,10 @@ jobs:
       gettextSrcURL: https://github.com/Stellarium/stellarium-data/releases/download/qt-5.6/gettext-0.23.1.tar.xz
       tidyBaseName: tidy-5.8.0-win64
       tidyURL: https://github.com/htacg/tidy-html5/releases/download/5.8.0/tidy-5.8.0-win64.zip
+      INNO_SETUP_URL: https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 10
           persist-credentials: false
@@ -239,12 +240,12 @@ jobs:
       - name: Prepare installer tools and guide
         if: env.PUBLISH_BINARY == 'true'
         run: |
-          # Explicit Inno Setup 6 installation; GitHub does not preinstall it.
+          # Pinned Inno Setup 6 release linked from the official download page.
           $setup = "$env:RUNNER_TEMP\innosetup.exe"
-          Invoke-WebRequest 'https://files.jrsoftware.org/is/6/innosetup-6.2.2.exe' -OutFile $setup
-          $install = Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-' -Wait -PassThru
+          $inno = Join-Path $env:RUNNER_TEMP 'inno-setup'
+          Invoke-WebRequest $env:INNO_SETUP_URL -OutFile $setup
+          $install = Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-', "/DIR=`"$inno`"" -Wait -PassThru
           if ($install.ExitCode -ne 0) { throw "Inno Setup installation failed: $($install.ExitCode)" }
-          $inno = "${env:ProgramFiles(x86)}\Inno Setup 6"
           if (-not (Test-Path "$inno\ISCC.exe")) { throw 'ISCC.exe is missing' }
           $env:INNSPATH = $inno
           $env:INNSPATH | Out-File $env:GITHUB_PATH -Append -Encoding utf8
@@ -347,4 +348,3 @@ jobs:
           name: stellarium-qt69-win64-windeployqt-${{ github.run_number }}
           path: build/**/windeployqt.*
           if-no-files-found: ignore
-
