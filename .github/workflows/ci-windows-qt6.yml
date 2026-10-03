@@ -1,0 +1,350 @@
+name: Windows x64 - Qt 6.9
+
+on:
+  push:
+    branches: ['**'] # No tag builds.
+    paths-ignore:
+      - 'guide/**'
+  pull_request:
+    paths-ignore:
+      - 'guide/**'
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Build an unsigned installer (otherwise build and test)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: qt69-windows-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  policy:
+    name: Select build mode
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.mode.outputs.skip }}
+      package: ${{ steps.mode.outputs.package }}
+      extra: ${{ steps.mode.outputs.extra }}
+      signing: ${{ steps.mode.outputs.signing }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 10
+          persist-credentials: false
+
+      - name: Apply AppVeyor skip and packaging rules
+        id: mode
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          SOURCE_BRANCH: ${{ github.head_ref || github.ref_name }}
+          MANUAL_PACKAGE: ${{ inputs.package }}
+        run: |
+          import json, os, re, subprocess
+
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+
+          manual = os.environ['GITHUB_EVENT_NAME'] == 'workflow_dispatch'
+          message = git('show', '-s', '--format=%B', os.environ['SOURCE_SHA'])
+          author = git('show', '-s', '--format=%an <%ae>', os.environ['SOURCE_SHA'])
+          branch = os.environ['SOURCE_BRANCH']
+          skip = not manual and bool(re.search(r'GHA|skip', message) or re.search(r'transifex', author))
+
+          # Like skip_branch_with_pr: build the PR, not the duplicate branch push.
+          if not skip and os.environ['GITHUB_EVENT_NAME'] == 'push':
+              repo = os.environ['GITHUB_REPOSITORY']
+              owner = repo.split('/')[0]
+              raw = subprocess.check_output([
+                  'gh', 'api', f'repos/{repo}/pulls', '--method', 'GET',
+                  '-f', 'state=open', '-f', f'head={owner}:{branch}',
+                  '-f', 'per_page=1'
+              ], text=True)
+              skip = bool(json.loads(raw))
+
+          package = (os.environ.get('MANUAL_PACKAGE') == 'true' or
+                     branch in ('stellarium-next', 'stellarium-stable', 'stellarium-oldstable') or
+                     '[publish]' in message)
+          extra = branch == 'stellarium-next' or '[publish]' in message
+          # Preserve signing intent for this Qt6 job. The signing operation itself
+          # needs a separate GitHub integration; artifacts remain unsigned.
+          signing = (branch == 'stellarium-stable' or
+                     (package and '[signing]' in message))
+          if signing:
+              extra = False
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              for key, value in [('skip', skip), ('package', package), ('extra', extra), ('signing', signing)]:
+                  out.write(f'{key}={str(value).lower()}\n')
+          print(f'branch={branch}; skip={skip}; package={package}; patch installer={extra}; signing intent={signing}')
+
+  build:
+    name: Win64 Qt6.9 / MSVC 2022
+    needs: policy
+    if: needs.policy.outputs.skip != 'true'
+    runs-on: windows-2022 # Explicitly retain Visual Studio 2022, not windows-latest.
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      BUILD_NAME: Win64 Qt6.9
+      CONFIGURATION: Release
+      QT_VERSION: '6.9.3'
+      QT_VERSION_MAJOR: '6'
+      CMAKE_GENERATOR: Visual Studio 17 2022
+      # Empty selects the VS installation's default (currently MSVC 14.44).
+      # A full version pin must already exist on the runner; unavailable pins fail.
+      MSVC_TOOLSET_VERSION: ''
+      MIN_VS_VERSION: '17.14.13'
+      PUBLISH_BINARY: ${{ needs.policy.outputs.package }}
+      USE_EXTRA_EXE: ${{ needs.policy.outputs.extra }}
+      BITS: '64'
+      PKGARCH: x64
+      SSL: OpenSSL-
+      DEBUG_WINDEPLOYQT: 'false'
+      USE_MESA: ${{ needs.policy.outputs.package }}
+      USE_EXT_LIBSSL: ${{ needs.policy.outputs.package }}
+      USE_EXT_LIBGLES: 'false'
+      SIGNING: ${{ needs.policy.outputs.signing }}
+      INSTALL_CONVERTER: ${{ needs.policy.outputs.package }}
+      INSTALL_CONVERTER_DEPS: 'true'
+      exiv2baseName: exiv2-0.28.0-2019msvc64
+      exiv2url: https://github.com/Exiv2/exiv2/releases/download/v0.28.0/exiv2-0.28.0-2019msvc64.zip
+      gettextBaseName: gettext-tools-windows-0.23.1
+      gettextURL: https://github.com/vslavik/gettext-tools-windows/releases/download/v0.23.1/gettext-tools-windows-0.23.1.zip
+      gettextSrcBaseName: gettext-0.23.1
+      gettextSrcURL: https://github.com/Stellarium/stellarium-data/releases/download/qt-5.6/gettext-0.23.1.tar.xz
+      tidyBaseName: tidy-5.8.0-win64
+      tidyURL: https://github.com/htacg/tidy-html5/releases/download/5.8.0/tidy-5.8.0-win64.zip
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 10
+          persist-credentials: false
+
+      - name: Select and initialize MSVC x64
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $json = & $vswhere -latest -products '*' -version "[$env:MIN_VS_VERSION,18.0)" -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -format json
+          if ($LASTEXITCODE -ne 0) { throw 'vswhere failed' }
+          $vs = @($json | ConvertFrom-Json) | Select-Object -First 1
+          if (-not $vs) { throw "Visual Studio 2022 >= $env:MIN_VS_VERSION is required" }
+          $vsPath = $vs.installationPath
+          $toolset = $env:MSVC_TOOLSET_VERSION
+          if (-not $toolset) {
+            $toolset = (Get-Content "$vsPath\VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt" -Raw).Trim()
+          }
+          if ([version]$toolset -lt [version]'14.44') { throw "Refusing older MSVC toolset $toolset" }
+          if (-not (Test-Path "$vsPath\VC\Tools\MSVC\$toolset\bin\Hostx64\x64\cl.exe")) {
+            throw "Requested MSVC $toolset is not installed on this runner"
+          }
+
+          # Use the real VS developer environment for cl, dumpbin, lib, rc and SDKs.
+          # The ScopeCppSDK path in AppVeyor is not the compiler toolset selection.
+          $devcmd = "$vsPath\Common7\Tools\VsDevCmd.bat"
+          $cmd = "`"$devcmd`" -no_logo -arch=x64 -host_arch=x64 -vcvars_ver=$toolset && set"
+          $variables = & $env:ComSpec /d /s /c $cmd
+          if ($LASTEXITCODE -ne 0) { throw 'VsDevCmd failed' }
+          foreach ($line in $variables) {
+            if ($line -match '^([^=]+)=(.*)$') {
+              $key, $value = $Matches[1], $Matches[2]
+              [Environment]::SetEnvironmentVariable($key, $value, 'Process')
+              # GitHub forbids replacing these runner-owned environment entries.
+              if ($key -notmatch '^(GITHUB_|RUNNER_|NODE_OPTIONS$)') {
+                "$key=$value" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+              }
+            }
+          }
+          "VS_PATH=$vsPath" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "SELECTED_MSVC=$toolset" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "CMAKE_TOOLSET=v143,host=x64,version=$toolset" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $compiler = "$vsPath\VC\Tools\MSVC\$toolset\bin\Hostx64\x64\cl.exe"
+          $compilerVersion = (Get-Item $compiler).VersionInfo.FileVersion
+          Write-Host "VS $($vs.installationVersion); MSVC $toolset; cl.exe $compilerVersion"
+          @("Build: $env:BUILD_NAME", "Configuration: $env:CONFIGURATION", "Visual Studio: $($vs.installationVersion)", "MSVC toolset: $toolset", "Compiler: $compilerVersion") |
+            Set-Content toolchain.txt
+
+      - name: Install prebuilt Qt (cached)
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          # Base install also includes qtbase, qtdeclarative, qttools and qtsvg.
+          modules: qtcharts qtpositioning qtserialport qtmultimedia qtwebengine qtwebchannel qtimageformats
+          cache: true
+
+      - name: Prepare original binary dependencies
+        run: |
+          $deps = Join-Path $env:RUNNER_TEMP 'stellarium-deps'
+          New-Item -ItemType Directory -Force $deps | Out-Null
+          "DEPS_DIR=$deps" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          function Expand-7Zip($archive, $dest) {
+            & 7z x $archive "-o$dest" -y
+            if ($LASTEXITCODE -ne 0) { throw "Extraction failed: $archive" }
+          }
+
+          Invoke-WebRequest $env:exiv2url -OutFile "$deps\exiv2.zip"
+          Expand-7Zip "$deps\exiv2.zip" $deps
+          $exiv2 = "$deps\$env:exiv2baseName"
+
+          $prefixes = @($exiv2)
+          if ($env:INSTALL_CONVERTER_DEPS -eq 'true') {
+            $gettext = "$deps\$env:gettextBaseName"
+            Invoke-WebRequest $env:gettextURL -OutFile "$deps\gettext.zip"
+            Expand-7Zip "$deps\gettext.zip" $gettext
+            New-Item -ItemType Directory -Force "$gettext\include", "$gettext\lib" | Out-Null
+            Invoke-WebRequest $env:gettextSrcURL -OutFile "$deps\$env:gettextSrcBaseName.tar.xz"
+            Expand-7Zip "$deps\$env:gettextSrcBaseName.tar.xz" $deps
+            Expand-7Zip "$deps\$env:gettextSrcBaseName.tar" $deps
+            # Produce the DLL import header and MSVC x64 import library, as in AppVeyor.
+            (Get-Content "$deps\$env:gettextSrcBaseName\gettext-tools\libgettextpo\gettext-po.in.h") -replace 'extern ([^()]*);', 'extern __declspec (dllimport) $1;' |
+              Set-Content "$gettext\include\gettext-po.h" -Encoding utf8
+            Copy-Item "$gettext\bin\libgettextpo-0.dll" "$gettext\bin\libgettextpo.dll"
+            $exports = & dumpbin /EXPORTS "$gettext\bin\libgettextpo.dll"
+            if ($LASTEXITCODE -ne 0) { throw 'dumpbin failed' }
+            $names = @($exports -match '^.*\b(po_.*)$' -replace '^.*\b(po_.*)$', '$1')
+            if ($names.Count -eq 0) { throw 'No gettextpo exports found' }
+            @('EXPORTS') + $names | Set-Content "$deps\libgettextpo.def" -Encoding ascii
+            & lib "/def:$deps\libgettextpo.def" "/out:$gettext\lib\libgettextpo.lib" /machine:x64
+            if ($LASTEXITCODE -ne 0) { throw 'Creating gettextpo import library failed' }
+
+            Invoke-WebRequest $env:tidyURL -OutFile "$deps\tidy.zip"
+            Expand-7Zip "$deps\tidy.zip" $deps
+            $tidy = "$deps\$env:tidyBaseName"
+            $prefixes += $gettext, $tidy
+          }
+          foreach ($prefix in $prefixes) {
+            $path = "$prefix\bin"
+            if (-not (Test-Path $path)) { throw "Expected dependency path is missing: $path" }
+            $path | Out-File $env:GITHUB_PATH -Append -Encoding utf8
+          }
+          "DEPS_PREFIX=$($prefixes -join ';')" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "QT_BASEDIR=$env:QT_ROOT_DIR" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $actualQt = (& qmake -query QT_VERSION).Trim()
+          if ($LASTEXITCODE -ne 0 -or $actualQt -ne $env:QT_VERSION) { throw "Unexpected Qt: $actualQt" }
+          if ($actualQt.Split('.')[0] -ne $env:QT_VERSION_MAJOR) { throw "Qt major version does not match QT_VERSION_MAJOR=$env:QT_VERSION_MAJOR" }
+          "Qt: $actualQt ($env:QT_ROOT_DIR)" | Add-Content toolchain.txt
+          cmake --version | Add-Content toolchain.txt
+
+      - name: Prepare installer tools and guide
+        if: env.PUBLISH_BINARY == 'true'
+        run: |
+          # Explicit Inno Setup 6 installation; GitHub does not preinstall it.
+          $setup = "$env:RUNNER_TEMP\innosetup.exe"
+          Invoke-WebRequest 'https://files.jrsoftware.org/is/6/innosetup-6.2.2.exe' -OutFile $setup
+          $install = Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-' -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Inno Setup installation failed: $($install.ExitCode)" }
+          $inno = "${env:ProgramFiles(x86)}\Inno Setup 6"
+          if (-not (Test-Path "$inno\ISCC.exe")) { throw 'ISCC.exe is missing' }
+          $env:INNSPATH = $inno
+          $env:INNSPATH | Out-File $env:GITHUB_PATH -Append -Encoding utf8
+          "INNSPATH=$env:INNSPATH" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          New-Item -ItemType Directory -Force guide | Out-Null
+          Invoke-WebRequest 'https://github.com/Stellarium/stellarium-data/releases/download/guide/guide.pdf' -OutFile guide/guide.pdf
+
+      - name: Configure
+        run: |
+          $prefix = "$env:QT_BASEDIR;$env:DEPS_PREFIX"
+          $installDir = Join-Path $env:RUNNER_TEMP 'stellarium-package'
+          "PACKAGE_DIR=$installDir" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $arguments = @(
+            '-S', '.', '-B', 'build', '-G', $env:CMAKE_GENERATOR,
+            '-A', $env:PKGARCH, '-T', $env:CMAKE_TOOLSET,
+            "-DCMAKE_GENERATOR_INSTANCE=$env:VS_PATH",
+            "-DCMAKE_PREFIX_PATH=$prefix", "-DCMAKE_INSTALL_PREFIX=$installDir",
+            '-DENABLE_QT6=ON', "-DSCM_SHOULD_ENABLE_CONVERTER=$env:INSTALL_CONVERTER_DEPS", '-DENABLE_MEDIA=ON'
+          )
+          if ($env:PUBLISH_BINARY -ne 'true') {
+            $arguments += '-DENABLE_TESTING=ON', '-DENABLE_NLS=OFF'
+          }
+          & cmake @arguments
+          if ($LASTEXITCODE -ne 0) { throw 'CMake configure failed' }
+
+      - name: Build
+        run: cmake --build build --config "$env:CONFIGURATION" --parallel -- /verbosity:minimal
+
+      - name: Test
+        if: env.PUBLISH_BINARY != 'true'
+        run: ctest --test-dir build -C "$env:CONFIGURATION" --output-on-failure --no-tests=error
+
+      - name: Install and add distribution dependencies
+        if: env.PUBLISH_BINARY == 'true'
+        run: |
+          cmake --build build --config "$env:CONFIGURATION" --target install
+          if ($LASTEXITCODE -ne 0) { throw 'Install failed' }
+          $bin = "$env:PACKAGE_DIR\bin"
+          $qtstuff = "$env:PACKAGE_DIR\qtstuff"
+          New-Item -ItemType Directory -Force $bin, $qtstuff | Out-Null
+          if ($env:INSTALL_CONVERTER -eq 'true') {
+            $converter = "$env:DEPS_DIR\sc-converter"
+            Invoke-WebRequest 'https://github.com/Stellarium/stellarium-skyculture-converter/releases/download/v0.0.1/stellarium-skyculture-converter-0.0.1-win64.zip' -OutFile "$env:DEPS_DIR\sc-converter.zip"
+            & 7z e "$env:DEPS_DIR\sc-converter.zip" "-o$converter" -aoa -y
+            if ($LASTEXITCODE -ne 0) { throw 'Converter extraction failed' }
+            Copy-Item "$converter\lib*.dll", "$converter\tidy.dll", "$converter\skyculture-converter.exe" $bin
+            # Use the selected Qt's XML DLL to avoid mixing Qt patch releases.
+            Copy-Item "$env:QT_BASEDIR\bin\Qt6Xml.dll" $qtstuff
+          }
+          if ($env:USE_EXT_LIBGLES -eq 'true') {
+            Invoke-WebRequest "https://github.com/Stellarium/stellarium-data/releases/download/qt-5.6/libGLES-Win${env:BITS}.zip" -OutFile "$env:DEPS_DIR\libgles.zip"
+            & 7z e "$env:DEPS_DIR\libgles.zip" "-o$qtstuff" -aoa -y
+            if ($LASTEXITCODE -ne 0) { throw 'libGLES extraction failed' }
+          }
+          if ($env:USE_MESA -eq 'true') {
+            Invoke-WebRequest "https://github.com/Stellarium/stellarium-data/releases/download/mesa-win-20.1.8/opengl32sw-${env:PKGARCH}.dll" -OutFile "$qtstuff\opengl32sw.dll"
+          }
+          if ($env:USE_EXT_LIBSSL -eq 'true') {
+            Invoke-WebRequest "https://github.com/Stellarium/stellarium-data/releases/download/qt-5.6/${env:SSL}Win${env:BITS}.zip" -OutFile "$env:DEPS_DIR\openssl.zip"
+            & 7z e "$env:DEPS_DIR\openssl.zip" "-o$qtstuff" -aoa -y
+            if ($LASTEXITCODE -ne 0) { throw 'OpenSSL extraction failed' }
+          }
+          Copy-Item "$env:DEPS_DIR\$env:exiv2baseName\bin\exiv2.dll" $bin
+
+      - name: Build installers
+        if: env.PUBLISH_BINARY == 'true'
+        run: |
+          cmake --build build --config "$env:CONFIGURATION" --target stellarium-installer
+          if ($LASTEXITCODE -ne 0) { throw 'Installer build failed' }
+          if ($env:USE_EXTRA_EXE -eq 'true') {
+            cmake --build build --config "$env:CONFIGURATION" --target stellarium-patch-installer
+            if ($LASTEXITCODE -ne 0) { throw 'Patch installer build failed' }
+          }
+
+      - name: Upload unsigned installers
+        if: env.PUBLISH_BINARY == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: stellarium-qt69-win64-unsigned-${{ github.run_number }}
+          path: installers/*.exe
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Upload toolchain and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stellarium-qt69-win64-diagnostics-${{ github.run_number }}
+          path: |
+            toolchain.txt
+            build/CMakeCache.txt
+            build/CMakeFiles/CMakeConfigureLog.yaml
+            build/Testing/Temporary/*.log
+          if-no-files-found: ignore
+
+      - name: Upload windeployqt diagnostics
+        if: always() && env.DEBUG_WINDEPLOYQT == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: stellarium-qt69-win64-windeployqt-${{ github.run_number }}
+          path: build/**/windeployqt.*
+          if-no-files-found: ignore
+
