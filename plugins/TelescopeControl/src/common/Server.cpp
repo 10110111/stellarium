@@ -35,7 +35,7 @@ void Server::SocketList::clear(void)
 	list<Socket*>::clear();
 }
 
-Server::Server(int)
+Server::Server(int, int slot) : logSlot(slot)
 {
 	//Socket *listener = new Listener(*this, port);
 	//socket_list.push_back(listener);

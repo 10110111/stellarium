@@ -1,11 +1,5 @@
 /*
-The stellarium telescope library helps building
-telescope server programs, that can communicate with stellarium
-by means of the stellarium TCP telescope protocol.
-It also contains sample server classes (dummy, Meade LX200).
-
-Author and Copyright of this file and of the stellarium telescope library:
-Johannes Gajdosik, 2006
+Stellarium Telescope Control Plug-in
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,22 +16,22 @@ along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Suite 500, Boston, MA  02110-1335, USA.
 */
 
-#ifndef LOGFILE_HPP
-#define LOGFILE_HPP
+#ifndef TELESCOPELOGGING_HPP
+#define TELESCOPELOGGING_HPP
 
-#include <QTextStream>
+#include <QDebug>
+#include <QLoggingCategory>
 
-long long int GetNow(void);
+Q_DECLARE_LOGGING_CATEGORY(Telescopes)
 
-class Now
+//! Slot identification for telescope diagnostics. A nonpositive slot omits the prefix.
+struct TelescopeLogPrefix
 {
-public:
-	Now(void) : time(GetNow()) {}
-	const long long int time;
+	explicit TelescopeLogPrefix(int slot) : slot(slot) {}
+	int slot;
 };
 
-QTextStream &operator<<(QTextStream &o, const Now &now);
+//! Writes the slot prefix, with its format defined in one place, preserving stream spacing.
+QDebug operator<<(QDebug debug, TelescopeLogPrefix prefix);
 
-extern QTextStream *log_file;
-
-#endif
+#endif // TELESCOPELOGGING_HPP

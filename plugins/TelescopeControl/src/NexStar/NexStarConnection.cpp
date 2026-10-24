@@ -25,8 +25,7 @@ Foundation, Inc., 51 Franklin Street, Suite 500, Boston, MA  02110-1335, USA.
 #include "NexStarConnection.hpp"
 #include "NexStarCommand.hpp"
 #include "TelescopeClientDirectNexStar.hpp"
-#include "common/LogFile.hpp"
-#include "StelUtils.hpp"
+#include "common/TelescopeLogging.hpp"
 
 #include <iostream>
 
@@ -41,9 +40,7 @@ void NexStarConnectionImpl<Transport>::resetCommunication(void)
 	
 	this->read_buff_end = this->read_buff;
 	this->write_buff_end = this->write_buff;
-#ifdef DEBUG4
-	*log_file << Now() << "NexStarConnection::resetCommunication" << StelUtils::getEndLineChar();
-#endif
+	qCDebug(Telescopes).nospace().noquote() << this->getLogPrefix() << "NexStarConnection::resetCommunication";
 }
 
 template <class Transport>
@@ -61,11 +58,8 @@ void NexStarConnectionImpl<Transport>::sendSync(unsigned int ra_int, int dec_int
 template <class Transport>
 void NexStarConnectionImpl<Transport>::sendAbort()
 {
-#ifdef DEBUG4
-	*log_file << Now()
-		  << "NexStarConnection::sendAbort()"
-		  << StelUtils::getEndLineChar();
-#endif
+	qCDebug(Telescopes).nospace().noquote() << this->getLogPrefix()
+		  << "NexStarConnection::sendAbort()";
 	// Remove queued commands (pointers, so delete their objects!)
 	while (!command_list.empty())
 	{
@@ -81,31 +75,27 @@ void NexStarConnectionImpl<Transport>::dataReceived(const char *&p,const char *r
 {
 	if (this->isClosed())
 	{
-		*log_file << Now() << "NexStarConnection::dataReceived: strange: fd is closed" << StelUtils::getEndLineChar();
+		qCWarning(Telescopes).nospace().noquote() << this->getLogPrefix()
+			<< "NexStarConnection::dataReceived: strange: fd is closed";
 	}
 	else if (command_list.empty())
 	{
-		#ifdef DEBUG4
-		*log_file << Now() << "NexStarConnection::dataReceived: "
-				      "error: command_list is empty" << StelUtils::getEndLineChar();
-		#endif
+		qCWarning(Telescopes).nospace().noquote() << this->getLogPrefix() << "NexStarConnection::dataReceived: "
+				      "error: command_list is empty";
 		resetCommunication();
 		static_cast<TelescopeClientDirectNexStar*>(&this->server)->communicationResetReceived();
 	}
 	else if (command_list.front()->needsNoAnswer())
 	{
-		*log_file << Now() << "NexStarConnection::dataReceived: "
+		qCWarning(Telescopes).nospace().noquote() << this->getLogPrefix() << "NexStarConnection::dataReceived: "
 		                      "strange: command(" << *command_list.front()
-				   << ") needs no answer" << StelUtils::getEndLineChar();
+				   << ") needs no answer";
 	}
 	else
 	{
 		while(true)
 		{
 			const int rc=command_list.front()->readAnswerFromBuffer(p, read_buff_end);
-			//*log_file << Now() << "NexStarConnection::dataReceived: "
-			//                   << *command_list.front() << "->readAnswerFromBuffer returned "
-			//                   << rc << StelUtils::getEndLineChar();
 			if (rc <= 0)
 			{
 				if (rc < 0)
@@ -133,19 +123,15 @@ void NexStarConnectionImpl<Transport>::sendCommand(NexStarCommand *command)
 {
 	if (command)
 	{
-		#ifdef DEBUG4
-		*log_file << Now() << "NexStarConnection::sendCommand(" << *command
-			  << ")" << StelUtils::getEndLineChar();
-		#endif
+		qCDebug(Telescopes).nospace().noquote() << this->getLogPrefix()
+			<< "NexStarConnection::sendCommand(" << *command
+			  << ")";
 		command_list.push_back(command);
 		while (!command_list.front()->hasBeenWrittenToBuffer())
 		{
 			if (command_list.front()->writeCommandToBuffer(this->write_buff_end,
 			                                             this->write_buff+sizeof(this->write_buff)))
 			{
-				//*log_file << Now() << "NexStarConnection::sendCommand: "
-				//                   << (*command_list.front())
-				//                   << "::writeCommandToBuffer ok" << StelUtils::getEndLineChar();
 				if (command_list.front()->needsNoAnswer())
 				{
 					delete command_list.front();
@@ -160,14 +146,9 @@ void NexStarConnectionImpl<Transport>::sendCommand(NexStarCommand *command)
 			}
 			else
 			{
-				//*log_file << Now() << "NexStarConnection::sendCommand: "
-				//                   << (*command_list.front())
-				//                   << "::writeCommandToBuffer failed" << StelUtils::getEndLineChar();
 				break;
 			}
 		}
-		//*log_file << Now() << "NexStarConnection::sendCommand(" << *command << ") end"
-		//                   << StelUtils::getEndLineChar();
 	}
 }
 

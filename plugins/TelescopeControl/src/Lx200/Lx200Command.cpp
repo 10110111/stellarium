@@ -24,8 +24,7 @@ Foundation, Inc., 51 Franklin Street, Suite 500, Boston, MA  02110-1335, USA.
 
 #include "Lx200Command.hpp"
 #include "TelescopeClientDirectLx200.hpp"
-#include "common/LogFile.hpp"
-#include "StelUtils.hpp"
+#include "common/TelescopeLogging.hpp"
 
 #include <cmath>
 
@@ -50,7 +49,7 @@ bool Lx200CommandToggleFormat::writeCommandToBuffer(char *&p, char *end)
 	return true;
 }
 
-void Lx200CommandToggleFormat::print(QTextStream &o) const
+void Lx200CommandToggleFormat::print(QDebug &o) const
 {
 	o << "Lx200CommandToggleFormat";
 }
@@ -68,7 +67,7 @@ bool Lx200CommandStopSlew::writeCommandToBuffer(char *&p, char *end)
 	return true;
 }
 
-void Lx200CommandStopSlew::print(QTextStream &o) const {
+void Lx200CommandStopSlew::print(QDebug &o) const {
 	o << "Lx200CommandStopSlew";
 }
 
@@ -108,39 +107,30 @@ int Lx200CommandSetSelectedRa::readAnswerFromBuffer(const char *&buff,
 	switch (buff[0])
 	{
 		case '0':
-			#ifdef DEBUG4
-			*log_file << Now()
+			qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 			          << "Lx200CommandSetSelectedRa::readAnswerFromBuffer:"
-			             "ra invalid"
-				  << StelUtils::getEndLineChar();
-			#endif
+			             "ra invalid";
 			buff++;
 			break;
 		
 		case '1':
-			#ifdef DEBUG4
-			*log_file << Now()
+			qCDebug(Telescopes).nospace().noquote() << server.getLogPrefix()
 			          << "Lx200CommandSetSelectedRa::readAnswerFromBuffer:"
-			             "ra valid"
-				  << StelUtils::getEndLineChar();
-			#endif
+			             "ra valid";
 			buff++;
 			break;
 		
 		default:
-			#ifdef DEBUG4
-			*log_file << Now()
+			qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 			          << "Lx200CommandSetSelectedRa::readAnswerFromBuffer:"
-			             "strange: unexpected char"
-				  << StelUtils::getEndLineChar();
-			#endif
+			             "strange: unexpected char";
 			break;
 	}
 	
 	return 1;
 }
 
-void Lx200CommandSetSelectedRa::print(QTextStream &o) const
+void Lx200CommandSetSelectedRa::print(QDebug &o) const
 {
 	o << "Lx200CommandSetSelectedRa("
 	  << (ra/3600) << ':' << ((ra/60)%60) << ':' << (ra%60) << ')';
@@ -193,39 +183,30 @@ int Lx200CommandSetSelectedDec::readAnswerFromBuffer(const char *&buff,
 	switch (buff[0])
 	{
 		case '0':
-			#ifdef DEBUG4
-			*log_file << Now()
+			qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 			          << "Lx200CommandSetSelectedDec::readAnswerFromBuffer:"
-			             "dec invalid"
-				  << StelUtils::getEndLineChar();
-			#endif
+			             "dec invalid";
 			buff++;
 			break;
 		
 		case '1':
-			#ifdef DEBUG4
-			*log_file << Now()
+			qCDebug(Telescopes).nospace().noquote() << server.getLogPrefix()
 			          << "Lx200CommandSetSelectedDec::readAnswerFromBuffer:"
-			             "dec valid"
-				  << StelUtils::getEndLineChar();
-			#endif
+			             "dec valid";
 			buff++;
 			break;
 		
 		default:
-			#ifdef DEBUG4
-			*log_file << Now()
+			qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 			          << "Lx200CommandSetSelectedDec::readAnswerFromBuffer:"
-			             "strange: unexpected char"
-				  << StelUtils::getEndLineChar();
-			#endif
+			             "strange: unexpected char";
 			break;
 	}
 	
 	return 1;
 }
 
-void Lx200CommandSetSelectedDec::print(QTextStream &o) const
+void Lx200CommandSetSelectedDec::print(QDebug &o) const
 {
 	const int d = abs(dec);
 	o << "Lx200CommandSetSelectedDec("
@@ -267,12 +248,9 @@ int Lx200CommandGotoSelected::readAnswerFromBuffer(const char *&buff,
 	switch (first_byte)
 	{
 		case '0':
-			#ifdef DEBUG4
-			*log_file << Now()
+			qCDebug(Telescopes).nospace().noquote() << server.getLogPrefix()
 			          << "Lx200CommandGotoSelected::readAnswerFromBuffer: "
-			             "slew ok"
-				  << StelUtils::getEndLineChar();
-			#endif
+			             "slew ok";
 			buff++;
 			return 1;
 		
@@ -282,15 +260,12 @@ int Lx200CommandGotoSelected::readAnswerFromBuffer(const char *&buff,
 			if (p == end)
 			{
 				// the AutoStar 494 returns just '1', nothing else
-				#ifdef DEBUG4
-				*log_file << Now()
+				qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 				          << "Lx200CommandGotoSelected::readAnswerFromBuffer: "
 				             "slew failed ("
 					  << (static_cast<char>(first_byte))
 				          << "), "
-				             "but no complete answer yet"
-					  << StelUtils::getEndLineChar();
-				#endif
+				             "but no complete answer yet";
 				buff++;
 				return 0;
 			}
@@ -304,34 +279,28 @@ int Lx200CommandGotoSelected::readAnswerFromBuffer(const char *&buff,
 				if (*p == '#')
 					break;
 			}
-			#ifdef DEBUG4
-			*log_file << Now()
+			qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 			<< "Lx200CommandGotoSelected::readAnswerFromBuffer: "
 			   "slew failed ("
 			<< (static_cast<char>(first_byte))
 			<< "): '"
 			<< QByteArray(buff + 1, static_cast<int>(p - buff - 1))
-			<< '\''
-			<< StelUtils::getEndLineChar();
-			#endif
+			<< '\'';
 			buff = p+1;
 			return 1;
 		}
 		
 		default:
-			#ifdef DEBUG4
-			*log_file << Now()
+			qCDebug(Telescopes).nospace().noquote() << server.getLogPrefix()
 			          << "Lx200CommandGotoSelected::readAnswerFromBuffer: "
-			             "slew returns something weird"
-				  << StelUtils::getEndLineChar();
-			#endif
+			             "slew returns something weird";
 			break;
 	}
 	
 	return -1;
 }
 
-void Lx200CommandGotoSelected::print(QTextStream &o) const
+void Lx200CommandGotoSelected::print(QDebug &o) const
 {
 	o << "Lx200CommandGotoSelected";
 }
@@ -375,11 +344,8 @@ int Lx200CommandSyncSelected::readAnswerFromBuffer(const char *&buff,
 	// as a single-byte answer.
 	if (first_byte == '0')
 	{
-		#ifdef DEBUG4
-		*log_file << Now()
-			  << "Lx200CommandSyncSelected::readAnswerFromBuffer: sync ok"
-			  << StelUtils::getEndLineChar();
-		#endif
+		qCDebug(Telescopes).nospace().noquote() << server.getLogPrefix()
+			  << "Lx200CommandSyncSelected::readAnswerFromBuffer: sync ok";
 		buff++;
 		return 1;
 	}
@@ -391,18 +357,15 @@ int Lx200CommandSyncSelected::readAnswerFromBuffer(const char *&buff,
 		if (*p == '#')
 			break;
 	}
-	#ifdef DEBUG4
-	*log_file << Now()
+	qCDebug(Telescopes).nospace().noquote() << server.getLogPrefix()
 	<< "Lx200CommandSyncSelected::readAnswerFromBuffer: sync acknowledged: '"
 	<< QByteArray(buff, static_cast<int>(p - buff))
-	<< '\''
-	<< StelUtils::getEndLineChar();
-	#endif
+	<< '\'';
 	buff = p+1;
 	return 1;
 }
 
-void Lx200CommandSyncSelected::print(QTextStream &o) const
+void Lx200CommandSyncSelected::print(QDebug &o) const
 {
 	o << "Lx200CommandSyncSelected";
 }
@@ -440,12 +403,9 @@ int Lx200CommandGetRa::readAnswerFromBuffer(const char *&buff,
 	ra += ((*p++) - '0');
 	if (*p++ != ':')
 	{
-		#ifdef DEBUG4
-		*log_file << Now()
+		qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 		          << "Lx200CommandGetRa::readAnswerFromBuffer: "
-		             "error: ':' expected"
-			  << StelUtils::getEndLineChar();
-		#endif
+		             "error: ':' expected";
 		return -1;
 	}
 	
@@ -467,35 +427,27 @@ int Lx200CommandGetRa::readAnswerFromBuffer(const char *&buff,
 			break;
 		
 		default:
-			*log_file << Now()
+			qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 			          << "Lx200CommandGetRa::readAnswerFromBuffer: "
-			             "error: '.' or ':' expected"
-				  << StelUtils::getEndLineChar();
+			             "error: '.' or ':' expected";
 			return -1;
 	}
 	
 	if (*p++ != '#')
 	{
-		*log_file << Now()
+		qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 		          << "Lx200CommandGetRa::readAnswerFromBuffer: "
-		             "error: '#' expected"
-			  << StelUtils::getEndLineChar();
+		             "error: '#' expected";
 		return -1;
 	}
-	
-	#ifdef DEBUG4
-	*log_file << Now()
+
+	qCDebug(Telescopes).nospace().noquote() << server.getLogPrefix()
 	          << "Lx200CommandGetRa::readAnswerFromBuffer: "
 	          << "RA = "
-	          << qSetPadChar('0')
-	          << qSetFieldWidth(2)  << (ra/3600)
-	          << qSetFieldWidth(0) << ':'
-	          << qSetFieldWidth(2) << ((ra/60)%60)
-	          << qSetFieldWidth(0) << ':'
-	          << qSetFieldWidth(2) << (ra%60)
-	          << qSetFieldWidth(0) << qSetPadChar(' ')
-		  << StelUtils::getEndLineChar();
-	#endif
+	          << QStringLiteral("%1:%2:%3")
+			.arg(ra/3600, 2, 10, QLatin1Char('0'))
+			.arg((ra/60)%60, 2, 10, QLatin1Char('0'))
+			.arg(ra%60, 2, 10, QLatin1Char('0'));
 	
 	buff = p;
 	server.longFormatUsedReceived(long_format);
@@ -503,7 +455,7 @@ int Lx200CommandGetRa::readAnswerFromBuffer(const char *&buff,
 	return 1;
 }
 
-void Lx200CommandGetRa::print(QTextStream &o) const
+void Lx200CommandGetRa::print(QDebug &o) const
 {
 	o << "Lx200CommandGetRa";
 }
@@ -549,12 +501,9 @@ int Lx200CommandGetDec::readAnswerFromBuffer(const char *&buff,
 			break;
 		
 		default:
-			#ifdef DEBUG4
-			*log_file << Now()
+			qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 			          << "Lx200CommandGetDec::readAnswerFromBuffer: "
-			             "error: '+' or '-' expected"
-				  << StelUtils::getEndLineChar();
-			#endif
+			             "error: '+' or '-' expected";
 			return -1;
 	}
 	
@@ -562,10 +511,9 @@ int Lx200CommandGetDec::readAnswerFromBuffer(const char *&buff,
 	dec *= 10; dec += ((*p++) - '0');
 	if (*p++ != (static_cast<char>(223)))
 	{
-		*log_file << Now()
+		qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 		          << "Lx200CommandGetDec::readAnswerFromBuffer: "
-			     "error: degree sign expected" // not a star, really 0xDF
-			  << StelUtils::getEndLineChar();
+			     "error: degree sign expected"; // not a star, really 0xDF
 	}
 	
 	dec *=  6; dec += ((*p++) - '0');
@@ -589,34 +537,26 @@ int Lx200CommandGetDec::readAnswerFromBuffer(const char *&buff,
 			dec *= 10; dec += ((*p++) - '0');
 			if (*p++ != '#')
 			{
-				*log_file << Now()
+				qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 				          << "Lx200CommandGetDec::readAnswerFromBuffer: "
-				             "error: '#' expected"
-					  << StelUtils::getEndLineChar();
+				             "error: '#' expected";
 				return -1;
 			}
 			break;
 
 		default:
-			*log_file << Now()
+			qCWarning(Telescopes).nospace().noquote() << server.getLogPrefix()
 			          << "Lx200CommandGetDec::readAnswerFromBuffer: "
-			             "error: '#', ':' or ''' expected"
-				  << StelUtils::getEndLineChar();
+			             "error: '#', ':' or ''' expected";
 			return -1;
 	}
-	#ifdef DEBUG4
-	*log_file << Now()
+	qCDebug(Telescopes).nospace().noquote() << server.getLogPrefix()
 	          << "Lx200CommandGetDec::readAnswerFromBuffer: "
 	          << "Dec = " << (sign_dec?'-':'+')
-	          << qSetPadChar('0')
-	          << qSetFieldWidth(2) << (dec/3600)
-	          << qSetFieldWidth(0) << ':'
-	          << qSetFieldWidth(2) << ((dec/60)%60)
-	          << qSetFieldWidth(0) << ':'
-	          << qSetFieldWidth(2) << (dec%60)
-	          << qSetFieldWidth(0) << qSetPadChar(' ')
-		  << StelUtils::getEndLineChar();
-	#endif
+	          << QStringLiteral("%1:%2:%3")
+			.arg(dec/3600, 2, 10, QLatin1Char('0'))
+			.arg((dec/60)%60, 2, 10, QLatin1Char('0'))
+			.arg(dec%60, 2, 10, QLatin1Char('0'));
 	
 	if (sign_dec)
 		dec = -dec;
@@ -626,7 +566,7 @@ int Lx200CommandGetDec::readAnswerFromBuffer(const char *&buff,
 	return 1;
 }
 
-void Lx200CommandGetDec::print(QTextStream &o) const
+void Lx200CommandGetDec::print(QDebug &o) const
 {
 	o << "Lx200CommandGetDec";
 }

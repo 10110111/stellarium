@@ -1,0 +1,10 @@
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Test REQUIRED)
+
+add_executable(testTelescopeLogging testTelescopeLogging.cpp)
+set_target_properties(testTelescopeLogging PROPERTIES AUTOMOC ON FOLDER "plugins/TelescopeControl/test")
+target_link_libraries(testTelescopeLogging Qt${QT_VERSION_MAJOR}::Test TelescopeControl_common)
+if(WIN32)
+    target_link_libraries(testTelescopeLogging ws2_32)
+endif()
+target_include_directories(testTelescopeLogging PRIVATE ..)
+add_test(NAME testTelescopeLogging COMMAND testTelescopeLogging)

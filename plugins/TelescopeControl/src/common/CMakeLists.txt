@@ -11,8 +11,8 @@ IF(WIN32)
 ENDIF(WIN32)
 
 ADD_LIBRARY(TelescopeControl_common STATIC
-    LogFile.hpp
-    LogFile.cpp
+    TelescopeLogging.hpp
+    TelescopeLogging.cpp
     Socket.hpp
     Socket.cpp
     Server.hpp
@@ -41,3 +41,7 @@ IF(${QT_VERSION_MAJOR} EQUAL 5 AND ${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
 ENDIF()
 
 SET_TARGET_PROPERTIES(TelescopeControl_common PROPERTIES FOLDER "plugins/TelescopeControl")
+
+IF(ENABLE_TESTING)
+    add_subdirectory(test)
+ENDIF()

@@ -796,14 +796,16 @@ void TelescopeDialog::buttonRemovePressed()
 		if(!telescopeManager->removeTelescopeAtSlot(selectedSlot))
 		{
 			//TODO: Add debug
-			qCWarning(Telescopes) << "Cannot remove telescope at slot" << selectedSlot;
+			qCWarning(Telescopes) << TelescopeLogPrefix(selectedSlot)
+				<< "Cannot remove telescope at slot" << selectedSlot;
 			return;
 		}
 	}
 	else
 	{
 		//TODO: Add debug
-		qCWarning(Telescopes) << "Cannot stop telescope at slot" << selectedSlot << ". Rejecting removal.";
+		qCWarning(Telescopes) << TelescopeLogPrefix(selectedSlot)
+			<< "Cannot stop telescope at slot" << selectedSlot << ". Rejecting removal.";
 		return;
 	}
 	
