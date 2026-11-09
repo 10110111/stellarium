@@ -367,8 +367,6 @@ public:
 
 		setAcceptHoverEvents(true);
 
-		setAcceptTouchEvents(true);
-		grabGesture(Qt::PinchGesture);
 		setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton | Qt::MiddleButton);
 		previousPaintTime = StelApp::getTotalRunTime();
 	}
@@ -496,39 +494,6 @@ protected:
 			mainView->thereWasAnEvent();
 	}
 
-	bool sceneEvent(QEvent *event) override
-	{
-		if (event->type() == QEvent::Gesture)
-		{
-			auto *gestureEvent = static_cast<QGestureEvent *>(event);
-			if (auto *pinch = static_cast<QPinchGesture *>(gestureEvent->gesture(Qt::PinchGesture)))
-			{
-				pinchTriggered(pinch);
-				gestureEvent->accept(pinch);
-				return true;
-			}
-		}
-
-		// Leave raw touch events unhandled so Qt can synthesize taps and one-finger drags.
-		return QGraphicsObject::sceneEvent(event);
-	}
-
-private:
-	void pinchTriggered(QPinchGesture *gesture)
-	{
-		if ((gesture->state() == Qt::GestureStarted || gesture->state() == Qt::GestureUpdated)
-		    && (gesture->changeFlags() & QPinchGesture::ScaleFactorChanged))
-		{
-			const qreal zoom = gesture->scaleFactor();
-
-			if (zoom < 2 && zoom > 0.5)
-			{
-				StelApp::getInstance().handlePinch(zoom, true);
-				mainView->thereWasAnEvent();
-			}
-		}
-	}
-
 private:
 	//! Helper function to convert a QGraphicsSceneMouseEvent to a QMouseEvent suitable for StelApp consumption
 	QMouseEvent convertMouseEvent(QGraphicsSceneMouseEvent *event) const
@@ -627,6 +592,10 @@ StelMainView::StelMainView(QSettings* settings)
 	setAttribute(Qt::WA_OpaquePaintEvent);
 	setAttribute(Qt::WA_AcceptTouchEvents);
 	setAttribute(Qt::WA_TouchPadAcceptSingleTouchEvents);
+	// A gesture context on the top-level view also sees the window's raw touch events.
+	// The viewport can then leave touches unhandled for tap/drag mouse synthesis.
+	// Exclude children to avoid recognizing the same touch update twice.
+	grabGesture(Qt::PinchGesture, Qt::DontStartGestureOnChildren);
 	setAutoFillBackground(false);
 	setMouseTracking(true);
 
@@ -714,6 +683,30 @@ void StelMainView::resizeEvent(QResizeEvent* event)
 		emit sizeChanged(sz);
 	}
 	QGraphicsView::resizeEvent(event);
+}
+
+bool StelMainView::event(QEvent *event)
+{
+	if (event->type() == QEvent::Gesture && StelApp::isInitialized())
+	{
+		auto *gestureEvent = static_cast<QGestureEvent *>(event);
+		if (auto *pinch = static_cast<QPinchGesture *>(gestureEvent->gesture(Qt::PinchGesture)))
+		{
+			if ((pinch->state() == Qt::GestureStarted || pinch->state() == Qt::GestureUpdated)
+			    && (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged))
+			{
+				const qreal scale = pinch->scaleFactor();
+				if (scale > 0.5 && scale < 2)
+				{
+					StelApp::getInstance().handlePinch(scale, true);
+					thereWasAnEvent();
+				}
+			}
+			gestureEvent->accept(pinch);
+			return true;
+		}
+	}
+	return QGraphicsView::event(event);
 }
 
 bool StelMainView::eventFilter(QObject *obj, QEvent *event)
