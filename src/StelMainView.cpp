@@ -59,8 +59,9 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 #include <QStorageInfo>
+#include <QPinchGesture>
+#include <QNativeGestureEvent>
 #ifdef Q_OS_WIN
-	#include <QPinchGesture>
 	#include <Windows.h>
 	#include <WinUser.h>
 #endif
@@ -366,10 +367,8 @@ public:
 
 		setAcceptHoverEvents(true);
 
-#ifdef Q_OS_WIN
 		setAcceptTouchEvents(true);
 		grabGesture(Qt::PinchGesture);
-#endif
 		setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton | Qt::MiddleButton);
 		previousPaintTime = StelApp::getTotalRunTime();
 	}
@@ -497,56 +496,38 @@ protected:
 			mainView->thereWasAnEvent();
 	}
 
-	//*** Gesture and touch support, currently only for Windows
-#ifdef Q_OS_WIN
-	bool event(QEvent * e) override
+	bool sceneEvent(QEvent *event) override
 	{
-		bool r = false;
-		switch (e->type()){
-			case QEvent::TouchBegin:
-			case QEvent::TouchUpdate:
-			case QEvent::TouchEnd:
+		if (event->type() == QEvent::Gesture)
+		{
+			auto *gestureEvent = static_cast<QGestureEvent *>(event);
+			if (auto *pinch = static_cast<QPinchGesture *>(gestureEvent->gesture(Qt::PinchGesture)))
 			{
-				QTouchEvent *touchEvent = static_cast<QTouchEvent *>(e);
-				QList<QTouchEvent::TouchPoint> touchPoints = touchEvent->touchPoints();
-
-				if (touchPoints.count() == 1)
-					setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton | Qt::MiddleButton);
-
-				r = true;
-				break;
+				pinchTriggered(pinch);
+				gestureEvent->accept(pinch);
+				return true;
 			}
-			case QEvent::Gesture:
-				setAcceptedMouseButtons(Qt::NoButton);
-				r = gestureEvent(static_cast<QGestureEvent*>(e));
-				break;
-			default:
-				r = QGraphicsObject::event(e);
 		}
-		return r;
+
+		// Leave raw touch events unhandled so Qt can synthesize taps and one-finger drags.
+		return QGraphicsObject::sceneEvent(event);
 	}
 
 private:
-	bool gestureEvent(QGestureEvent *event)
-	{
-		if (QGesture *pinch = event->gesture(Qt::PinchGesture))
-			pinchTriggered(static_cast<QPinchGesture *>(pinch));
-
-		return true;
-	}
-
 	void pinchTriggered(QPinchGesture *gesture)
 	{
-		QPinchGesture::ChangeFlags changeFlags = gesture->changeFlags();
-		if (changeFlags & QPinchGesture::ScaleFactorChanged) {
-			qreal zoom = gesture->scaleFactor();
+		if ((gesture->state() == Qt::GestureStarted || gesture->state() == Qt::GestureUpdated)
+		    && (gesture->changeFlags() & QPinchGesture::ScaleFactorChanged))
+		{
+			const qreal zoom = gesture->scaleFactor();
 
-			if (zoom < 2 && zoom > 0.5){
+			if (zoom < 2 && zoom > 0.5)
+			{
 				StelApp::getInstance().handlePinch(zoom, true);
+				mainView->thereWasAnEvent();
 			}
 		}
 	}
-#endif
 
 private:
 	//! Helper function to convert a QGraphicsSceneMouseEvent to a QMouseEvent suitable for StelApp consumption
@@ -744,6 +725,26 @@ bool StelMainView::eventFilter(QObject *obj, QEvent *event)
 		qApp->setProperty("onetime_startup_script", openEvent->file());
 	}
 	return QGraphicsView::eventFilter(obj, event);
+}
+
+bool StelMainView::viewportEvent(QEvent *event)
+{
+	if (event->type() == QEvent::NativeGesture && StelApp::isInitialized())
+	{
+		const auto *gesture = static_cast<QNativeGestureEvent *>(event);
+		if (gesture->gestureType() == Qt::ZoomNativeGesture)
+		{
+			const qreal scale = 1.0 + gesture->value();
+			if (scale > 0)
+			{
+				StelApp::getInstance().handlePinch(scale, true);
+				thereWasAnEvent();
+			}
+			event->accept();
+			return true;
+		}
+	}
+	return QGraphicsView::viewportEvent(event);
 }
 
 void StelMainView::mouseMoveEvent(QMouseEvent *event)

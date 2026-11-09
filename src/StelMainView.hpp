@@ -245,6 +245,8 @@ protected:
 	//! Handle window resized events, and change the size of the underlying
 	//! QGraphicsScene to be the same
 	void resizeEvent(QResizeEvent* event) override;
+	//! Handle native touchpad zoom gestures delivered to the viewport.
+	bool viewportEvent(QEvent *event) override;
 	//! Wake up mouse cursor (if it was hidden)
 	void mouseMoveEvent(QMouseEvent *event) override;
 

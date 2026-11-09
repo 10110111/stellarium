@@ -598,10 +598,12 @@ void StelMovementMgr::addTimeDragPoint(int x, int y)
 
 bool StelMovementMgr::handlePinch(qreal scale, bool started)
 {
-#ifdef Q_OS_WIN
 	if (flagEnableMouseNavigation == false || flagEnableMouseZooming==false)
 		return true;
-#endif
+
+	// Stop a synthesized one-finger drag and suppress selection on its mouse release.
+	isDragging = false;
+	hasDragged = true;
 
 	static double previousFov = 0;
 	if (started)
