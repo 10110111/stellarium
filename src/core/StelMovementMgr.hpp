@@ -148,7 +148,8 @@ public:
 	void handleMouseClicks(class QMouseEvent* event) override;
 	// allow some keypress interaction by plugins.
 	double getCallOrder(StelModuleActionName actionName) const override;
-	//! Zoom and pan so the sky under previousCenter follows the current pinch midpoint.
+	//! Zoom and pan toward the pinch midpoint while keeping the mount's pole vertical.
+	//! Preserve the sky under previousCenter where possible, clamping to an upright view otherwise.
 	//! Midpoints use physical pixels, with origin at the bottom left.
 	bool handlePinch(qreal scale, bool started, const QPointF& previousCenter, const QPointF& center) override;
 
