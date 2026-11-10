@@ -610,8 +610,7 @@ bool StelMovementMgr::handlePinch(qreal scale, bool started, const QPointF& prev
 	if (scale <= 0 || core->getCurrentProjectionType() == StelCore::ProjectionCylinderFill)
 		return true;
 
-	// Work with apparent sky directions so the correction is a rigid camera rotation,
-	// even when atmospheric refraction is enabled.
+	// Use apparent sky directions, keeping refraction out of the camera correction.
 	auto params = core->getCurrentStelProjectorParams();
 	params.fov = static_cast<float>(currentFov);
 	core->setCurrentStelProjectorParams(params);
@@ -627,23 +626,73 @@ bool StelMovementMgr::handlePinch(qreal scale, bool started, const QPointF& prev
 	setFov(previousFov / scale);
 	params.fov = static_cast<float>(currentFov);
 	core->setCurrentStelProjectorParams(params);
+	const auto projector = core->getProjection(StelCore::FrameJ2000, StelCore::RefractionOff);
 	Vec3d after;
-	if (validBefore && core->getProjection(StelCore::FrameJ2000, StelCore::RefractionOff)
-		->unProject(center.x(), center.y(), after))
+	if (validBefore && projector->unProject(center.x(), center.y(), after))
 	{
+		before = j2000ToMountFrame(before);
 		before.normalize();
+		projector->getModelViewTransform()->forward(after);
 		after.normalize();
-		const Vec3d axis = after ^ before;
-		const double sinAngle = axis.norm();
-		if (sinAngle > 1e-12)
+
+		// In an upright view at latitude lat, this camera ray has mount-frame height
+		// after.y*cos(lat) - after.z*sin(lat). Solve for lat, then match longitude.
+		double lon, lat;
+		StelUtils::rectToSphe(&lon, &lat, viewDirectionMountFrame);
+		if (std::abs(std::cos(lat)) < 1e-10)
 		{
-			const Mat4d rotation = Mat4d::rotation(axis, std::atan2(sinAngle, after * before));
+			// At a pole, recover the view's longitude from its up vector.
+			lon = std::atan2(-upVectorMountFrame[1], -upVectorMountFrame[0]) + (lat < 0. ? M_PI : 0.);
+		}
+		const double radius = std::hypot(after[1], after[2]);
+		if (radius > 1e-12)
+		{
+			// Use horizontal components to retain precision close to a pole.
+			const double horizontalSquared = before[0]*before[0] + before[1]*before[1] - after[0]*after[0];
+			const double angle = std::atan2(before[2], std::sqrt(qMax(0., horizontalSquared)));
+			const double offset = std::atan2(after[1], -after[2]);
+			const double targetLat = std::atan2(before[2], std::hypot(before[0], before[1]));
+			const auto latitudeError = [&after, targetLat](double candidate)
+			{
+				const double height = after[1]*std::cos(candidate) - after[2]*std::sin(candidate);
+				const double horizontal = -after[1]*std::sin(candidate) - after[2]*std::cos(candidate);
+				return std::abs(std::atan2(height, std::hypot(after[0], horizontal)) - targetLat);
+			};
+			double bestLat = lat;
+			double bestError = latitudeError(bestLat);
+			// Prefer the nearby solution. If the anchor is unreachable, use the nearest
+			// attainable height, including the limits of the upright view's latitude range.
+			for (double candidate : {std::remainder(angle - offset, 2.*M_PI),
+			                         std::remainder(M_PI - angle - offset, 2.*M_PI),
+			                         -M_PI_2, M_PI_2})
+			{
+				candidate = qBound(-M_PI_2, candidate, M_PI_2);
+				const double error = latitudeError(candidate);
+				if (error < bestError - 1e-12
+				    || (std::abs(error - bestError) <= 1e-12
+				        && std::abs(candidate - lat) < std::abs(bestLat - lat)))
+				{
+					bestLat = candidate;
+					bestError = error;
+				}
+			}
+			lat = bestLat;
+		}
+		if (std::hypot(before[0], before[1]) > 1e-12)
+			lon = std::atan2(before[1], before[0])
+			      - std::atan2(-after[0], -after[1]*std::sin(lat) - after[2]*std::cos(lat));
+
+		Vec3d direction;
+		StelUtils::spheToRect(lon, lat, direction);
+		if ((direction - viewDirectionMountFrame).normSquared() > 1e-24)
+		{
 			flagAutoMove = false;
 			setFlagTracking(false);
 			setFlagLockEquPos(false);
-			setViewUpVectorJ2000(rotation * getViewUpVectorJ2000());
-			setViewDirectionJ2000(rotation * getViewDirectionJ2000());
 		}
+		// A perpendicular up vector remains well-defined even at the poles.
+		setViewUpVector(Vec3d(-std::cos(lon)*std::sin(lat), -std::sin(lon)*std::sin(lat), std::cos(lat)));
+		setViewDirectionJ2000(mountFrameToJ2000(direction));
 	}
 	return true;
 }
