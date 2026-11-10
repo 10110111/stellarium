@@ -692,6 +692,7 @@ bool StelMainView::event(QEvent* event)
 
 	switch (event->type())
 	{
+		// Qt recognizes touchscreen pinches from raw touch contacts.
 		case QEvent::Gesture:
 		{
 			const auto gestureEvent = static_cast<QGestureEvent*>(event);
@@ -712,6 +713,8 @@ bool StelMainView::event(QEvent* event)
 			}
 			break;
 		}
+		// The platform supplies recognized touch*pad* pinches (e.g. Wayland and supported X11 setups).
+		// These arrive as native gestures rather than the touch*screen* QPinchGesture above.
 		case QEvent::NativeGesture:
 		{
 			const auto gesture = static_cast<const QNativeGestureEvent*>(event);
