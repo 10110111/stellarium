@@ -60,7 +60,6 @@
 #include <QStandardPaths>
 #include <QStorageInfo>
 #include <QPinchGesture>
-#include <QNativeGestureEvent>
 #ifdef Q_OS_WIN
 	#include <Windows.h>
 	#include <WinUser.h>
@@ -690,49 +689,24 @@ bool StelMainView::event(QEvent* event)
 	if (!StelApp::isInitialized())
 		return QGraphicsView::event(event);
 
-	switch (event->type())
+	if (event->type() == QEvent::Gesture)
 	{
-		// Qt recognizes touchscreen pinches from raw touch contacts.
-		case QEvent::Gesture:
+		const auto gestureEvent = static_cast<QGestureEvent*>(event);
+		if (const auto pinch = static_cast<QPinchGesture*>(gestureEvent->gesture(Qt::PinchGesture)))
 		{
-			const auto gestureEvent = static_cast<QGestureEvent*>(event);
-			if (const auto pinch = static_cast<QPinchGesture*>(gestureEvent->gesture(Qt::PinchGesture)))
+			if ((pinch->state() == Qt::GestureStarted || pinch->state() == Qt::GestureUpdated)
+			    && (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged))
 			{
-				if ((pinch->state() == Qt::GestureStarted || pinch->state() == Qt::GestureUpdated)
-				    && (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged))
-				{
-					const qreal zoom = pinch->scaleFactor();
-					if (0.5 < zoom && zoom < 2)
-					{
-						StelApp::getInstance().handlePinch(zoom, true);
-						thereWasAnEvent();
-					}
-				}
-				gestureEvent->accept(pinch);
-				return true;
-			}
-			break;
-		}
-		// The platform supplies recognized touch*pad* pinches (e.g. Wayland and supported X11 setups).
-		// These arrive as native gestures rather than the touch*screen* QPinchGesture above.
-		case QEvent::NativeGesture:
-		{
-			const auto gesture = static_cast<const QNativeGestureEvent*>(event);
-			if (gesture->gestureType() == Qt::ZoomNativeGesture)
-			{
-				const qreal zoom = 1.0 + gesture->value();
-				if (zoom > 0)
+				const qreal zoom = pinch->scaleFactor();
+				if (0.5 < zoom && zoom < 2)
 				{
 					StelApp::getInstance().handlePinch(zoom, true);
 					thereWasAnEvent();
 				}
-				event->accept();
-				return true;
 			}
-			break;
+			gestureEvent->accept(pinch);
+			return true;
 		}
-		default:
-			break;
 	}
 	return QGraphicsView::event(event);
 }
