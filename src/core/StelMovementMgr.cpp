@@ -114,6 +114,7 @@ StelMovementMgr::StelMovementMgr(StelCore* acore)
 	, autoMoveDuration(1.5)
 	, isDragging(false)
 	, hasDragged(false)
+	, touchMouseClickCancelled(false)
 	, previousX(0)
 	, previousY(0)
 	, beforeTimeDragTimeRate(0.0)
@@ -601,9 +602,10 @@ bool StelMovementMgr::handlePinch(qreal scale, bool started)
 	if (flagEnableMouseNavigation == false || flagEnableMouseZooming==false)
 		return true;
 
-	// Stop a synthesized one-finger drag and suppress selection on its mouse release.
+	// Cancel mouse navigation synthesized from the first touch,
+	// and prevent its release from being treated as a tap.
 	isDragging = false;
-	hasDragged = true;
+	touchMouseClickCancelled = true;
 
 	static double previousFov = 0;
 	if (started)
@@ -638,6 +640,7 @@ void StelMovementMgr::handleMouseClicks(QMouseEvent* event)
 		case Qt::LeftButton :
 			if (event->type()==QEvent::MouseButtonDblClick)
 			{
+				touchMouseClickCancelled = false;
 				if (objectMgr->getWasSelected())
 				{
 					moveToObject(objectMgr->getSelectedObject()[0],autoMoveDuration);
@@ -648,6 +651,7 @@ void StelMovementMgr::handleMouseClicks(QMouseEvent* event)
 			}
 			else if (event->type()==QEvent::MouseButtonPress)
 			{
+				touchMouseClickCancelled = false;
 				const auto modifiers = event->modifiers() & (Qt::ControlModifier|Qt::ShiftModifier|Qt::AltModifier);
 				if (modifiers == Qt::ControlModifier)
 				{
@@ -666,6 +670,12 @@ void StelMovementMgr::handleMouseClicks(QMouseEvent* event)
 			else if (event->type()==QEvent::MouseButtonRelease)
 			{
 				isDragging = false;
+				if (touchMouseClickCancelled)
+				{
+					touchMouseClickCancelled = false;
+					event->accept();
+					return;
+				}
 				if (hasDragged)
 				{
 					event->accept();
