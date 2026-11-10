@@ -435,7 +435,8 @@ private:
 	//! Handle key press and release.
 	void handleKeys(class QKeyEvent* event);
 	//! Handle pinch on multi touch devices.
-	void handlePinch(qreal scale, bool started);
+	//! Midpoints use viewport coordinates in logical pixels, with origin at the bottom left.
+	void handlePinch(qreal scale, bool started, const QPointF& previousCenter, const QPointF& center);
 
 	//! Used internally to set the viewport effects.
 	void prepareRenderBuffer();

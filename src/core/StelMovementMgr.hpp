@@ -148,8 +148,9 @@ public:
 	void handleMouseClicks(class QMouseEvent* event) override;
 	// allow some keypress interaction by plugins.
 	double getCallOrder(StelModuleActionName actionName) const override;
-	//! Handle pinch gesture.
-	bool handlePinch(qreal scale, bool started) override;
+	//! Zoom and pan so the sky under previousCenter follows the current pinch midpoint.
+	//! Midpoints use physical pixels, with origin at the bottom left.
+	bool handlePinch(qreal scale, bool started, const QPointF& previousCenter, const QPointF& center) override;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Methods specific to StelMovementMgr

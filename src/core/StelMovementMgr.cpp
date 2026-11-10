@@ -597,7 +597,7 @@ void StelMovementMgr::addTimeDragPoint(int x, int y)
 		timeDragHistory.removeFirst();
 }
 
-bool StelMovementMgr::handlePinch(qreal scale, bool started)
+bool StelMovementMgr::handlePinch(qreal scale, bool started, const QPointF& previousCenter, const QPointF& center)
 {
 	if (flagEnableMouseNavigation == false || flagEnableMouseZooming==false)
 		return true;
@@ -607,11 +607,44 @@ bool StelMovementMgr::handlePinch(qreal scale, bool started)
 	isDragging = false;
 	touchMouseClickCancelled = true;
 
+	if (scale <= 0 || core->getCurrentProjectionType() == StelCore::ProjectionCylinderFill)
+		return true;
+
+	// Work with apparent sky directions so the correction is a rigid camera rotation,
+	// even when atmospheric refraction is enabled.
+	auto params = core->getCurrentStelProjectorParams();
+	params.fov = static_cast<float>(currentFov);
+	core->setCurrentStelProjectorParams(params);
+	Vec3d before;
+	const bool validBefore = core->getProjection(StelCore::FrameJ2000, StelCore::RefractionOff)
+		->unProject(previousCenter.x(), previousCenter.y(), before);
+
 	static double previousFov = 0;
 	if (started)
-		previousFov = getAimFov();
-	if (scale>0)
-		zoomTo(previousFov/scale, 0);
+		previousFov = currentFov;
+	// Apply the zoom immediately: a deferred zoom would move the anchor again on the next frame.
+	flagAutoZoom = false;
+	setFov(previousFov / scale);
+	params.fov = static_cast<float>(currentFov);
+	core->setCurrentStelProjectorParams(params);
+	Vec3d after;
+	if (validBefore && core->getProjection(StelCore::FrameJ2000, StelCore::RefractionOff)
+		->unProject(center.x(), center.y(), after))
+	{
+		before.normalize();
+		after.normalize();
+		const Vec3d axis = after ^ before;
+		const double sinAngle = axis.norm();
+		if (sinAngle > 1e-12)
+		{
+			const Mat4d rotation = Mat4d::rotation(axis, std::atan2(sinAngle, after * before));
+			flagAutoMove = false;
+			setFlagTracking(false);
+			setFlagLockEquPos(false);
+			setViewUpVectorJ2000(rotation * getViewUpVectorJ2000());
+			setViewDirectionJ2000(rotation * getViewDirectionJ2000());
+		}
+	}
 	return true;
 }
 

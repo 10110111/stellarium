@@ -702,7 +702,25 @@ bool StelMainView::event(QEvent* event)
 				const qreal zoom = pinch->scaleFactor();
 				if (0.5 < zoom && zoom < 2)
 				{
-					StelApp::getInstance().handlePinch(zoom, true);
+					const auto toViewport = [this](QPointF point)
+					{
+#ifdef Q_OS_MACOS
+						// Qt's macOS recognizer uses widget-local centers;
+						// other backends use global coordinates.
+						point += mapToGlobal(QPoint());
+#endif
+						point -= viewport()->mapToGlobal(QPoint());
+						point.setY(viewport()->height() - 1 - point.y());
+						return point;
+					};
+					const QPointF center = toViewport(pinch->centerPoint());
+#ifdef Q_OS_MACOS
+					// On macOS the center stays fixed; lastCenterPoint is not updated.
+					const QPointF previousCenter = center;
+#else
+					const QPointF previousCenter = toViewport(pinch->lastCenterPoint());
+#endif
+					StelApp::getInstance().handlePinch(zoom, true, previousCenter, center);
 					thereWasAnEvent();
 				}
 			}
