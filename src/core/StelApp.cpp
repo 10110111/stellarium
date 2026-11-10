@@ -1282,12 +1282,22 @@ void StelApp::handleKeys(QKeyEvent* event)
 }
 
 // Handle pinch on multi touch devices
-void StelApp::handlePinch(qreal scale, bool started)
+void StelApp::handlePinch(qreal scale, bool started, const QPointF& previousCenter, const QPointF& center)
 {
+	const auto toPhysicalPixels = [this](const QPointF& position)
+	{
+		qreal x = position.x(), y = position.y();
+		if (viewportEffect)
+			viewportEffect->distortXY(x, y);
+		return QPointF(x * devicePixelsPerPixel, y * devicePixelsPerPixel);
+	};
+	const QPointF previousPosition = toPhysicalPixels(previousCenter);
+	const QPointF position = toPhysicalPixels(center);
+
 	// Send the event to every StelModule
 	for (auto* i : moduleMgr->getCallOrders(StelModule::ActionHandleMouseMoves))
 	{
-		if (i->handlePinch(scale, started))
+		if (i->handlePinch(scale, started, previousPosition, position))
 			return;
 	}
 }

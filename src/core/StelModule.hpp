@@ -22,6 +22,7 @@
 
 #include <QString>
 #include <QObject>
+#include <QPointF>
 #include <functional>
 
 // Predeclaration
@@ -107,10 +108,13 @@ public:
 	virtual void handleKeys(class QKeyEvent* e) {Q_UNUSED(e)}
 
 	//! Handle pinch gesture events.
-	//! @param scale the value of the pinch gesture.
-	//! @param started define whether the pinch has just started.
+	//! @param scale the scale factor relative to the field of view captured when started is true.
+	//! @param started whether to capture a new starting field of view.
+	//! @param previousCenter previous pinch midpoint in physical pixels, with origin at the bottom left.
+	//! @param center current pinch midpoint in physical pixels, with origin at the bottom left.
 	//! @return true if the event was intercepted.
-	virtual bool handlePinch(qreal scale, bool started) {Q_UNUSED(scale) Q_UNUSED(started) return false;}
+	virtual bool handlePinch(qreal scale, bool started, const QPointF& previousCenter, const QPointF& center)
+	{Q_UNUSED(scale) Q_UNUSED(started) Q_UNUSED(previousCenter) Q_UNUSED(center) return false;}
 
 	//! Enum used when selecting objects to define whether to add to, replace, or remove from the existing selection list.
 	enum StelModuleSelectAction
