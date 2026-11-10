@@ -706,23 +706,7 @@ bool StelMainView::event(QEvent* event)
 			return true;
 		}
 	}
-	return QGraphicsView::event(event);
-}
-
-bool StelMainView::eventFilter(QObject *obj, QEvent *event)
-{
-	if(event->type() == QEvent::FileOpen)
-	{
-		QFileOpenEvent *openEvent = static_cast<QFileOpenEvent *>(event);
-		//qDebug() << "load script:" << openEvent->file();
-		qApp->setProperty("onetime_startup_script", openEvent->file());
-	}
-	return QGraphicsView::eventFilter(obj, event);
-}
-
-bool StelMainView::viewportEvent(QEvent* event)
-{
-	if (event->type() == QEvent::NativeGesture && StelApp::isInitialized())
+	else if (event->type() == QEvent::NativeGesture && StelApp::isInitialized())
 	{
 		const auto gesture = static_cast<const QNativeGestureEvent*>(event);
 		if (gesture->gestureType() == Qt::ZoomNativeGesture)
@@ -737,7 +721,18 @@ bool StelMainView::viewportEvent(QEvent* event)
 			return true;
 		}
 	}
-	return QGraphicsView::viewportEvent(event);
+	return QGraphicsView::event(event);
+}
+
+bool StelMainView::eventFilter(QObject *obj, QEvent *event)
+{
+	if(event->type() == QEvent::FileOpen)
+	{
+		QFileOpenEvent *openEvent = static_cast<QFileOpenEvent *>(event);
+		//qDebug() << "load script:" << openEvent->file();
+		qApp->setProperty("onetime_startup_script", openEvent->file());
+	}
+	return QGraphicsView::eventFilter(obj, event);
 }
 
 void StelMainView::mouseMoveEvent(QMouseEvent *event)
