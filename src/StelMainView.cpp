@@ -685,20 +685,20 @@ void StelMainView::resizeEvent(QResizeEvent* event)
 	QGraphicsView::resizeEvent(event);
 }
 
-bool StelMainView::event(QEvent *event)
+bool StelMainView::event(QEvent* event)
 {
 	if (event->type() == QEvent::Gesture && StelApp::isInitialized())
 	{
-		auto *gestureEvent = static_cast<QGestureEvent *>(event);
-		if (auto *pinch = static_cast<QPinchGesture *>(gestureEvent->gesture(Qt::PinchGesture)))
+		const auto gestureEvent = static_cast<QGestureEvent*>(event);
+		if (const auto pinch = static_cast<QPinchGesture*>(gestureEvent->gesture(Qt::PinchGesture)))
 		{
 			if ((pinch->state() == Qt::GestureStarted || pinch->state() == Qt::GestureUpdated)
 			    && (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged))
 			{
-				const qreal scale = pinch->scaleFactor();
-				if (scale > 0.5 && scale < 2)
+				const qreal zoom = pinch->scaleFactor();
+				if (zoom > 0.5 && zoom < 2)
 				{
-					StelApp::getInstance().handlePinch(scale, true);
+					StelApp::getInstance().handlePinch(zoom, true);
 					thereWasAnEvent();
 				}
 			}
@@ -720,17 +720,17 @@ bool StelMainView::eventFilter(QObject *obj, QEvent *event)
 	return QGraphicsView::eventFilter(obj, event);
 }
 
-bool StelMainView::viewportEvent(QEvent *event)
+bool StelMainView::viewportEvent(QEvent* event)
 {
 	if (event->type() == QEvent::NativeGesture && StelApp::isInitialized())
 	{
-		const auto *gesture = static_cast<QNativeGestureEvent *>(event);
+		const auto gesture = static_cast<const QNativeGestureEvent*>(event);
 		if (gesture->gestureType() == Qt::ZoomNativeGesture)
 		{
-			const qreal scale = 1.0 + gesture->value();
-			if (scale > 0)
+			const qreal zoom = 1.0 + gesture->value();
+			if (zoom > 0)
 			{
-				StelApp::getInstance().handlePinch(scale, true);
+				StelApp::getInstance().handlePinch(zoom, true);
 				thereWasAnEvent();
 			}
 			event->accept();

@@ -238,7 +238,7 @@ public slots:
 
 protected:
 	//! Handle touchscreen pinch gestures recognized in the top-level window's touch stream.
-	bool event(QEvent *event) override;
+	bool event(QEvent* event) override;
 	//! Hack to determine current monitor pixel ratio
 	//! @todo Find a better way to handle this
 	void moveEvent(QMoveEvent* event) override;
@@ -248,7 +248,7 @@ protected:
 	//! QGraphicsScene to be the same
 	void resizeEvent(QResizeEvent* event) override;
 	//! Handle native touchpad zoom gestures delivered to the viewport.
-	bool viewportEvent(QEvent *event) override;
+	bool viewportEvent(QEvent* event) override;
 	//! Wake up mouse cursor (if it was hidden)
 	void mouseMoveEvent(QMouseEvent *event) override;
 
