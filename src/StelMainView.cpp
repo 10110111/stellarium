@@ -701,7 +701,7 @@ bool StelMainView::event(QEvent* event)
 				    && (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged))
 				{
 					const qreal zoom = pinch->scaleFactor();
-					if (zoom > 0.5 && zoom < 2)
+					if (0.5 < zoom && zoom < 2)
 					{
 						StelApp::getInstance().handlePinch(zoom, true);
 						thereWasAnEvent();
