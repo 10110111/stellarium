@@ -687,39 +687,49 @@ void StelMainView::resizeEvent(QResizeEvent* event)
 
 bool StelMainView::event(QEvent* event)
 {
-	if (event->type() == QEvent::Gesture && StelApp::isInitialized())
+	if (!StelApp::isInitialized())
+		return QGraphicsView::event(event);
+
+	switch (event->type())
 	{
-		const auto gestureEvent = static_cast<QGestureEvent*>(event);
-		if (const auto pinch = static_cast<QPinchGesture*>(gestureEvent->gesture(Qt::PinchGesture)))
+		case QEvent::Gesture:
 		{
-			if ((pinch->state() == Qt::GestureStarted || pinch->state() == Qt::GestureUpdated)
-			    && (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged))
+			const auto gestureEvent = static_cast<QGestureEvent*>(event);
+			if (const auto pinch = static_cast<QPinchGesture*>(gestureEvent->gesture(Qt::PinchGesture)))
 			{
-				const qreal zoom = pinch->scaleFactor();
-				if (zoom > 0.5 && zoom < 2)
+				if ((pinch->state() == Qt::GestureStarted || pinch->state() == Qt::GestureUpdated)
+				    && (pinch->changeFlags() & QPinchGesture::ScaleFactorChanged))
+				{
+					const qreal zoom = pinch->scaleFactor();
+					if (zoom > 0.5 && zoom < 2)
+					{
+						StelApp::getInstance().handlePinch(zoom, true);
+						thereWasAnEvent();
+					}
+				}
+				gestureEvent->accept(pinch);
+				return true;
+			}
+			break;
+		}
+		case QEvent::NativeGesture:
+		{
+			const auto gesture = static_cast<const QNativeGestureEvent*>(event);
+			if (gesture->gestureType() == Qt::ZoomNativeGesture)
+			{
+				const qreal zoom = 1.0 + gesture->value();
+				if (zoom > 0)
 				{
 					StelApp::getInstance().handlePinch(zoom, true);
 					thereWasAnEvent();
 				}
+				event->accept();
+				return true;
 			}
-			gestureEvent->accept(pinch);
-			return true;
+			break;
 		}
-	}
-	else if (event->type() == QEvent::NativeGesture && StelApp::isInitialized())
-	{
-		const auto gesture = static_cast<const QNativeGestureEvent*>(event);
-		if (gesture->gestureType() == Qt::ZoomNativeGesture)
-		{
-			const qreal zoom = 1.0 + gesture->value();
-			if (zoom > 0)
-			{
-				StelApp::getInstance().handlePinch(zoom, true);
-				thereWasAnEvent();
-			}
-			event->accept();
-			return true;
-		}
+		default:
+			break;
 	}
 	return QGraphicsView::event(event);
 }
