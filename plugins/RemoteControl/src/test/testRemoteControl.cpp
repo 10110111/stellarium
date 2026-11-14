@@ -103,3 +103,54 @@ void TestRemoteControl::testPaths()
     controller.service(request, response);
     QCOMPARE(response.getStatusCode(), expectedStatus);
 }
+
+void TestRemoteControl::testMultipartFile_data()
+{
+    QTest::addColumn<QByteArray>("fileData");
+    QTest::addColumn<QByteArray>("expectedContents");
+
+    QTest::newRow("nonempty file") << QByteArray("contents\r\n") << QByteArray("contents");
+    QTest::newRow("CRLF file contents") << QByteArray("\r\n\r\n") << QByteArray("\r\n");
+    QTest::newRow("empty with body separator") << QByteArray("\r\n") << QByteArray();
+    QTest::newRow("empty without body separator") << QByteArray() << QByteArray();
+}
+
+void TestRemoteControl::testMultipartFile()
+{
+    QFETCH(QByteArray, fileData);
+    QFETCH(QByteArray, expectedContents);
+
+    const QByteArray body = "--boundary\r\n"
+                            "Content-Disposition: form-data; name=\"file\"; filename=\"upload.txt\"\r\n"
+                            "\r\n" + fileData + "--boundary--\r\n";
+    const QByteArray rawRequest = "POST /upload HTTP/1.1\r\n"
+                                  "Host: localhost\r\n"
+                                  "Content-Type: multipart/form-data; boundary=boundary\r\n"
+                                  "Content-Length: " + QByteArray::number(body.size()) + "\r\n\r\n" + body;
+
+    QTcpServer server;
+    QVERIFY(server.listen(QHostAddress::LocalHost));
+    QTcpSocket client;
+    client.connectToHost(QHostAddress::LocalHost, server.serverPort());
+    QVERIFY(client.waitForConnected());
+    QVERIFY(server.waitForNewConnection());
+    QScopedPointer<QTcpSocket> peer(server.nextPendingConnection());
+    QVERIFY(peer);
+
+    QCOMPARE(client.write(rawRequest), qint64(rawRequest.size()));
+    QVERIFY(client.waitForBytesWritten());
+    HttpRequest request(4096, 4096);
+    while (request.getStatus() != HttpRequest::complete && request.getStatus() != HttpRequest::abort)
+    {
+        if (!peer->bytesAvailable())
+            QVERIFY(peer->waitForReadyRead());
+        request.readFromSocket(peer.data());
+    }
+
+    QCOMPARE(request.getStatus(), HttpRequest::complete);
+    QTemporaryFile* uploadedFile = request.getUploadedFile("file");
+    QVERIFY(uploadedFile);
+    QVERIFY(uploadedFile->isOpen());
+    QCOMPARE(request.getParameter("file"), QByteArray("upload.txt"));
+    QCOMPARE(uploadedFile->readAll(), expectedContents);
+}

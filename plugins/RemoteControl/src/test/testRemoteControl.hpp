@@ -32,6 +32,8 @@ private slots:
     void initTestCase();
     void testPaths_data();
     void testPaths();
+    void testMultipartFile_data();
+    void testMultipartFile();
 
 private:
     QTemporaryDir tempDir;
