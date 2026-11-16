@@ -37,6 +37,7 @@ class StelObject;
 class StelCore;
 class StelProjector;
 class QSettings;
+class QImage;
 
 typedef QSharedPointer<Planet> PlanetP;
 
@@ -805,6 +806,8 @@ public slots:
 	//! @param texName - file path for texture
 	//! The texture path starts in the scripts directory.
 	void setTextureForPlanet(const QString &planetName, const QString &texName);
+	//! Replace a planet's texture with an image prepared in memory.
+	void setTextureForPlanet(const QString &planetName, const QImage &image);
 
 	//! Return the number of additional threads (in addition to the main thread) configured to compute planet positions.
 	int getExtraThreads() const {return extraThreads;}

@@ -58,6 +58,7 @@ class QOpenGLFunctions;
 class QOpenGLShaderProgram;
 class QOpenGLTexture;
 class QOpenGLVertexArrayObject;
+class QImage;
 #ifdef DEBUG_SHADOWMAP
 class QOpenGLFramebufferObject;
 #endif
@@ -685,6 +686,8 @@ public:
 	void resetTextures();
 	//! Use texture from @param texName (must reside inside the scripts directory!)
 	void replaceTexture(const QString& texName);
+	//! Replace the texture with an image already prepared in memory.
+	void replaceTexture(const QImage& image);
 
 	void setSurvey(const HipsSurveyP& colors, const HipsSurveyP& normals, const HipsSurveyP& horizons);
 

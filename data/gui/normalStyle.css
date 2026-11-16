@@ -182,6 +182,10 @@ QTreeView {
 	font-size: 100%;
 }
 
+QTreeView QLabel {
+	color: rgb(238, 238, 238);
+}
+
 QHeaderView::section {
 	background-color: rgb(31, 31, 31);
 	font: bold;

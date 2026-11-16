@@ -595,6 +595,17 @@ namespace StelUtils
 	//! Convert a fraction of a Julian Day to a QTime
 	QTime jdFractionToQTime(const double jd);
 
+	//! Fixed difference TT-TAI, expressed in Julian days.
+	inline constexpr double TT_MINUS_TAI_DAYS = 32.184 / 86400.;
+
+	//! Convert a Julian date in Terrestrial Time (TT) to International Atomic Time (TAI).
+	//! TT is exactly 32.184 seconds ahead of TAI; no UTC leap-second conversion is involved.
+	inline double ttToTai(const double jdTT) { return jdTT - TT_MINUS_TAI_DAYS; }
+
+	//! Convert a Julian date in International Atomic Time (TAI) to Terrestrial Time (TT).
+	//! This is the inverse of ttToTai().
+	inline double taiToTt(const double jdTAI) { return jdTAI + TT_MINUS_TAI_DAYS; }
+
 	//! Convert a QT QDateTime class to julian day.
 	//! @param dateTime the UTC QDateTime to convert
 	//! @result the matching decimal Julian Day

@@ -410,6 +410,13 @@ void Planet::replaceTexture(const QString &texName)
 	}
 }
 
+void Planet::replaceTexture(const QImage& image)
+{
+	if (!image.isNull())
+		texMap = StelApp::getInstance().getTextureManager().createTexture(
+			image, StelTexture::Params().enableMipmapGen().setWrapMode(GL_REPEAT));
+}
+
 void Planet::setSurvey(const HipsSurveyP& colors, const HipsSurveyP& normals, const HipsSurveyP& horizons)
 {
 	Q_ASSERT(colors);
