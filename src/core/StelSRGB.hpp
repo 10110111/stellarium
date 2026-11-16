@@ -32,6 +32,13 @@ F srgbToLinear(const F c)
 }
 
 template<typename F>
+F linearToSRGB(const F c)
+{
+	return c > F(0.0031308) ? F(1.055)*std::pow(c, F(1.0/2.4))-F(0.055)
+	                        : F(12.92)*c;
+}
+
+template<typename F>
 Vector4<F> srgbToLinear(const Vector4<F>& srgba)
 {
 	return {srgbToLinear(srgba[0]),

@@ -297,4 +297,7 @@ plugins/TimeNavigator/src/gui/TimeNavigatorDialog.cpp
 plugins/ObjectVisibility/src/ObjectVisibility.cpp
 plugins/ObjectVisibility/src/ui_objectVisibilityDialog.h
 plugins/ObjectVisibility/src/gui/ObjectVisibilityDialog.cpp
-
+plugins/Sunspots/src/Sunspots.cpp
+plugins/Sunspots/src/SunspotsImage.cpp
+plugins/Sunspots/src/gui/SunspotsDialog.cpp
+plugins/Sunspots/src/ui_sunspotsDialog.h

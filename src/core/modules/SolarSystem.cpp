@@ -468,6 +468,13 @@ void SolarSystem::setTextureForPlanet(const QString& planetName, const QString& 
 		qWarning() << "The planet" << planetName << "was not found. Please check the name.";
 }
 
+void SolarSystem::setTextureForPlanet(const QString& planetName, const QImage& image)
+{
+	PlanetP planet = searchByEnglishName(planetName);
+	if (planet && !image.isNull())
+		planet->replaceTexture(image);
+}
+
 void SolarSystem::recreateTrails()
 {
 	const QMap<QString, Vec3f>colorMap={

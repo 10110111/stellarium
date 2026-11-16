@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/Sunspots">
+        <file>bt_Sunspots_Off.png</file>
+        <file>bt_Sunspots_On.png</file>
+    </qresource>
+</RCC>
