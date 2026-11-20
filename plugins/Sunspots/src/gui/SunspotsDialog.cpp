@@ -147,6 +147,7 @@ void SunspotsDialog::createDialogContent()
 void SunspotsDialog::updateStatus()
 {
 	const bool busy = sunspots_->isBusy();
+	const bool fetching = sunspots_->progressKind() == Sunspots::ProgressKind::Fetching;
 	ui_->hmiPhotosphereEnabled->setEnabled(!sunspots_->isCanceling());
 	ui_->autoDownloadCB->setEnabled(!busy);
 	ui_->maxImageAgeSpinBox->setEnabled(!busy);
@@ -156,10 +157,10 @@ void SunspotsDialog::updateStatus()
 	ui_->manageCacheBtn->setToolTip(q_("Not implemented yet"));
 	ui_->findImagesBtn->setEnabled(false);
 	ui_->findImagesBtn->setToolTip(q_("Not implemented yet"));
-	ui_->progressBar->setVisible(busy);
-	ui_->cancelButton->setVisible(busy);
+	ui_->progressBar->setVisible(fetching);
+	ui_->cancelButton->setVisible(fetching);
 	ui_->cancelButton->setEnabled(!sunspots_->isCanceling());
-	ui_->progressBar->setRange(0, sunspots_->progressKind() == Sunspots::ProgressKind::Loading ? 0 : 100);
+	ui_->progressBar->setRange(0, 100);
 	ui_->progressBar->setFormat(sunspots_->progressText());
 	ui_->progressBar->setValue(sunspots_->progressValue());
 	ui_->errorLabel->setText(sunspots_->errorText());
