@@ -79,28 +79,7 @@
           <string>Image library</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="1">
-           <widget class="QPushButton" name="findImagesBtn">
-            <property name="text">
-             <string>Find images...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLineEdit" name="cacheListFilter">
-            <property name="placeholderText">
-             <string>Filter cached images...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="cacheSummaryLabel">
-            <property name="text">
-             <string>No images cached</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" colspan="2">
+          <item row="1" column="0">
            <widget class="QTreeWidget" name="cachedImageList">
             <property name="sortingEnabled">
              <bool>true</bool>
@@ -120,10 +99,17 @@
             </column>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QPushButton" name="manageCacheBtn">
+          <item row="0" column="0">
+           <widget class="QLineEdit" name="cacheListFilter">
+            <property name="placeholderText">
+             <string>Filter cached images...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="cacheSummaryLabel">
             <property name="text">
-             <string>Manage cache...</string>
+             <string>No images cached</string>
             </property>
            </widget>
           </item>

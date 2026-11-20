@@ -153,10 +153,6 @@ void SunspotsDialog::updateStatus()
 	ui_->maxImageAgeSpinBox->setEnabled(!busy);
 	ui_->downloadForSimTimeBtn->setEnabled(!busy);
 	ui_->downloadLatestBtn->setEnabled(!busy);
-	ui_->manageCacheBtn->setEnabled(false);
-	ui_->manageCacheBtn->setToolTip(q_("Not implemented yet"));
-	ui_->findImagesBtn->setEnabled(false);
-	ui_->findImagesBtn->setToolTip(q_("Not implemented yet"));
 	ui_->progressBar->setVisible(fetching);
 	ui_->cancelButton->setVisible(fetching);
 	ui_->cancelButton->setEnabled(!sunspots_->isCanceling());
