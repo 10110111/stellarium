@@ -203,7 +203,7 @@
             <item>
              <widget class="QPushButton" name="downloadForSimTimeBtn">
               <property name="text">
-               <string>Download image for simulation time</string>
+               <string>Download for current simulation time</string>
               </property>
              </widget>
             </item>
