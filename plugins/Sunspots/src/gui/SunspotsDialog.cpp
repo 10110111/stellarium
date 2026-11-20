@@ -23,6 +23,7 @@
 #include "StelCore.hpp"
 #include "StelGui.hpp"
 #include "StelModuleMgr.hpp"
+#include "StelUtils.hpp"
 #include "ui_sunspotsDialog.h"
 #include <QHBoxLayout>
 #include <QLabel>
@@ -169,6 +170,9 @@ void SunspotsDialog::updateStatus()
 void SunspotsDialog::updateImageTimes()
 {
 	if (!dialog) return;
+	const auto core = StelApp::getInstance().getCore();
+	const bool realTime = core->getIsTimeNow() && core->getRealTimeSpeed();
+	ui_->downloadForSimTimeBtn->setVisible(!realTime && core->getJD() < StelUtils::getJDFromSystem());
 	ui_->displayedTime->setText(sunspots_->displayedTimeText());
 	ui_->displayedImageAge->setText(sunspots_->displayedImageAgeText());
 	updateCacheList();
