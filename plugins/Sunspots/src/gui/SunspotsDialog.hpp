@@ -34,6 +34,8 @@ class SunspotsDialog : public StelDialog
 public:
 	SunspotsDialog(Sunspots* sunspots);
 	~SunspotsDialog() override;
+	//! Ask before deleting cache files, explaining the displayed-image and ongoing-job exemptions.
+	bool confirmCacheRemoval(bool keepDisplayedImage, bool keepJobImages);
 
 protected:
 	void createDialogContent() override;

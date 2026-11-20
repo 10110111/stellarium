@@ -43,6 +43,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QSaveFile>
+#include <QScopedValueRollback>
 #include <QTimer>
 #include <QUrlQuery>
 #include <QRunnable>
@@ -67,6 +68,24 @@ QDateTime parseObservationTime(const QString& value)
 	// represents a fictitious UTC instant and must not be used as a real UTC timestamp.
 	time.setTimeSpec(Qt::UTC);
 	return time;
+}
+
+Sunspots::Record recordFromCacheFileName(const QString& fileName)
+{
+	const QFileInfo file(fileName);
+	if (file.suffix() != "fits" && file.suffix() != "png" && file.suffix() != "csv") return {};
+	const QString baseName = file.completeBaseName();
+	if (baseName.size() <= 20 || baseName.at(19) != '_') return {};
+	Sunspots::Record record;
+	record.series = baseName.mid(20);
+	if (record.series != finalSeries && record.series != nrtSeries) return {};
+	record.observation = baseName.left(19);
+	record.observation.replace('-', ':');
+	record.observation += "_TAI";
+	record.time = parseObservationTime(record.observation);
+	if (!record.time.isValid() || record.time.toString("yyyy.MM.dd_HH-mm-ss") + "_" + record.series != baseName)
+		return {};
+	return record;
 }
 
 QString observationRange(const QList<Sunspots::Record>& records)
@@ -291,6 +310,8 @@ void Sunspots::loadSettings()
 	hmiPhotosphereEnabled = conf_->value("Sunspots/show_hmi_photosphere",
 	                                      conf_->value("Sunspots/show_sdo_photosphere", false)).toBool();
 	autoDownload_ = conf_->value("Sunspots/auto_download", false).toBool();
+	continuousUseCacheOnly_ = conf_->value("Sunspots/continuous_use_cache_only", false).toBool();
+	deleteFitsAfterMakingTexture_ = conf_->value("Sunspots/delete_fits_after_making_texture", false).toBool();
 	maxImageAgeMinutes_ = qBound(6, conf_->value("Sunspots/max_image_age_minutes", 180).toInt(), 9999);
 }
 
@@ -317,6 +338,7 @@ void Sunspots::setHmiPhotosphereEnabled(const bool enable)
 	}
 	else
 	{
+		cacheEmptyError_ = false;
 		displayedRecord_ = {};
 		GETSTELMODULE(SolarSystem)->resetTextures("Sun");
 		emit statusChanged();
@@ -326,13 +348,91 @@ void Sunspots::setHmiPhotosphereEnabled(const bool enable)
 
 void Sunspots::setAutoDownload(bool enable)
 {
-	// Disabling automatic updates is safe during a job and lets Cancel stop future polling.
-	if ((isBusy() && enable) || autoDownload_ == enable) return;
+	// Changes affect subsequent jobs; Cancel can still disable future polling immediately.
+	if (autoDownload_ == enable) return;
 	autoDownload_ = enable;
 	conf_->setValue("Sunspots/auto_download", enable);
 	emit autoDownloadChanged(enable);
-	if (enable && hmiPhotosphereEnabled) pollTime();
-	else if (!enable && tooFastWarning_) showError({});
+	if (!isBusy())
+	{
+		if (enable && hmiPhotosphereEnabled) pollTime();
+		else if (!enable && tooFastWarning_) showError({});
+	}
+}
+
+void Sunspots::setContinuousUseCacheOnly(bool enable)
+{
+	if (continuousUseCacheOnly_ == enable) return;
+	continuousUseCacheOnly_ = enable;
+	conf_->setValue("Sunspots/continuous_use_cache_only", enable);
+	if (!enable) cacheEmptyError_ = false;
+	emit continuousUseCacheOnlyChanged(enable);
+	emit statusChanged();
+}
+
+void Sunspots::setDeleteFitsAfterMakingTexture(bool enable)
+{
+	if (deleteFitsAfterMakingTexture_ == enable) return;
+	deleteFitsAfterMakingTexture_ = enable;
+	conf_->setValue("Sunspots/delete_fits_after_making_texture", enable);
+	emit deleteFitsAfterMakingTextureChanged(enable);
+}
+
+void Sunspots::clearCache()
+{
+	if (cacheClearPending_ || cacheDir_.isEmpty()) return;
+	QScopedValueRollback<bool> clearing(cacheClearPending_, true);
+	cacheClearProtectedBaseNames_.clear();
+	if (isBusy() && jobRecord_.time.isValid()) cacheClearProtectedBaseNames_.insert(jobRecord_.cacheBaseName());
+	// The modal confirmation runs an event loop. Existing jobs may select an image or finish
+	// there; useRecord() adds their identities to the protection set until clearing completes.
+	if (dialog_->confirmCacheRemoval(hmiPhotosphereEnabled && displayedRecord_.time.isValid(), isBusy()))
+	{
+		if (hmiPhotosphereEnabled && displayedRecord_.time.isValid())
+			cacheClearProtectedBaseNames_.insert(displayedRecord_.cacheBaseName());
+		removeCachedFiles(cacheClearProtectedBaseNames_);
+	}
+	cacheClearProtectedBaseNames_.clear();
+	autoUpdateTimer_.start(60000);
+}
+
+void Sunspots::removeCachedFiles(const QSet<QString>& protectedBaseNames)
+{
+	QStringList errors;
+	const QDir dir(cacheDir_);
+	for (const QFileInfo& file : dir.entryInfoList(QDir::Files | QDir::Hidden | QDir::System))
+	{
+		const Record record = recordFromCacheFileName(file.fileName());
+		if (!record.time.isValid() || protectedBaseNames.contains(record.cacheBaseName())) continue;
+		QFile cachedFile(file.absoluteFilePath());
+		if (!cachedFile.remove())
+		{
+			const QString error = q_("Cannot remove cached file %1: %2")
+			                      .arg(file.fileName(), cachedFile.errorString());
+			qCWarning(sunspots).noquote() << error;
+			errors.append(error);
+		}
+	}
+	if (lastReadyRecord_.time.isValid() && !QFileInfo::exists(dataPath(lastReadyRecord_, ".png")) &&
+	    !QFileInfo::exists(dataPath(lastReadyRecord_, ".fits"))) lastReadyRecord_ = {};
+	refreshCache();
+	if (hmiPhotosphereEnabled && continuousUseCacheOnly_ && cachedRecords_.isEmpty()) cacheEmptyError_ = true;
+	showError(errors.join('\n'));
+	emit statusChanged();
+}
+
+void Sunspots::removeFitsSource(const Record& record)
+{
+	// Read the setting here, rather than capturing it at job start: it can be changed during preparation.
+	if (!deleteFitsAfterMakingTexture_) return;
+	QFile source(dataPath(record, ".fits"));
+	if (source.exists() && !source.remove())
+	{
+		textureCleanupError_ = q_("Cannot remove FITS source %1: %2")
+		                       .arg(source.fileName(), source.errorString());
+		qCWarning(sunspots).noquote() << textureCleanupError_;
+		showError(textureCleanupError_);
+	}
 }
 
 void Sunspots::setMaxImageAgeMinutes(int minutes)
@@ -438,10 +538,10 @@ bool Sunspots::imageNeedsUpdate(const Record& record) const
 	return std::abs(simulatedTai - imageTai) * 1440. >= maxImageAgeMinutes_;
 }
 
-Sunspots::Record Sunspots::usableCachedRecord() const
+Sunspots::Record Sunspots::usableCachedRecord(bool allowStale) const
 {
 	if (cacheDir_.isEmpty()) return {};
-	if (!imageNeedsUpdate(lastReadyRecord_) && QFileInfo::exists(dataPath(lastReadyRecord_, ".png")))
+	if (!allowStale && !imageNeedsUpdate(lastReadyRecord_) && QFileInfo::exists(dataPath(lastReadyRecord_, ".png")))
 		return lastReadyRecord_;
 
 	Record best;
@@ -450,21 +550,14 @@ Sunspots::Record Sunspots::usableCachedRecord() const
 	for (const QFileInfo& file : dir.entryInfoList({QStringLiteral("*.png"), QStringLiteral("*.fits")}, QDir::Files))
 	{
 		if (file.size() == 0) continue;
-		const QString cacheBaseName = file.completeBaseName();
-		if (cacheBaseName.size() <= 20 || cacheBaseName.at(19) != '_') continue;
-		Record record;
-		record.series = cacheBaseName.mid(20);
-		if (record.series != finalSeries && record.series != nrtSeries) continue;
-		record.observation = cacheBaseName.left(19);
-		record.observation.replace('-', ':');
-		record.observation += "_TAI";
-		record.time = parseObservationTime(record.observation);
-		if (!record.time.isValid() || record.cacheBaseName() != cacheBaseName || imageNeedsUpdate(record)) continue;
+		const Record record = recordFromCacheFileName(file.fileName());
+		if (!record.time.isValid() || (!allowStale && imageNeedsUpdate(record))) continue;
 		const double distance = std::abs(StelUtils::qDateTimeToJd(record.time) - simulatedTai);
 		const double bestDistance = best.time.isValid()
 		                            ? std::abs(StelUtils::qDateTimeToJd(best.time) - simulatedTai) : 0.;
 		if (!best.time.isValid() || distance < bestDistance ||
-		    (distance == bestDistance && record.series == finalSeries && best.series != finalSeries))
+		    (distance == bestDistance && ((record.series == finalSeries && best.series != finalSeries) ||
+		     (record.series == best.series && record.time < best.time))))
 			best = record;
 	}
 	return best;
@@ -485,7 +578,8 @@ void Sunspots::refreshCache()
 			cacheSizeBytes_ += file.size();
 			if (file.size() == 0 || file.suffix() == "csv") continue;
 			const QString baseName = file.completeBaseName();
-			if (baseName.size() <= 20 || baseName.at(19) != '_') continue;
+			Record record = recordFromCacheFileName(file.fileName());
+			if (!record.time.isValid()) continue;
 			const bool png = file.suffix() == "png";
 			auto existing = records.find(baseName);
 			if (existing != records.end())
@@ -493,14 +587,6 @@ void Sunspots::refreshCache()
 				existing->hasCachedPng |= png;
 				continue;
 			}
-			Record record;
-			record.series = baseName.mid(20);
-			if (record.series != finalSeries && record.series != nrtSeries) continue;
-			record.observation = baseName.left(19);
-			record.observation.replace('-', ':');
-			record.observation += "_TAI";
-			record.time = parseObservationTime(record.observation);
-			if (!record.time.isValid() || record.cacheBaseName() != baseName) continue;
 			record.hasCachedPng = png;
 			records.insert(baseName, record);
 		}
@@ -511,19 +597,20 @@ void Sunspots::refreshCache()
 			return a.series < b.series;
 		});
 	}
+	if (!cachedRecords_.isEmpty()) cacheEmptyError_ = false;
 	emit cacheChanged();
 }
 
 void Sunspots::pollTime()
 {
-	if (!hmiPhotosphereEnabled || !autoDownload_) return;
+	if (!hmiPhotosphereEnabled || !autoDownload_ || isBusy() || cacheClearPending_) return;
 	if (isFast())
 	{
 		showTooFastWarning();
 		return;
 	}
 	if (tooFastWarning_) showError({});
-	if (isBusy() || autoUpdateTimer_.isActive()) return;
+	if (autoUpdateTimer_.isActive()) return;
 	if (!imageNeedsUpdate(displayedRecord_))
 	{
 		autoUpdateTimer_.start(60000);
@@ -553,8 +640,12 @@ void Sunspots::beginJob(ProgressKind kind)
 	Q_ASSERT(!isBusy());
 	cancellationToken_ = std::make_shared<std::atomic_bool>(false);
 	prepareTextureForJob_ = hmiPhotosphereEnabled;
+	autoDownloadForJob_ = autoDownload_;
+	cacheOnlyForJob_ = continuousUseCacheOnly_;
 	jobRecord_ = {};
 	queryError_.clear();
+	textureCleanupError_.clear();
+	cacheEmptyError_ = false;
 	showError({});
 	showProgress(kind, 0);
 }
@@ -602,14 +693,20 @@ QString Sunspots::dataPath(const Record& record, const QString& suffix) const
 
 void Sunspots::ensureUsableImage()
 {
-	if (isBusy()) return;
+	if (isBusy() || cacheClearPending_ || cacheDir_.isEmpty()) return;
+	if (autoDownload_ && hmiPhotosphereEnabled && isFast())
+	{
+		showTooFastWarning();
+		return;
+	}
 	canceledCacheBaseName_.clear();
 	if (hmiPhotosphereEnabled && !imageNeedsUpdate(displayedRecord_))
 	{
 		autoUpdateTimer_.start(60000);
 		return;
 	}
-	const Record cached = usableCachedRecord();
+	refreshCache();
+	const Record cached = usableCachedRecord(continuousUseCacheOnly_);
 	if (cached.time.isValid())
 	{
 		if (hmiPhotosphereEnabled && cached.cacheBaseName() != displayedRecord_.cacheBaseName())
@@ -620,19 +717,27 @@ void Sunspots::ensureUsableImage()
 		else autoUpdateTimer_.start(60000);
 		return;
 	}
+	if (continuousUseCacheOnly_)
+	{
+		cacheEmptyError_ = true;
+		showError({});
+		emit statusChanged();
+		autoUpdateTimer_.start(60000);
+		return;
+	}
 	queryAvailability();
 }
 
 void Sunspots::downloadForSimTime()
 {
-	if (isBusy()) return;
+	if (isBusy() || cacheClearPending_) return;
 	canceledCacheBaseName_.clear();
 	queryAvailability(true, true);
 }
 
 void Sunspots::downloadLatest()
 {
-	if (isBusy()) return;
+	if (isBusy() || cacheClearPending_) return;
 	setAutoDownload(false);
 	canceledCacheBaseName_.clear();
 	queryAvailability(true, true, true);
@@ -640,7 +745,7 @@ void Sunspots::downloadLatest()
 
 void Sunspots::displayCachedImage(const QString& cacheBaseName)
 {
-	if (isBusy()) return;
+	if (isBusy() || cacheClearPending_) return;
 	refreshCache();
 	for (const Record& cached : cachedRecords_)
 	{
@@ -649,6 +754,7 @@ void Sunspots::displayCachedImage(const QString& cacheBaseName)
 		setAutoDownload(false);
 		canceledCacheBaseName_.clear();
 		beginJob(ProgressKind::Loading);
+		cacheOnlyForJob_ = true;
 		if (!hmiPhotosphereEnabled) setHmiPhotosphereEnabled(true);
 		useRecord(record);
 		return;
@@ -687,13 +793,15 @@ void Sunspots::cancelCurrentOperation()
 
 void Sunspots::queryAvailability(bool userRequested, bool forceImageUpdate, bool latest)
 {
-	if (isBusy() || cacheDir_.isEmpty()) return;
+	if (isBusy() || cacheClearPending_ || cacheDir_.isEmpty()) return;
 	if (!userRequested && autoDownload_ && hmiPhotosphereEnabled && isFast())
 	{
 		showTooFastWarning();
 		return;
 	}
 	beginJob(ProgressKind::Fetching);
+	// An explicit Download command bypasses the automatic cache-only policy.
+	if (userRequested) cacheOnlyForJob_ = false;
 	forceImageUpdateForJob_ = forceImageUpdate;
 	latestForJob_ = latest;
 	if (forceImageUpdate && !hmiPhotosphereEnabled) setHmiPhotosphereEnabled(true);
@@ -810,7 +918,7 @@ void Sunspots::acceptAvailability()
 	qCInfo(sunspots).noquote() << "Selected" << selected.series << selected.observation;
 	emit statusChanged();
 	if (!tooFastWarning_) showError(queryError_);
-	if (!forceImageUpdateForJob_ && autoDownload_ && prepareTextureForJob_ && isFast())
+	if (!forceImageUpdateForJob_ && autoDownloadForJob_ && prepareTextureForJob_ && isFast())
 	{
 		showTooFastWarning();
 		finishJob();
@@ -829,6 +937,7 @@ void Sunspots::useRecord(const Record& record)
 	}
 	canceledCacheBaseName_.clear();
 	jobRecord_ = record;
+	if (cacheClearPending_) cacheClearProtectedBaseNames_.insert(record.cacheBaseName());
 	if (QFileInfo::exists(dataPath(record, ".png")))
 	{
 		startImageLoad(record);
@@ -839,7 +948,14 @@ void Sunspots::useRecord(const Record& record)
 		startTexturePreparation(record);
 		return;
 	}
-	startDownload(record);
+	if (cacheOnlyForJob_)
+	{
+		refreshCache();
+		cacheEmptyError_ = cachedRecords_.isEmpty();
+		showError(q_("Cached image is no longer available: %1").arg(record.cacheBaseName()));
+		finishJob();
+	}
+	else startDownload(record);
 }
 
 void Sunspots::startDownload(const Record& record)
@@ -986,6 +1102,7 @@ void Sunspots::startTexturePreparation(const Record& record)
 			}
 			else if (saveMetadata(record, result.metadata))
 			{
+				removeFitsSource(record);
 				refreshCache();
 				startImageLoad(record);
 			}
@@ -1026,7 +1143,10 @@ void Sunspots::startImageLoad(const Record& record)
 				GETSTELMODULE(SolarSystem)->setTextureForPlanet("Sun", image);
 				displayedRecord_ = record;
 			}
-			showError(queryError_);
+			QStringList errors;
+			if (!queryError_.isEmpty()) errors.append(queryError_);
+			if (!textureCleanupError_.isEmpty()) errors.append(textureCleanupError_);
+			showError(errors.join('\n'));
 			finishJob();
 		}, Qt::QueuedConnection);
 	}));

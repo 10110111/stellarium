@@ -22,12 +22,14 @@
 #include "StelApp.hpp"
 #include "StelCore.hpp"
 #include "StelGui.hpp"
+#include "StelMainView.hpp"
 #include "StelModuleMgr.hpp"
 #include "StelUtils.hpp"
 #include "ui_sunspotsDialog.h"
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLocale>
+#include <QMessageBox>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QTreeWidgetItem>
@@ -80,6 +82,16 @@ SunspotsDialog::~SunspotsDialog()
 {
 }
 
+bool SunspotsDialog::confirmCacheRemoval(bool keepDisplayedImage, bool keepJobImages)
+{
+	QString message = keepDisplayedImage ? q_("Delete all cached images except the currently displayed image?") :
+	                                       q_("Delete all cached images?");
+	if (keepJobImages) message += "\n\n" + q_("Files needed by the running operation will be kept.");
+	message += "\n\n" + q_("Deleted FITS, PNG, and CSV files cannot be recovered.");
+	return QMessageBox::question(&StelMainView::getInstance(), q_("Clear cache"), message,
+	                             QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel) == QMessageBox::Yes;
+}
+
 void SunspotsDialog::retranslate()
 {
 	if(dialog)
@@ -113,12 +125,16 @@ void SunspotsDialog::createDialogContent()
 	ui_->progressBar->hide();
 	ui_->cancelButton->hide();
 	ui_->errorLabel->hide();
+	ui_->cacheEmptyError->hide();
 	connectBoolProperty(ui_->hmiPhotosphereEnabled, "Sunspots.hmiPhotosphereEnabled");
 	connectBoolProperty(ui_->autoDownloadCB, "Sunspots.autoDownload");
+	connectBoolProperty(ui_->continuousUseCacheOnly, "Sunspots.continuousUseCacheOnly");
+	connectBoolProperty(ui_->deleteFitsAfterMakingTexture, "Sunspots.deleteFitsAfterMakingTexture");
 	connectIntProperty(ui_->maxImageAgeSpinBox, "Sunspots.maxImageAgeMinutes");
 	connect(ui_->downloadForSimTimeBtn, &QPushButton::clicked, sunspots_, &Sunspots::downloadForSimTime);
 	connect(ui_->downloadLatestBtn, &QPushButton::clicked, sunspots_, &Sunspots::downloadLatest);
 	connect(ui_->cancelButton, &QPushButton::clicked, sunspots_, &Sunspots::cancelCurrentOperation);
+	connect(ui_->clearCacheBtn, &QPushButton::clicked, sunspots_, &Sunspots::clearCache);
 	connect(ui_->cacheListFilter, &QLineEdit::textChanged, this, &SunspotsDialog::filterCacheList);
 	connect(ui_->cachedImageList, &QTreeWidget::itemDoubleClicked, this, [this](QTreeWidgetItem* item, int)
 	{
@@ -149,7 +165,6 @@ void SunspotsDialog::updateStatus()
 	const bool busy = sunspots_->isBusy();
 	const bool fetching = sunspots_->progressKind() == Sunspots::ProgressKind::Fetching;
 	ui_->hmiPhotosphereEnabled->setEnabled(!sunspots_->isCanceling());
-	ui_->autoDownloadCB->setEnabled(!busy);
 	ui_->maxImageAgeSpinBox->setEnabled(!busy);
 	ui_->downloadForSimTimeBtn->setEnabled(!busy);
 	ui_->downloadLatestBtn->setEnabled(!busy);
@@ -161,6 +176,7 @@ void SunspotsDialog::updateStatus()
 	ui_->progressBar->setValue(sunspots_->progressValue());
 	ui_->errorLabel->setText(sunspots_->errorText());
 	ui_->errorLabel->setVisible(!sunspots_->errorText().isEmpty());
+	ui_->cacheEmptyError->setVisible(sunspots_->hasEmptyCacheError());
 	updateImageTimes();
 }
 
@@ -262,6 +278,8 @@ void SunspotsDialog::updateCacheList()
 	ui_->cachedImageList->setSortingEnabled(sorting);
 	const int count = sunspots_->cachedRecords().size();
 	const QString size = QLocale().formattedDataSize(sunspots_->cacheSizeBytes(), 1, QLocale::DataSizeIecFormat);
+	ui_->cacheSizeLabel->setText(size);
+	ui_->cacheEmptyError->setVisible(sunspots_->hasEmptyCacheError());
 	ui_->cacheSummaryLabel->setText(count == 0 ? q_("No images cached") :
 	                               q_("%1 images cached (%2)").arg(count).arg(size));
 	filterCacheList();

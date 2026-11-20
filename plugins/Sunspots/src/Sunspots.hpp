@@ -47,6 +47,11 @@ class Sunspots : public StelModule
 	Q_PROPERTY(bool dialogVisible READ isDialogVisible WRITE setDialogVisible NOTIFY dialogToggled)
 	Q_PROPERTY(bool hmiPhotosphereEnabled READ isHmiPhotosphereEnabled WRITE setHmiPhotosphereEnabled NOTIFY hmiPhotosphereToggled)
 	Q_PROPERTY(bool autoDownload READ isAutoDownload WRITE setAutoDownload NOTIFY autoDownloadChanged)
+	Q_PROPERTY(bool continuousUseCacheOnly READ isContinuousUseCacheOnly WRITE setContinuousUseCacheOnly
+	           NOTIFY continuousUseCacheOnlyChanged)
+	Q_PROPERTY(bool deleteFitsAfterMakingTexture READ isDeleteFitsAfterMakingTexture
+	           WRITE setDeleteFitsAfterMakingTexture
+	           NOTIFY deleteFitsAfterMakingTextureChanged)
 	Q_PROPERTY(int maxImageAgeMinutes READ getMaxImageAgeMinutes WRITE setMaxImageAgeMinutes
 	           NOTIFY maxImageAgeMinutesChanged)
 public:
@@ -73,6 +78,15 @@ public:
 	bool isDialogVisible() const { return dialogVisible; }
 	bool isHmiPhotosphereEnabled() const { return hmiPhotosphereEnabled; }
 	bool isAutoDownload() const { return autoDownload_; }
+	//! Whether automatic selection is restricted to cached images.
+	bool isContinuousUseCacheOnly() const { return continuousUseCacheOnly_; }
+	//! Whether to remove a FITS source after successfully caching its texture and metadata.
+	bool isDeleteFitsAfterMakingTexture() const { return deleteFitsAfterMakingTexture_; }
+	//! Whether a cache-only selection failed because the cache was empty.
+	bool hasEmptyCacheError() const
+	{
+		return cacheEmptyError_ && hmiPhotosphereEnabled && continuousUseCacheOnly_;
+	}
 	int getMaxImageAgeMinutes() const { return maxImageAgeMinutes_; }
 	//! Date and time of the image currently applied to the Sun, or N/A when none is shown.
 	QString displayedTimeText() const;
@@ -102,6 +116,12 @@ public slots:
 	void setDialogVisible(bool enable);
 	void setHmiPhotosphereEnabled(bool enable);
 	void setAutoDownload(bool enable);
+	//! Change the policy for subsequent automatic selections, including while a job is running.
+	void setContinuousUseCacheOnly(bool enable);
+	//! Change the cleanup policy, which is read when a running job reaches FITS cleanup.
+	void setDeleteFitsAfterMakingTexture(bool enable);
+	//! Confirm cache clearing, preserving the displayed image and files needed by ongoing work.
+	void clearCache();
 	//! Set the maximum absolute distance between simulation time and the displayed image's T_OBS, in minutes.
 	void setMaxImageAgeMinutes(int minutes);
 	//! Fetch availability and apply the nearest observation regardless of the current image's age.
@@ -119,6 +139,8 @@ signals:
 	void dialogToggled(bool enabled);
 	void hmiPhotosphereToggled(bool enabled);
 	void autoDownloadChanged(bool enabled);
+	void continuousUseCacheOnlyChanged(bool enabled);
+	void deleteFitsAfterMakingTextureChanged(bool enabled);
 	void maxImageAgeMinutesChanged(int minutes);
 	void statusChanged();
 	//! Completed cache entries may have been added or removed.
@@ -141,25 +163,36 @@ private:
 	void showProgress(ProgressKind kind, int value);
 	void removeDownloadProgressBar();
 	void finishJob();
+	void removeCachedFiles(const QSet<QString>& protectedBaseNames);
+	void removeFitsSource(const Record& record);
 	QString dataPath(const Record& record, const QString& suffix) const;
 	bool saveMetadata(const Record& record, const QMap<QString, QString>& metadata);
 	QMap<QString, QString> readMetadata(const Record& record) const;
 	bool isFast() const;
 	bool imageNeedsUpdate(const Record& record) const;
-	Record usableCachedRecord() const;
+	Record usableCachedRecord(bool allowStale = false) const;
 
 	QSettings* conf_;
 	bool dialogVisible = false;
 	bool hmiPhotosphereEnabled = false;
 	bool autoDownload_ = false;
+	bool continuousUseCacheOnly_ = false;
+	bool deleteFitsAfterMakingTexture_ = false;
+	bool cacheEmptyError_ = false;
+	bool cacheClearPending_ = false;
+	//! Jobs that finish or select their observation during the confirmation must remain protected.
+	QSet<QString> cacheClearProtectedBaseNames_;
 	int maxImageAgeMinutes_ = 180;
 	//! Keep preparing the texture if Show is switched off after the job has begun.
 	bool prepareTextureForJob_ = false;
 	bool forceImageUpdateForJob_ = false;
 	bool latestForJob_ = false;
+	bool autoDownloadForJob_ = false;
+	bool cacheOnlyForJob_ = false;
 	QString cacheDir_;
 	QString error_;
 	QString queryError_;
+	QString textureCleanupError_;
 	bool tooFastWarning_ = false;
 	ProgressKind progressKind_ = ProgressKind::None;
 	int progressValue_ = 0;
