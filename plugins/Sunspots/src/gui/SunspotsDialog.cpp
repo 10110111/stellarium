@@ -199,11 +199,16 @@ void SunspotsDialog::updateCacheList()
 		items.insert(item->data(0, Qt::UserRole).toString(), item);
 	}
 	const QString displayed = sunspots_->displayedCacheBaseName();
+	QTreeWidgetItem* insertedActiveItem = nullptr;
 	for (const auto& record : records)
 	{
 		const QString baseName = record.cacheBaseName();
 		auto item = items.take(baseName);
-		if (!item) item = new CachedImageItem(ui_->cachedImageList);
+		if (!item)
+		{
+			item = new CachedImageItem(ui_->cachedImageList);
+			if (baseName == activeBaseName) insertedActiveItem = item;
+		}
 		item->setData(0, Qt::UserRole, baseName);
 		item->setData(0, Qt::UserRole + 1, record.time);
 		item->setText(0, sunspots_->observationTimeText(record));
@@ -265,6 +270,7 @@ void SunspotsDialog::updateCacheList()
 	                               q_("%1 images cached (%2)").arg(count).arg(size));
 	filterCacheList();
 	if (firstInsertion) ui_->cachedImageList->resizeColumnToContents(0);
+	if (insertedActiveItem) ui_->cachedImageList->scrollToItem(insertedActiveItem);
 }
 
 void SunspotsDialog::filterCacheList()
