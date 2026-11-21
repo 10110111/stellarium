@@ -409,7 +409,6 @@ void Sunspots::removeCachedFiles(const QSet<QString>& protectedBaseNames)
 		{
 			const QString error = q_("Cannot remove cached file %1: %2")
 			                      .arg(file.fileName(), cachedFile.errorString());
-			qCWarning(sunspots).noquote() << error;
 			errors.append(error);
 		}
 	}
@@ -430,7 +429,6 @@ void Sunspots::removeFitsSource(const Record& record)
 	{
 		textureCleanupError_ = q_("Cannot remove FITS source %1: %2")
 		                       .arg(source.fileName(), source.errorString());
-		qCWarning(sunspots).noquote() << textureCleanupError_;
 		showError(textureCleanupError_);
 	}
 }
@@ -621,6 +619,7 @@ void Sunspots::pollTime()
 
 void Sunspots::showError(const QString& error)
 {
+	if (!error.isEmpty()) qCWarning(sunspots).noquote() << error;
 	if (error_ == error && !tooFastWarning_) return;
 	tooFastWarning_ = false;
 	error_ = error;
@@ -632,6 +631,7 @@ void Sunspots::showTooFastWarning()
 	if (tooFastWarning_) return;
 	tooFastWarning_ = true;
 	error_.clear();
+	qCWarning(sunspots).noquote() << errorText();
 	emit statusChanged();
 }
 
