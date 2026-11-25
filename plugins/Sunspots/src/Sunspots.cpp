@@ -51,12 +51,25 @@
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
+#include <functional>
+#include <utility>
 #include <fitsio.h>
 
 Q_LOGGING_CATEGORY(sunspots, "stel.plugin.Sunspots", QtInfoMsg)
 
 namespace
 {
+// QRunnable::create() is only available since Qt 5.15; support Qt 5.12 as well.
+class FunctionRunnable final : public QRunnable
+{
+public:
+	explicit FunctionRunnable(std::function<void()> function) : function_(std::move(function)) {}
+	void run() override { function_(); }
+
+private:
+	std::function<void()> function_;
+};
+
 const QString finalSeries = QStringLiteral("hmi.Ic_noLimbDark_720s");
 const QString nrtSeries = QStringLiteral("hmi.Ic_noLimbDark_720s_nrt");
 const QString phiSeries = QStringLiteral("solo_L2_phi-fdt-icnt");
@@ -1637,7 +1650,7 @@ void Sunspots::finalizeSource(const Record& record)
 	showProgress(ProgressKind::PreparingTexture, 0);
 	const QString source = intermediatePath(record);
 	workerRunning_ = true;
-	workers_.start(QRunnable::create([this, record, source]
+	workers_.start(new FunctionRunnable([this, record, source]
 	{
 		Record finished = record;
 		QString error;
@@ -1700,7 +1713,7 @@ void Sunspots::startTexturePreparation(const Record& record)
 		if (!metadata.contains(it.key())) metadata.insert(it.key(), it.value());
 	const auto token = cancellationToken_;
 	workerRunning_ = true;
-	workers_.start(QRunnable::create([this, record, sourcePath, pngPath, metadata, token]
+	workers_.start(new FunctionRunnable([this, record, sourcePath, pngPath, metadata, token]
 	{
 		const auto result = SunspotsImage::prepareTexture(sourcePath, pngPath, metadata,
 			[this, token](SunspotsImage::PreparationStage stage, int value)
@@ -1743,7 +1756,7 @@ void Sunspots::startImageLoad(const Record& record)
 	const auto token = cancellationToken_;
 	showProgress(ProgressKind::Loading, 0);
 	workerRunning_ = true;
-	workers_.start(QRunnable::create([this, record, path, token]
+	workers_.start(new FunctionRunnable([this, record, path, token]
 	{
 		QString error;
 		const QImage image = SunspotsImage::loadTexture(path, &error, [token] { return token->load(); });

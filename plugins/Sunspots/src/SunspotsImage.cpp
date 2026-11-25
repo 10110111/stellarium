@@ -639,14 +639,14 @@ SunspotsImage::Result SunspotsImage::prepareTexture(const QString& sourcePath, c
 	IntensityHistogram histogram{};
 	constexpr int reprojectionProgressPercent = 90;
 	QImage image = reproject(fits, histogram, result,
-		[&reportProgress](int value)
+		[&reportProgress, reprojectionProgressPercent](int value)
 		{
 			reportProgress(PreparationStage::Preparing, reprojectionProgressPercent * value / 100);
 		},
 		isCancelled);
 	if (image.isNull()) return result;
 	if (!colorizeAndIndex(image, histogram, result,
-		[&reportProgress](int value)
+		[&reportProgress, reprojectionProgressPercent](int value)
 		{
 			reportProgress(PreparationStage::Preparing,
 			               reprojectionProgressPercent + (100 - reprojectionProgressPercent) * value / 100);
