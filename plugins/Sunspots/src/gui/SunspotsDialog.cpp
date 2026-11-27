@@ -199,7 +199,12 @@ void SunspotsDialog::updateStatus()
 {
 	const bool busy = sunspots_->isBusy();
 	const bool fetching = sunspots_->progressKind() == Sunspots::ProgressKind::Fetching;
-	ui_->instrumentGroup->setEnabled(!busy);
+	// Keep the displayed image information selectable while an update is running.
+	for (auto button : {ui_->hmiRadioButton, ui_->phiRadioButton})
+	{
+		button->setEnabled(!busy);
+		button->setToolTip(busy ? q_("An image update is in progress.") : QString());
+	}
 	const QSignalBlocker blockHmi(ui_->hmiRadioButton), blockPhi(ui_->phiRadioButton);
 	ui_->hmiRadioButton->setChecked(sunspots_->getInstrument() == Sunspots::Instrument::HMI);
 	ui_->phiRadioButton->setChecked(sunspots_->getInstrument() == Sunspots::Instrument::PHI);
@@ -228,7 +233,7 @@ void SunspotsDialog::updateImageTimes()
 	const auto core = StelApp::getInstance().getCore();
 	const bool realTime = core->getIsTimeNow() && core->getRealTimeSpeed();
 	ui_->downloadForSimTimeBtn->setVisible(!realTime && core->getJD() < StelUtils::getJDFromSystem());
-	ui_->groupBox->setTitle(sunspots_->displayedImageTitle());
+	ui_->imageGroup->setTitle(sunspots_->displayedImageTitle());
 	ui_->displayedTime->setText(sunspots_->displayedTimeText());
 	ui_->displayedImageAge->setText(sunspots_->displayedImageAgeText());
 	updateCacheList();
